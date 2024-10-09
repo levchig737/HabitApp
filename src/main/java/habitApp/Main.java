@@ -1,5 +1,7 @@
 package habitApp;
 
+import habitApp.ConsoleApp.ConsoleApp;
+
 /**
  * Main класс приложения
  * Запускает конслольное приложение
