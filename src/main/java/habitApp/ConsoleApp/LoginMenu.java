@@ -1,6 +1,8 @@
 package habitApp.ConsoleApp;
 
 import habitApp.models.User;
+import habitApp.services.HabitService;
+import habitApp.services.HabitTrackingService;
 import habitApp.services.UserService;
 
 import java.util.Scanner;
@@ -11,13 +13,19 @@ import java.util.Scanner;
 public class LoginMenu implements Menu {
     private final UserService userService;
     private User currentUser;
+    private final HabitService habitService;
+    private final HabitTrackingService habitTrackingService;
+
 
     /**
      * Конструктор LoginMenu
      * @param userService UserService
      */
-    public LoginMenu(UserService userService) {
+    public LoginMenu(UserService userService, HabitService habitService,
+                     HabitTrackingService habitTrackingService) {
         this.userService = userService;
+        this.habitService = habitService;
+        this.habitTrackingService = habitTrackingService;
     }
 
     /**
@@ -27,7 +35,11 @@ public class LoginMenu implements Menu {
     @Override
     public void show(Scanner scanner) {
         while (true) {
-            System.out.println("1. Зарегистрироваться\n2. Авторизоваться\n3. Выйти");
+            System.out.println("""
+                    МЕНЮ АВТОРИЗАЦИИ
+                    1. Зарегистрироваться
+                    2. Авторизоваться
+                    3. Выйти""");
             int choice = scanner.nextInt();
             switch (choice) {
                 case 1 -> register(scanner);
@@ -74,7 +86,7 @@ public class LoginMenu implements Menu {
         try {
             currentUser = userService.loginUser(email, password);
             System.out.println("Авторизация прошла успешно.");
-            new MainMenu(userService, currentUser).show(scanner);
+            new MainMenu(userService, currentUser, habitService, habitTrackingService).show(scanner);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }

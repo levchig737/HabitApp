@@ -1,4 +1,6 @@
 package habitApp.ConsoleApp;
+import habitApp.services.HabitService;
+import habitApp.services.HabitTrackingService;
 import habitApp.services.UserService;
 import java.util.Scanner;
 
@@ -13,7 +15,9 @@ public class ConsoleApp {
      */
     public void run() {
         UserService userService = new UserService();
-        LoginMenu loginMenu = new LoginMenu(userService);
+        HabitService habitService = new HabitService();
+        HabitTrackingService habitTrackingService = new HabitTrackingService();
+        LoginMenu loginMenu = new LoginMenu(userService, habitService, habitTrackingService);
         loginMenu.show(new Scanner(System.in));
     }
 }

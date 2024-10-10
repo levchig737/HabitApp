@@ -25,13 +25,16 @@ public class ProfileMenu implements Menu{
     @Override
     public void show(Scanner scanner) {
         while (true) {
-            System.out.println("1. Обновить данные\n2. Удалить аккаунт\n3. Выйти из аккаунта \n4. Вернутся в главное меню");
+            System.out.println("""
+                    МЕНЮ ПРОФИЛЯ
+                    1. Обновить данные
+                    2. Удалить аккаунт
+                    3. Назад""");
             int choice = scanner.nextInt();
             switch (choice) {
                 case 1 -> updateCurrentUser(scanner);
                 case 2 -> deleteCurrentUser(scanner);
-                case 3 -> unLogin();
-                case 4 -> new MainMenu(userService, currentUser).show(scanner);
+                case 3 -> {return;}
                 default -> System.out.println("Нет такого варианта. Попробуйте еще раз.");
             }
         }
@@ -66,15 +69,5 @@ public class ProfileMenu implements Menu{
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    /**
-     * Выход из аккаунта пользователя.
-     * Переход в
-     */
-    private void unLogin() {
-        System.out.println("Выход из аккаунта...");
-        // Вернуться в меню авторизации
-        new LoginMenu(userService).show(new Scanner(System.in));
     }
 }

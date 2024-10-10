@@ -1,6 +1,8 @@
 package habitApp.ConsoleApp;
 
 import habitApp.models.User;
+import habitApp.services.HabitService;
+import habitApp.services.HabitTrackingService;
 import habitApp.services.UserService;
 
 import java.util.Scanner;
@@ -10,15 +12,21 @@ import java.util.Scanner;
  */
 public class MainMenu implements Menu {
     private final UserService userService;
-    private final User currentUser;
+    private User currentUser;
+    private final HabitService habitService;
+    private final HabitTrackingService habitTrackingService;
 
     /**
      * Конструктор MainMenu
      * @param userService UserService
+     * @param currentUser текущий пользователь
      */
-    public MainMenu(UserService userService, User currentUser) {
+    public MainMenu(UserService userService, User currentUser, HabitService habitService,
+                    HabitTrackingService habitTrackingService) {
         this.userService = userService;
         this.currentUser = currentUser;
+        this.habitService = habitService;
+        this.habitTrackingService = habitTrackingService;
     }
 
     /**
@@ -28,13 +36,18 @@ public class MainMenu implements Menu {
     @Override
     public void show(Scanner scanner) {
         while (true) {
-            System.out.println("1. \n2. Изменить профиль\n3. Меню админа\n4. Выйти из аккаунта");
+            System.out.println("""
+                    ГЛАВНОЕ МЕНЮ
+                    1. Меню привычек
+                    2. Изменить профиль
+                    3. Меню админа
+                    4. Выйти из аккаунта""");
             int choice = scanner.nextInt();
             switch (choice) {
-                case 1 -> {return;}
+                case 1 -> new HabitMenu(habitService, habitTrackingService, currentUser).show(scanner);
                 case 2 -> new ProfileMenu(userService, currentUser).show(scanner);
                 case 3 -> new AdminMenu(userService).show(scanner);
-                case 4 -> unLogin();
+                case 4 -> {unLogin(); return;}
                 default -> System.out.println("Нет такого варианта. Попробуйте еще раз.");
             }
         }
@@ -42,12 +55,14 @@ public class MainMenu implements Menu {
 
     /**
      * Выход из аккаунта пользователя.
-     * Переход в
+     * Переход в LoginMenu
      */
     private void unLogin() {
         System.out.println("Выход из аккаунта...");
-        // Вернуться в меню авторизации
-        new LoginMenu(userService).show(new Scanner(System.in));
+        userService.unLoginUser();
+        currentUser = null;
+//        new LoginMenu(userService).show(new Scanner(System.in));
+        return;
     }
 }
 

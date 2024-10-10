@@ -27,14 +27,20 @@ public class AdminMenu implements Menu {
     @Override
     public void show(Scanner scanner) {
         while (true) {
-            System.out.println("1. Получить пользователя по email\n2. Получить всех пользователей\n3. Обновить пользователя по email\n4. Удалить пользователя по email\n5. Вернуться в главное меню");
+            System.out.println("""
+                    МЕНЮ АДМИНА
+                    1. Получить пользователя по email
+                    2. Получить всех пользователей
+                    3. Обновить пользователя по email
+                    4. Удалить пользователя по email
+                    5. Вернуться в главное меню""");
             int choice = scanner.nextInt();
             switch (choice) {
                 case 1 -> getUserByEmail(scanner);
                 case 2 -> getAllUsers();
                 case 3 -> updateUserByEmail(scanner);
                 case 4 -> deleteUser(scanner);
-                case 5 -> {return;} // Возвращаемся в главное меню
+                case 5 -> {return;}
                 default -> System.out.println("Нет такого варианта. Попробуйте еще раз.");
             }
         }
@@ -61,8 +67,9 @@ public class AdminMenu implements Menu {
     private void getAllUsers() {
         try {
             List<User> users = userService.getAllUsers();
-            for (User user : users) {
-                System.out.println(user.toString());
+
+            for (int i = 0; i < users.size(); i++) {
+                System.out.println(i + 1 + " " + users.get(i).toString() + ",");
             }
         } catch (IllegalAccessException e) {
             System.out.println(e.getMessage());
