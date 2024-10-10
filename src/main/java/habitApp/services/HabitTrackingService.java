@@ -3,8 +3,7 @@ package habitApp.services;
 import habitApp.models.Habit;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Сервис для отслеживания выполнения привычек и генерации статистики
@@ -31,11 +30,25 @@ public class HabitTrackingService {
     }
 
     /**
-     * Получить количество выполнений привычки
-     * @param habit привычка, по которой нужно получить статистику
-     * @return количество выполнений привычки
+     * Генерация статистики выполнения привычки за указанный период (день, неделя, месяц)
+     * @param habit привычка
+     * @param period период ("day", "week", "month")
+     * @return статистика выполнения привычки
      */
-    public int getCompletionCount(Habit habit) {
-        return habit.getCompletionHistory().size();
+    public int generateHabitStatistics(Habit habit, String period) {
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = switch (period.toLowerCase()) {
+            case "day" -> now.minusDays(1);
+            case "week" -> now.minusWeeks(1);
+            case "month" -> now.minusMonths(1);
+            default -> throw new IllegalArgumentException("Неверный период. Используйте 'day', 'week' или 'month'.");
+        };
+
+        // Подсчитываем количество выполнений за указанный период
+        List<LocalDate> completionsInPeriod = habit.getCompletionHistory().stream()
+                .filter(date -> !date.isBefore(startDate) && !date.isAfter(now))
+                .toList();
+
+        return completionsInPeriod.size();
     }
 }

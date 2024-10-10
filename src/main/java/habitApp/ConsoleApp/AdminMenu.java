@@ -1,23 +1,32 @@
 package habitApp.ConsoleApp;
 
+import habitApp.models.Habit;
 import habitApp.models.User;
+import habitApp.services.HabitService;
 import habitApp.services.UserService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Класс отображения меню админа
  */
 public class AdminMenu implements Menu {
     private final UserService userService;
+    private final HabitService habitService;
+    private final User currentUser;
 
     /**
      * Конструктор AdminMenu
      * @param userService UserService
+     * @param habitService HabitService
      */
-    public AdminMenu(UserService userService) {
+    public AdminMenu(UserService userService, HabitService habitService, User currentUser) {
         this.userService = userService;
+        this.habitService = habitService;
+        this.currentUser = currentUser;
     }
 
     /**
@@ -33,6 +42,7 @@ public class AdminMenu implements Menu {
                     2. Получить всех пользователей
                     3. Обновить пользователя по email
                     4. Удалить пользователя по email
+                    5. Получить все привычки
                     5. Вернуться в главное меню""");
             int choice = scanner.nextInt();
             switch (choice) {
@@ -40,7 +50,8 @@ public class AdminMenu implements Menu {
                 case 2 -> getAllUsers();
                 case 3 -> updateUserByEmail(scanner);
                 case 4 -> deleteUser(scanner);
-                case 5 -> {return;}
+                case 5 -> getAllHabits();
+                case 6 -> {return;}
                 default -> System.out.println("Нет такого варианта. Попробуйте еще раз.");
             }
         }
@@ -88,7 +99,7 @@ public class AdminMenu implements Menu {
         System.out.print("Введите новый пароль: ");
         String password = scanner.next();
         System.out.print("Введите новый флаг админа (true/false): ");
-        Boolean isAdmin = Boolean.valueOf(scanner.next());
+        boolean isAdmin = Boolean.parseBoolean(scanner.next());
 
         try {
             User user = userService.updateUserProfile(email, name, password, isAdmin);
@@ -97,6 +108,26 @@ public class AdminMenu implements Menu {
             System.out.println(e.getMessage());
         }
     }
+
+    /**
+     * Получение всех habits
+     */
+    private void getAllHabits() {
+        try {
+            Map<String, List<Habit>> habits = habitService.getAllHabitsAdmin(currentUser);
+            Set<String> setHabits = habits.keySet();
+            for ( String email : setHabits ) {
+                List<Habit> habitsList = habits.get(email);
+                System.out.println("USER:" + email);
+                for ( Habit habit : habitsList) {
+                    System.out.println(habit.toString() + ", ");
+                }
+            }
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 
     /**
      * Обновление user по email

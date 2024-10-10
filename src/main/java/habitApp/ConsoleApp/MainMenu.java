@@ -46,7 +46,7 @@ public class MainMenu implements Menu {
             switch (choice) {
                 case 1 -> new HabitMenu(habitService, habitTrackingService, currentUser).show(scanner);
                 case 2 -> new ProfileMenu(userService, currentUser).show(scanner);
-                case 3 -> new AdminMenu(userService).show(scanner);
+                case 3 -> new AdminMenu(userService, habitService, currentUser).show(scanner);
                 case 4 -> {unLogin(); return;}
                 default -> System.out.println("Нет такого варианта. Попробуйте еще раз.");
             }

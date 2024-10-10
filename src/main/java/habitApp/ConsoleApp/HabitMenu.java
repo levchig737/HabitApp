@@ -84,7 +84,7 @@ public class HabitMenu implements Menu {
         viewHabits(scanner);
         System.out.print("Выберите номер привычки для редактирования: ");
         int index = scanner.nextInt();
-        List<Habit> habits = habitService.getAllHabits();
+        List<Habit> habits = habitService.getAllHabits(currentUser);
         if (index < 1 || index > habits.size()) {
             System.out.println("Неверный выбор.");
             return;
@@ -99,7 +99,7 @@ public class HabitMenu implements Menu {
         System.out.print("Введите новую частоту (ежедневно/еженедельно): ");
         String newFrequency = scanner.next();
 
-        habitService.updateHabit(habit, newName, newDescription, newFrequency);
+        habitService.updateHabit(currentUser, habit, newName, newDescription, newFrequency);
     }
 
     /**
@@ -110,14 +110,14 @@ public class HabitMenu implements Menu {
         viewHabits(scanner);
         System.out.print("Выберите номер привычки для удаления: ");
         int index = scanner.nextInt();
-        List<Habit> habits = habitService.getAllHabits();
+        List<Habit> habits = habitService.getAllHabits(currentUser);
         if (index < 1 || index > habits.size()) {
             System.out.println("Неверный выбор.");
             return;
         }
 
         Habit habit = habits.get(index - 1);
-        habitService.deleteHabit(habit);
+        habitService.deleteHabit(currentUser, habit);
     }
 
     /**
@@ -125,13 +125,13 @@ public class HabitMenu implements Menu {
      * @param scanner поток in
      */
     private void viewHabits(Scanner scanner) {
-        List<Habit> habits = habitService.getAllHabits();
+        List<Habit> habits = habitService.getAllHabits(currentUser);
         if (habits.isEmpty()) {
             System.out.println("У вас нет привычек.");
         } else {
             System.out.println("Ваши привычки:");
             for (int i = 0; i < habits.size(); i++) {
-                System.out.println((i + 1) + "." + habits.get(i).toString() + ",");
+                System.out.println((i + 1) + ". " + habits.get(i).toString() + ",");
             }
         }
     }
@@ -144,7 +144,7 @@ public class HabitMenu implements Menu {
         viewHabits(scanner);
         System.out.print("Выберите номер привычки для отметки выполнения: ");
         int index = scanner.nextInt();
-        List<Habit> habits = habitService.getAllHabits();
+        List<Habit> habits = habitService.getAllHabits(currentUser);
         if (index < 1 || index > habits.size()) {
             System.out.println("Неверный выбор.");
             return;
@@ -168,14 +168,17 @@ public class HabitMenu implements Menu {
         viewHabits(scanner);
         System.out.print("Выберите номер привычки для просмотра статистики: ");
         int index = scanner.nextInt();
-        List<Habit> habits = habitService.getAllHabits();
+        System.out.print("Выберите промежуток привычки(day/week/month): ");
+        String period = scanner.next();
+
+        List<Habit> habits = habitService.getAllHabits(currentUser);
         if (index < 1 || index > habits.size()) {
             System.out.println("Неверный выбор.");
             return;
         }
 
         Habit habit = habits.get(index - 1);
-        int completionCount = habitTrackingService.getCompletionCount(habit);
-        System.out.println("Привычка \"" + habit.getName() + "\" была выполнена " + completionCount + " раз(а).");
+        int completionCount = habitTrackingService.generateHabitStatistics(habit, period);
+        System.out.println("Привычка " + habit.getName() + " за период " + period + " была выполнена " + completionCount + " раз(а).");
     }
 }

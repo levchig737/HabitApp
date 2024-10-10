@@ -14,22 +14,28 @@ import java.util.List;
  */
 @Getter @Setter @ToString
 public class Habit {
+    private int id;
     private String name;
     private String description;
     private String frequency; // ежедневная или еженедельная
     private LocalDate createdDate;
     private List<LocalDate> completionHistory = new ArrayList<>();
+    private User user;
 
     /**
      * Конструктор Habit
+     * @param id индекс привычки
      * @param name название привычки
      * @param description описание привычки
      * @param frequency частота выполнения привычки (ежедневно, еженедельно)
+     * @param user пользователь
      */
-    public Habit(String name, String description, String frequency) {
+    public Habit(int id, String name, String description, String frequency, User user) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.frequency = frequency;
+        this.user = user;
         this.createdDate = LocalDate.now();
     }
 
