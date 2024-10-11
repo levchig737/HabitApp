@@ -178,7 +178,11 @@ public class HabitMenu implements Menu {
         }
 
         Habit habit = habits.get(index - 1);
-        int completionCount = habitTrackingService.generateHabitStatistics(habit, period);
-        System.out.println("Привычка " + habit.getName() + " за период " + period + " была выполнена " + completionCount + " раз(а).");
+        try {
+            System.out.println(habitTrackingService.generateProgressReport(habit, period));
+        }
+        catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
