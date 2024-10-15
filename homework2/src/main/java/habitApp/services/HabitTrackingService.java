@@ -5,7 +5,6 @@ import habitApp.models.Habit;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Сервис для отслеживания выполнения привычек и генерации статистики
