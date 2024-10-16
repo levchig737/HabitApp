@@ -1,25 +1,24 @@
 package habitApp.services;
 
 import habitApp.models.User;
+import habitApp.repositories.UserRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User сервис
  * Сервис бизнес логики над User
  */
 public class UserService {
-    private final Map<String, User> users = new HashMap<>();
+    private final UserRepository userRepository;
     private User currentUser;
 
     /**
-     * Конструктор добавление админа в "бд"
+     * Конструктор с инициализацией репозитория пользователей
      */
-    public UserService() {
-        users.put("root", new User("root", "root", "root", true));
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     /**
@@ -28,13 +27,14 @@ public class UserService {
      * @param email    email
      * @param password пароль
      * @param name     имя
+     * @throws SQLException ошибка работы с БД
      */
-    public void registerUser(String email, String password, String name) {
-        if (users.containsKey(email)) {
+    public void registerUser(String email, String password, String name) throws SQLException {
+        if (userRepository.getUserByEmail(email) != null) {
             throw new IllegalArgumentException("User already exists.");
         }
         User user = new User(email, password, name);
-        users.put(email, user);
+        userRepository.registerUser(user);
     }
 
     /**
@@ -43,9 +43,10 @@ public class UserService {
      * @param email    email
      * @param password пароль
      * @return User
+     * @throws SQLException ошибка работы с БД
      */
-    public User loginUser(String email, String password) {
-        User user = users.get(email);
+    public User loginUser(String email, String password) throws SQLException {
+        User user = userRepository.getUserByEmail(email);
         if (user != null && user.getPassword().equals(password)) {
             this.currentUser = user;
             return user;
@@ -65,13 +66,14 @@ public class UserService {
      *
      * @param newName     новое имя
      * @param newPassword новый пароль
+     * @throws SQLException ошибка работы с БД
      */
-    public User updateCurrentUserProfile(String newName, String newPassword) {
+    public User updateCurrentUserProfile(String newName, String newPassword) throws SQLException {
         if (currentUser != null) {
-            User user = users.get(currentUser.getEmail());
-            user.setName(newName);
-            user.setPassword(newPassword);
-            return user;
+            currentUser.setName(newName);
+            currentUser.setPassword(newPassword);
+            userRepository.updateUser(currentUser);
+            return currentUser;
         } else {
             throw new IllegalArgumentException("User not found.");
         }
@@ -79,10 +81,12 @@ public class UserService {
 
     /**
      * Удаление текущего пользователя
+     *
+     * @throws SQLException ошибка работы с БД
      */
-    public void deleteCurrentUser() {
+    public void deleteCurrentUser() throws SQLException {
         if (currentUser != null) {
-            users.remove(currentUser.getEmail());
+            userRepository.deleteUserById(currentUser.getId());
             currentUser = null;
         } else {
             throw new IllegalArgumentException("User not found.");
@@ -93,27 +97,25 @@ public class UserService {
      * Получение user по email
      * @param email email
      * @return User
-     * @throws IllegalAccessException Только админ
+     * @throws SQLException ошибка работы с БД
      */
-    public User getUser(String email) throws IllegalAccessException {
+    public User getUser(String email) throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }
-
-        return users.get(email);
+        return userRepository.getUserByEmail(email);
     }
 
     /**
      * Получение списка всех user
      * @return список users
-     * @throws IllegalAccessException Доступ только у админа
+     * @throws SQLException ошибка работы с БД
      */
-    public List<User> getAllUsers() throws IllegalAccessException {
+    public List<User> getAllUsers() throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }
-
-        return new ArrayList<>(users.values());
+        return userRepository.getAllUsers();
     }
 
     /**
@@ -122,17 +124,18 @@ public class UserService {
      * @param email       email
      * @param newName     новое имя
      * @param newPassword новый пароль
-     * @throws IllegalAccessException Доступ только у админа
+     * @throws SQLException ошибка работы с БД
      */
-    public User updateUserProfile(String email, String newName, String newPassword, boolean isAdmin) throws IllegalAccessException {
+    public User updateUserProfile(String email, String newName, String newPassword, boolean isAdmin) throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }
-        User user = users.get(email);
+        User user = userRepository.getUserByEmail(email);
         if (user != null) {
             user.setName(newName);
             user.setPassword(newPassword);
             user.setAdmin(isAdmin);
+            userRepository.updateUser(user);
             return user;
         } else {
             throw new IllegalArgumentException("User not found.");
@@ -141,16 +144,13 @@ public class UserService {
 
     /**
      * Удаление user
-     * @param email email
-     * @throws IllegalAccessException Доступ только у админа
+     * @param id id user
+     * @throws SQLException ошибка работы с БД
      */
-    public void deleteUser(String email) throws IllegalAccessException {
+    public void deleteUser(int id) throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }
-        if (!users.containsKey(email)) {
-            throw new IllegalArgumentException("User not found.");
-        }
-        users.remove(email);
+        userRepository.deleteUserById(id);
     }
 }

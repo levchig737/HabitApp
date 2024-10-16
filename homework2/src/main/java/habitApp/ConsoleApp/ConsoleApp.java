@@ -1,7 +1,12 @@
 package habitApp.ConsoleApp;
+import habitApp.database.Database;
+import habitApp.repositories.HabitComletionHistoryRepository;
+import habitApp.repositories.HabitRepository;
+import habitApp.repositories.UserRepository;
 import habitApp.services.HabitService;
-import habitApp.services.HabitTrackingService;
 import habitApp.services.UserService;
+
+import java.sql.Connection;
 import java.util.Scanner;
 
 
@@ -14,10 +19,15 @@ public class ConsoleApp {
      * Меню авторизации
      */
     public void run() {
-        UserService userService = new UserService();
-        HabitService habitService = new HabitService();
-        HabitTrackingService habitTrackingService = new HabitTrackingService();
-        LoginMenu loginMenu = new LoginMenu(userService, habitService, habitTrackingService);
+        // Репозитории
+        UserRepository userRepository = new UserRepository();
+        HabitRepository habitRepository = new HabitRepository();
+        HabitComletionHistoryRepository habitComletionHistoryRepository = new HabitComletionHistoryRepository();
+
+        // Сервисы
+        UserService userService = new UserService(userRepository);
+        HabitService habitService = new HabitService(habitRepository, habitComletionHistoryRepository);
+        LoginMenu loginMenu = new LoginMenu(userService, habitService);
         loginMenu.show(new Scanner(System.in));
     }
 }

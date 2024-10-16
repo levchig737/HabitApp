@@ -5,6 +5,7 @@ import habitApp.models.User;
 import habitApp.services.HabitService;
 import habitApp.services.UserService;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -67,7 +68,7 @@ public class AdminMenu implements Menu {
         try {
             User user = userService.getUser(email);
             System.out.println(user.toString());
-        } catch (IllegalAccessException e) {
+        } catch (SQLException | IllegalAccessException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -82,7 +83,7 @@ public class AdminMenu implements Menu {
             for (int i = 0; i < users.size(); i++) {
                 System.out.println(i + 1 + " " + users.get(i).toString() + ",");
             }
-        } catch (IllegalAccessException e) {
+        } catch (SQLException | IllegalAccessException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -104,7 +105,7 @@ public class AdminMenu implements Menu {
         try {
             User user = userService.updateUserProfile(email, name, password, isAdmin);
             System.out.println(user.toString());
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -114,33 +115,29 @@ public class AdminMenu implements Menu {
      */
     private void getAllHabits() {
         try {
-            Map<String, List<Habit>> habits = habitService.getAllHabitsAdmin(currentUser);
-            Set<String> setHabits = habits.keySet();
-            for ( String email : setHabits ) {
-                List<Habit> habitsList = habits.get(email);
-                System.out.println("USER:" + email);
-                for ( Habit habit : habitsList) {
+            List<Habit> habits = habitService.getAllHabitsAdmin(currentUser);
+                for ( Habit habit : habits) {
                     System.out.println(habit.toString() + ", ");
                 }
             }
-        } catch (IllegalAccessException e) {
+        catch (IllegalAccessException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
 
     /**
-     * Обновление user по email
+     * Обновление user по id
      * @param scanner поток in
      */
     private void deleteUser(Scanner scanner) {
-        System.out.print("Введите email: ");
-        String email = scanner.next();
+        System.out.print("Введите id: ");
+        int id = scanner.nextInt();
 
         try {
-            userService.deleteUser(email);
-            System.out.println("Пользователь " + email + " удален");
-        } catch (IllegalAccessException e) {
+            userService.deleteUser(id);
+            System.out.println("Пользователь " + id + " удален");
+        } catch (IllegalAccessException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }

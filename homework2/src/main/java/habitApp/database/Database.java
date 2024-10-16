@@ -19,28 +19,29 @@ public class Database {
 
     private static final String LIQUIBASE_CHANGELOG = "db/changelog/changelog.xml";
 
-    public static void ConnectToDB() {
+    public static Connection connectToDB() {
         // Создаем подключение к базе данных
         try (Connection connection = connectToDatabase()) {
             System.out.println("Connected to the database.");
 
             // Запускаем миграции Liquibase
             runLiquibaseMigrations(connection);
+            return connection;
 
         } catch (SQLException | LiquibaseException e) {
             // Выводим полный стек ошибок
 //            e.printStackTrace();
             System.out.println("Exception: " + e.getMessage());
         }
+        return null;
     }
 
     /**
      * Подключение к базе данных PostgreSQL
-     *
      * @return Connection объект подключения к базе данных
      * @throws SQLException в случае ошибок подключения
      */
-    private static Connection connectToDatabase() throws SQLException {
+    public static Connection connectToDatabase() throws SQLException {
         System.out.println("Attempting to connect to database...");
         Connection connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
         System.out.println("Successfully connected to the database.");
@@ -64,6 +65,20 @@ public class Database {
             // Выполняем миграции (changelog)
             liquibase.update(new Contexts());
             System.out.println("Liquibase migrations applied successfully.");
+        }
+    }
+
+    /**
+     * Закрытие соединения с базой данных
+     */
+    public static void closeConnection(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.close();
+                System.out.println("Connection closed.");
+            } catch (SQLException e) {
+                System.out.println("Error while closing connection: " + e.getMessage());
+            }
         }
     }
 }

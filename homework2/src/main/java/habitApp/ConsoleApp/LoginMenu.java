@@ -2,9 +2,9 @@ package habitApp.ConsoleApp;
 
 import habitApp.models.User;
 import habitApp.services.HabitService;
-import habitApp.services.HabitTrackingService;
 import habitApp.services.UserService;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 /**
@@ -14,18 +14,15 @@ public class LoginMenu implements Menu {
     private final UserService userService;
     private User currentUser;
     private final HabitService habitService;
-    private final HabitTrackingService habitTrackingService;
 
 
     /**
      * Конструктор LoginMenu
      * @param userService UserService
      */
-    public LoginMenu(UserService userService, HabitService habitService,
-                     HabitTrackingService habitTrackingService) {
+    public LoginMenu(UserService userService, HabitService habitService) {
         this.userService = userService;
         this.habitService = habitService;
-        this.habitTrackingService = habitTrackingService;
     }
 
     /**
@@ -68,7 +65,7 @@ public class LoginMenu implements Menu {
         try {
             userService.registerUser(email, password, name);
             System.out.println("Регистрация прошла успешно.");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -86,8 +83,8 @@ public class LoginMenu implements Menu {
         try {
             currentUser = userService.loginUser(email, password);
             System.out.println("Авторизация прошла успешно.");
-            new MainMenu(userService, currentUser, habitService, habitTrackingService).show(scanner);
-        } catch (IllegalArgumentException e) {
+            new MainMenu(userService, currentUser, habitService).show(scanner);
+        } catch (IllegalArgumentException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }

@@ -1,8 +1,8 @@
 package habitApp.ConsoleApp;
 
 import habitApp.models.User;
+import habitApp.repositories.HabitComletionHistoryRepository;
 import habitApp.services.HabitService;
-import habitApp.services.HabitTrackingService;
 import habitApp.services.UserService;
 
 import java.util.Scanner;
@@ -14,19 +14,17 @@ public class MainMenu implements Menu {
     private final UserService userService;
     private User currentUser;
     private final HabitService habitService;
-    private final HabitTrackingService habitTrackingService;
 
     /**
      * Конструктор MainMenu
-     * @param userService UserService
-     * @param currentUser текущий пользователь
+     *
+     * @param userService                     UserService
+     * @param currentUser                     текущий пользователь
      */
-    public MainMenu(UserService userService, User currentUser, HabitService habitService,
-                    HabitTrackingService habitTrackingService) {
+    public MainMenu(UserService userService, User currentUser, HabitService habitService) {
         this.userService = userService;
         this.currentUser = currentUser;
         this.habitService = habitService;
-        this.habitTrackingService = habitTrackingService;
     }
 
     /**
@@ -44,7 +42,7 @@ public class MainMenu implements Menu {
                     4. Выйти из аккаунта""");
             int choice = scanner.nextInt();
             switch (choice) {
-                case 1 -> new HabitMenu(habitService, habitTrackingService, currentUser).show(scanner);
+                case 1 -> new HabitMenu(habitService, currentUser).show(scanner);
                 case 2 -> new ProfileMenu(userService, currentUser).show(scanner);
                 case 3 -> new AdminMenu(userService, habitService, currentUser).show(scanner);
                 case 4 -> {unLogin(); return;}

@@ -3,9 +3,10 @@ package habitApp.ConsoleApp;
 import habitApp.models.Habit;
 import habitApp.models.User;
 import habitApp.services.HabitService;
-import habitApp.services.HabitTrackingService;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -13,18 +14,16 @@ import java.util.Scanner;
  */
 public class HabitMenu implements Menu {
     private final HabitService habitService;
-    private final HabitTrackingService habitTrackingService;
     private final User currentUser;
 
     /**
      * Конструктор HabitMenu
-     * @param habitService сервис для управления привычками
-     * @param habitTrackingService сервис для отслеживания выполнения привычек
-     * @param currentUser текущий пользователь
+     *
+     * @param habitService                    сервис для управления привычками
+     * @param currentUser                     текущий пользователь
      */
-    public HabitMenu(HabitService habitService, HabitTrackingService habitTrackingService, User currentUser) {
+    public HabitMenu(HabitService habitService, User currentUser) {
         this.habitService = habitService;
-        this.habitTrackingService = habitTrackingService;
         this.currentUser = currentUser;
     }
 
@@ -73,7 +72,11 @@ public class HabitMenu implements Menu {
         System.out.print("Введите частоту (ежедневно/еженедельно): ");
         String frequency = scanner.next();
 
-        habitService.createHabit(currentUser, name, description, frequency);
+        try {
+            habitService.createHabit(currentUser, name, description, frequency);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -84,8 +87,13 @@ public class HabitMenu implements Menu {
         viewHabits(scanner);
         System.out.print("Выберите номер привычки для редактирования: ");
         int index = scanner.nextInt();
-        List<Habit> habits = habitService.getAllHabits(currentUser);
-        if (index < 1 || index > habits.size()) {
+        List<Habit> habits = null;
+        try {
+            habits = habitService.getAllHabits(currentUser);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        if (index < 1 || index > Objects.requireNonNull(habits).size()) {
             System.out.println("Неверный выбор.");
             return;
         }
@@ -99,7 +107,11 @@ public class HabitMenu implements Menu {
         System.out.print("Введите новую частоту (ежедневно/еженедельно): ");
         String newFrequency = scanner.next();
 
-        habitService.updateHabit(currentUser, habit, newName, newDescription, newFrequency);
+        try {
+            habitService.updateHabit(habit, newName, newDescription, newFrequency);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -110,14 +122,23 @@ public class HabitMenu implements Menu {
         viewHabits(scanner);
         System.out.print("Выберите номер привычки для удаления: ");
         int index = scanner.nextInt();
-        List<Habit> habits = habitService.getAllHabits(currentUser);
-        if (index < 1 || index > habits.size()) {
+        List<Habit> habits = null;
+        try {
+            habits = habitService.getAllHabits(currentUser);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        if (index < 1 || index > Objects.requireNonNull(habits).size()) {
             System.out.println("Неверный выбор.");
             return;
         }
 
         Habit habit = habits.get(index - 1);
-        habitService.deleteHabit(currentUser, habit);
+        try {
+            habitService.deleteHabit(habit);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -125,12 +146,17 @@ public class HabitMenu implements Menu {
      * @param scanner поток in
      */
     private void viewHabits(Scanner scanner) {
-        List<Habit> habits = habitService.getAllHabits(currentUser);
-        if (habits.isEmpty()) {
+        List<Habit> habits = null;
+        try {
+            habits = habitService.getAllHabits(currentUser);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        if (habits != null && habits.isEmpty()) {
             System.out.println("У вас нет привычек.");
         } else {
             System.out.println("Ваши привычки:");
-            for (int i = 0; i < habits.size(); i++) {
+            for (int i = 0; i < Objects.requireNonNull(habits).size(); i++) {
                 System.out.println((i + 1) + ". " + habits.get(i).toString() + ",");
             }
         }
@@ -144,7 +170,12 @@ public class HabitMenu implements Menu {
         viewHabits(scanner);
         System.out.print("Выберите номер привычки для отметки выполнения: ");
         int index = scanner.nextInt();
-        List<Habit> habits = habitService.getAllHabits(currentUser);
+        List<Habit> habits = null;
+        try {
+            habits = habitService.getAllHabits(currentUser);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
         if (index < 1 || index > habits.size()) {
             System.out.println("Неверный выбор.");
             return;
@@ -152,10 +183,10 @@ public class HabitMenu implements Menu {
 
         Habit habit = habits.get(index - 1);
         try {
-            habitTrackingService.markHabitAsCompleted(habit);
+            habitService.markHabitAsCompleted(habit);
             System.out.println("Привычка \"" + habit.getName() + "\" отмечена как выполненная.");
         }
-        catch (IllegalArgumentException e) {
+        catch (IllegalArgumentException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -171,17 +202,22 @@ public class HabitMenu implements Menu {
         System.out.print("Выберите промежуток привычки(day/week/month): ");
         String period = scanner.next();
 
-        List<Habit> habits = habitService.getAllHabits(currentUser);
-        if (index < 1 || index > habits.size()) {
+        List<Habit> habits = null;
+        try {
+            habits = habitService.getAllHabits(currentUser);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        if (index < 1 || index > Objects.requireNonNull(habits).size()) {
             System.out.println("Неверный выбор.");
             return;
         }
 
         Habit habit = habits.get(index - 1);
         try {
-            System.out.println(habitTrackingService.generateProgressReport(habit, period));
+            System.out.println(habitService.generateProgressReport(habit, period));
         }
-        catch (IllegalArgumentException e) {
+        catch (IllegalArgumentException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }

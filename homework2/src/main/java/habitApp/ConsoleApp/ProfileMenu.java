@@ -3,6 +3,7 @@ package habitApp.ConsoleApp;
 import habitApp.models.User;
 import habitApp.services.UserService;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class ProfileMenu implements Menu{
@@ -53,7 +54,7 @@ public class ProfileMenu implements Menu{
         try {
             User user = userService.updateCurrentUserProfile(name, password);
             System.out.println(user.toString());
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -66,7 +67,7 @@ public class ProfileMenu implements Menu{
         try {
             userService.deleteCurrentUser();
             System.out.println("Ваш аккаунт был удален.");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | SQLException e) {
             System.out.println(e.getMessage());
         }
     }
