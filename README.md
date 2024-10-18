@@ -3,4 +3,3 @@
 - [Реляционная модель](https://github.com/levchig737/intensivJavaYLAB//tree/main/Реляционная модель.png)
 ## Домашние задания
 1. [ДЗ №1](https://github.com/levchig737/intensivJavaYLAB//tree/main/homework1)
-2. [ДЗ №2](https://github.com/levchig737/intensivJavaYLAB//tree/main/homework2) 
