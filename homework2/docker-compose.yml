@@ -1,0 +1,16 @@
+version: '1'
+services:
+  postgres:
+    image: postgres:14
+    container_name: habit_db
+    environment:
+      POSTGRES_DB: habit_app
+      POSTGRES_USER: habit_app
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
