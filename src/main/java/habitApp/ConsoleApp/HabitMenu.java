@@ -1,6 +1,7 @@
 package habitApp.ConsoleApp;
 
 import habitApp.models.Habit;
+import habitApp.models.Period;
 import habitApp.models.User;
 import habitApp.services.HabitService;
 
@@ -69,12 +70,12 @@ public class HabitMenu implements Menu {
         String name = scanner.next();
         System.out.print("Введите описание привычки: ");
         String description = scanner.next();
-        System.out.print("Введите частоту (ежедневно/еженедельно): ");
-        String frequency = scanner.next();
+        System.out.print("Введите частоту (day/week/month): ");
+        String frequency_str = scanner.next();
 
         try {
-            habitService.createHabit(currentUser, name, description, frequency);
-        } catch (SQLException e) {
+            habitService.createHabit(currentUser, name, description, Period.fromString(frequency_str));
+        } catch (SQLException | IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -104,12 +105,12 @@ public class HabitMenu implements Menu {
         String newName = scanner.next();
         System.out.print("Введите новое описание: ");
         String newDescription = scanner.next();
-        System.out.print("Введите новую частоту (ежедневно/еженедельно): ");
+        System.out.print("Введите новую частоту (day/week/month): ");
         String newFrequency = scanner.next();
 
         try {
-            habitService.updateHabit(habit, newName, newDescription, newFrequency);
-        } catch (SQLException e) {
+            habitService.updateHabit(habit, newName, newDescription, Period.fromString(newFrequency));
+        } catch (SQLException | IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -200,7 +201,7 @@ public class HabitMenu implements Menu {
         System.out.print("Выберите номер привычки для просмотра статистики: ");
         int index = scanner.nextInt();
         System.out.print("Выберите промежуток привычки(day/week/month): ");
-        String period = scanner.next();
+        String period_str = scanner.next();
 
         List<Habit> habits = null;
         try {
@@ -215,7 +216,7 @@ public class HabitMenu implements Menu {
 
         Habit habit = habits.get(index - 1);
         try {
-            System.out.println(habitService.generateProgressReport(habit, period));
+            System.out.println(habitService.generateProgressReport(habit, Period.fromString(period_str)));
         }
         catch (IllegalArgumentException | SQLException e) {
             System.out.println(e.getMessage());

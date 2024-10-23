@@ -1,6 +1,7 @@
 package habitApp.services;
 
 import habitApp.models.Habit;
+import habitApp.models.Period;
 import habitApp.models.User;
 import habitApp.repositories.HabitComletionHistoryRepository;
 import habitApp.repositories.HabitRepository;
@@ -32,8 +33,8 @@ public class HabitService {
      * @param frequency частота выполнения привычки
      * @throws SQLException ошибка работы с БД
      */
-    public void createHabit(User user, String name, String description, String frequency) throws SQLException {
-        Habit habit = new Habit(name, description, frequency, LocalDate.now(), user.getId());
+    public void createHabit(User user, String name, String description, Period frequency) throws SQLException {
+        Habit habit = new Habit(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
         habitRepository.createHabit(habit);
         System.out.println("Привычка \"" + name + "\" создана для пользователя " + user.getEmail() + ".");
     }
@@ -46,10 +47,10 @@ public class HabitService {
      * @param newFrequency новая частота выполнения
      * @throws SQLException ошибка работы с БД
      */
-    public void updateHabit(Habit habit, String newName, String newDescription, String newFrequency) throws SQLException {
+    public void updateHabit(Habit habit, String newName, String newDescription, Period newFrequency) throws SQLException {
         habit.setName(newName);
         habit.setDescription(newDescription);
-        habit.setFrequency(newFrequency);
+        habit.setFrequency(newFrequency.getPeriodName());
         habitRepository.updateHabit(habit);
         System.out.println("Привычка обновлена: " + habit.getName());
     }
@@ -112,9 +113,9 @@ public class HabitService {
      * @param period период ("day", "week", "month")
      * @return статистика выполнения привычки
      */
-    public int calculateHabitCompletedByPeriod(Habit habit, String period) throws SQLException {
+    public int calculateHabitCompletedByPeriod(Habit habit, Period period) throws SQLException {
         LocalDate now = LocalDate.now();
-        LocalDate startDate = switch (period.toLowerCase()) {
+        LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
             case "day" -> now.minusDays(1);
             case "week" -> now.minusWeeks(1);
             case "month" -> now.minusMonths(1);
@@ -173,9 +174,9 @@ public class HabitService {
      * @param period период ("day", "week", "month")
      * @return процент успешного выполнения привычки
      */
-    public double calculateCompletionPercentage(Habit habit, String period) throws SQLException {
+    public double calculateCompletionPercentage(Habit habit, Period period) throws SQLException {
         LocalDate now = LocalDate.now();
-        LocalDate startDate = switch (period.toLowerCase()) {
+        LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
             case "day" -> now.minusDays(1);
             case "week" -> now.minusWeeks(1);
             case "month" -> now.minusMonths(1);
@@ -199,7 +200,7 @@ public class HabitService {
      * @param period период ("day", "week", "month")
      * @return отчет о прогрессе
      */
-    public String generateProgressReport(Habit habit, String period) throws SQLException {
+    public String generateProgressReport(Habit habit, Period period) throws SQLException {
         int streak = calculateCurrentStreak(habit);
         double completionPercentage = calculateCompletionPercentage(habit, period);
         int completionCount = calculateHabitCompletedByPeriod(habit, period);
