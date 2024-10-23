@@ -8,7 +8,7 @@
 
         <changeSet id="1" author="levchig737">
             <createTable tableName="habit">
-                <column name="id" type="SERIAL">
+                <column name="id" type="BIGINT">
                     <constraints primaryKey="true" nullable="false"/>
                 </column>
                 <column name="name" type="VARCHAR(255)">

@@ -9,18 +9,21 @@
     <!-- Заполнение таблицы users данными -->
     <changeSet id="5-1" author="levchig737">
         <insert tableName="users">
+            <column name="id" valueNumeric="1"/>
             <column name="name" value="root"/>
             <column name="email" value="root"/>
             <column name="password" value="root"/>
             <column name="is_admin" valueBoolean="true"/>
         </insert>
         <insert tableName="users">
+            <column name="id" valueNumeric="2"/>
             <column name="name" value="user"/>
             <column name="email" value="user"/>
             <column name="password" value="user"/>
             <column name="is_admin" valueBoolean="false"/>
         </insert>
         <insert tableName="users">
+            <column name="id" valueNumeric="3"/>
             <column name="name" value="Bob"/>
             <column name="email" value="bob@example.com"/>
             <column name="password" value="1234"/>
@@ -31,6 +34,7 @@
     <!-- Заполнение таблицы habit данными -->
     <changeSet id="6-1" author="levchig737">
         <insert tableName="habits">
+            <column name="id" valueNumeric="1"/>
             <column name="name" value="Daily Exercise"/>
             <column name="description" value="Morning workout routine"/>
             <column name="frequency" value="day"/>
@@ -38,6 +42,7 @@
             <column name="user_id" value="1"/> <!-- ID пользователя root -->
         </insert>
         <insert tableName="habits">
+            <column name="id" valueNumeric="2"/>
             <column name="name" value="Reading"/>
             <column name="description" value="Read one book per month"/>
             <column name="frequency" value="month"/>
@@ -45,6 +50,7 @@
             <column name="user_id" value="2"/> <!-- ID пользователя user -->
         </insert>
         <insert tableName="habits">
+            <column name="id" valueNumeric="3"/>
             <column name="name" value="Yoga"/>
             <column name="description" value="Practice yoga every evening"/>
             <column name="frequency" value="day"/>
@@ -56,14 +62,17 @@
     <!-- Заполнение таблицы habit_completion_history -->
     <changeSet id="7-1" author="levchig737">
         <insert tableName="habit_completion_history">
+            <column name="id" valueNumeric="1"/>
             <column name="habit_id" value="1"/> <!-- ID привычки Daily Exercise -->
             <column name="user_id" value="1"/> <!-- ID пользователя root -->
         </insert>
         <insert tableName="habit_completion_history">
+            <column name="id" valueNumeric="2"/>
             <column name="habit_id" value="2"/> <!-- ID привычки Reading -->
             <column name="user_id" value="2"/> <!-- ID пользователя user -->
         </insert>
         <insert tableName="habit_completion_history">
+            <column name="id" valueNumeric="3"/>
             <column name="habit_id" value="3"/> <!-- ID привычки Yoga -->
             <column name="user_id" value="3"/> <!-- ID пользователя Bob -->
         </insert>

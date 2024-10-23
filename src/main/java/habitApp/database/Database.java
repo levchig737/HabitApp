@@ -8,16 +8,32 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class Database {
-    private static final String JDBC_URL = "jdbc:postgresql://localhost:5431/habit_app";
-    private static final String USERNAME = "habit_app";
-    private static final String PASSWORD = "1234";
+    private static final String JDBC_URL;
+    private static final String USERNAME;
+    private static final String PASSWORD;
 
-    private static final String LIQUIBASE_CHANGELOG = "db/changelog/changelog.xml";
+    private static final String LIQUIBASE_CHANGELOG;
+
+    static {
+        Properties properties = new Properties();
+        try (FileInputStream input = new FileInputStream("application.properties")) {
+            properties.load(input);
+            JDBC_URL = properties.getProperty("jdbc.url");
+            USERNAME = properties.getProperty("jdbc.username");
+            PASSWORD = properties.getProperty("jdbc.password");
+            LIQUIBASE_CHANGELOG = properties.getProperty("jdbc.changelog");
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load database properties", e);
+        }
+    }
 
     public static void runDB() {
         // Создаем подключение к базе данных
