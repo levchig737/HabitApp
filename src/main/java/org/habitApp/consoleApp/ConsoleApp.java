@@ -1,12 +1,10 @@
-package habitApp.ConsoleApp;
-import habitApp.database.Database;
-import habitApp.repositories.HabitComletionHistoryRepository;
-import habitApp.repositories.HabitRepository;
-import habitApp.repositories.UserRepository;
-import habitApp.services.HabitService;
-import habitApp.services.UserService;
+package org.habitApp.consoleApp;
+import org.habitApp.repositories.HabitComletionHistoryRepository;
+import org.habitApp.repositories.HabitRepository;
+import org.habitApp.repositories.UserRepository;
+import org.habitApp.services.HabitService;
+import org.habitApp.services.UserService;
 
-import java.sql.Connection;
 import java.util.Scanner;
 
 

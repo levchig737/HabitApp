@@ -1,7 +1,7 @@
-package habitApp.repositories;
+package org.habitApp.repositories;
 
-import habitApp.database.Database;
-import habitApp.models.User;
+import org.habitApp.database.Database;
+import org.habitApp.models.User;
 
 import java.sql.*;
 import java.util.ArrayList;

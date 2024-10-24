@@ -1,7 +1,7 @@
-package habitApp;
+package org.habitApp;
 
-import habitApp.ConsoleApp.ConsoleApp;
-import habitApp.database.Database;
+import org.habitApp.consoleApp.ConsoleApp;
+import org.habitApp.database.Database;
 
 /**
  * Main класс приложения

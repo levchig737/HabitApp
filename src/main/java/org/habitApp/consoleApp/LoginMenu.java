@@ -1,8 +1,8 @@
-package habitApp.ConsoleApp;
+package org.habitApp.consoleApp;
 
-import habitApp.models.User;
-import habitApp.services.HabitService;
-import habitApp.services.UserService;
+import org.habitApp.models.User;
+import org.habitApp.services.HabitService;
+import org.habitApp.services.UserService;
 
 import java.sql.SQLException;
 import java.util.Scanner;

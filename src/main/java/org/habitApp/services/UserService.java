@@ -1,7 +1,7 @@
-package habitApp.services;
+package org.habitApp.services;
 
-import habitApp.models.User;
-import habitApp.repositories.UserRepository;
+import org.habitApp.models.User;
+import org.habitApp.repositories.UserRepository;
 
 import java.sql.SQLException;
 import java.util.List;

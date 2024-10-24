@@ -1,4 +1,4 @@
-package habitApp.models;
+package org.habitApp.models;
 
 /**
  * Enum для периода

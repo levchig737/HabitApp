@@ -1,4 +1,4 @@
-package habitApp.database;
+package org.habitApp.database;
 
 import liquibase.Contexts;
 import liquibase.Liquibase;

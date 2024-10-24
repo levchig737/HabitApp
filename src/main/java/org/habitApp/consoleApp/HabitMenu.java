@@ -1,9 +1,9 @@
-package habitApp.ConsoleApp;
+package org.habitApp.consoleApp;
 
-import habitApp.models.Habit;
-import habitApp.models.Period;
-import habitApp.models.User;
-import habitApp.services.HabitService;
+import org.habitApp.models.Habit;
+import org.habitApp.models.Period;
+import org.habitApp.models.User;
+import org.habitApp.services.HabitService;
 
 import java.sql.SQLException;
 import java.util.List;

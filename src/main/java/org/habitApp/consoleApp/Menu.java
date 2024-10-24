@@ -1,7 +1,4 @@
-package habitApp.ConsoleApp;
-
-import habitApp.models.User;
-import habitApp.services.UserService;
+package org.habitApp.consoleApp;
 
 import java.util.Scanner;
 

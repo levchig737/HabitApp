@@ -1,15 +1,13 @@
-package habitApp.ConsoleApp;
+package org.habitApp.consoleApp;
 
-import habitApp.models.Habit;
-import habitApp.models.User;
-import habitApp.services.HabitService;
-import habitApp.services.UserService;
+import org.habitApp.models.Habit;
+import org.habitApp.models.User;
+import org.habitApp.services.HabitService;
+import org.habitApp.services.UserService;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 /**
  * Класс отображения меню админа

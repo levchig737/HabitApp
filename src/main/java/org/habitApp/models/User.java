@@ -1,4 +1,4 @@
-package habitApp.models;
+package org.habitApp.models;
 
 import lombok.Getter;
 import lombok.Setter;

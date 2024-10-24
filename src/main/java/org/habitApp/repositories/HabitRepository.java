@@ -1,14 +1,14 @@
-package habitApp.repositories;
+package org.habitApp.repositories;
 
-import habitApp.database.Database;
-import habitApp.models.Habit;
-import habitApp.models.User;
+import org.habitApp.database.Database;
+import org.habitApp.models.Habit;
+import org.habitApp.models.User;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static habitApp.models.Habit.mapRowToHabit;
+import static org.habitApp.models.Habit.mapRowToHabit;
 
 /**
  * Репозиторий для работы с привычками в базе данных

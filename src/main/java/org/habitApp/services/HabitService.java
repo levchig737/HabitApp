@@ -1,10 +1,11 @@
-package habitApp.services;
+package org.habitApp.services;
 
-import habitApp.models.Habit;
-import habitApp.models.Period;
-import habitApp.models.User;
-import habitApp.repositories.HabitComletionHistoryRepository;
-import habitApp.repositories.HabitRepository;
+import org.habitApp.annotations.Loggable;
+import org.habitApp.models.Habit;
+import org.habitApp.models.Period;
+import org.habitApp.models.User;
+import org.habitApp.repositories.HabitComletionHistoryRepository;
+import org.habitApp.repositories.HabitRepository;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
