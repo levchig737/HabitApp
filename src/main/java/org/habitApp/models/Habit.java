@@ -1,22 +1,16 @@
 package org.habitApp.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
+
 
 /**
  * Модель Habit (Привычка)
  * Описывает привычку пользователя, включает в себя название, описание, частоту выполнения и историю выполнения.
  */
-@Getter
-@Setter
-@ToString
 public class Habit {
     private int id;
     private String name;
@@ -24,6 +18,18 @@ public class Habit {
     private String frequency; // ежедневная или еженедельная
     private LocalDate createdDate;
     private int userId;
+
+    @Override
+    public String toString() {
+        return "Habit{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", frequency='" + frequency + '\'' +
+                ", createdDate=" + createdDate +
+                ", userId=" + userId +
+                '}';
+    }
 
     /**
      * Конструктор Habit
@@ -52,6 +58,8 @@ public class Habit {
      * @param userId пользователь id
      */
     public Habit(String name, String description, String frequency, LocalDate createdDate, int userId) {
+        Random random = new Random();
+        this.id = random.nextInt();
         this.name = name;
         this.description = description;
         this.frequency = frequency;
@@ -75,5 +83,53 @@ public class Habit {
                 resultSet.getInt("user_id")
         );
         return habit;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setFrequency(String frequency) {
+        this.frequency = frequency;
+    }
+
+    public void setCreatedDate(LocalDate createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getFrequency() {
+        return frequency;
+    }
+
+    public LocalDate getCreatedDate() {
+        return createdDate;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 }

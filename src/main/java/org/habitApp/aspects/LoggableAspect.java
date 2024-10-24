@@ -16,7 +16,7 @@ public class LoggableAspect {
         long start = System.currentTimeMillis();
         Object result = proceedingJoinPoint.proceed();
         long end = System.currentTimeMillis() - start;
-        System.out.println("Execution of method" + proceedingJoinPoint.getSignature() +
+        System.out.println("Execution of method:" + proceedingJoinPoint.getSignature() +
                 " finished. Execution time is " + end + " ms.");
 
         return result;

@@ -63,13 +63,14 @@ public class HabitRepository {
      * @throws SQLException ошибка работы с БД
      */
     public void createHabit(Habit habit) throws SQLException {
-        String sql = "INSERT INTO habits (name, description, frequency, created_date, user_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO habits (id, name, description, frequency, created_date, user_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
-            statement.setString(1, habit.getName());
-            statement.setString(2, habit.getDescription());
-            statement.setString(3, habit.getFrequency());
-            statement.setDate(4, Date.valueOf(habit.getCreatedDate()));
-            statement.setInt(5, habit.getUserId());
+            statement.setInt(1, habit.getId());
+            statement.setString(2, habit.getName());
+            statement.setString(3, habit.getDescription());
+            statement.setString(4, habit.getFrequency());
+            statement.setDate(5, Date.valueOf(habit.getCreatedDate()));
+            statement.setInt(6, habit.getUserId());
             statement.executeUpdate();
         }
     }

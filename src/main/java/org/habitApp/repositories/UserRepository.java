@@ -42,12 +42,13 @@ public class UserRepository {
      * @throws SQLException ошибка работы с БД
      */
     public void registerUser(User user) throws SQLException {
-        String sql = "INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (id, name, email, password, is_admin) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
-            statement.setString(1, user.getName());
-            statement.setString(2, user.getEmail());
-            statement.setString(3, user.getPassword());
-            statement.setBoolean(4, user.isAdmin());
+            statement.setInt(1, user.getId());
+            statement.setString(2, user.getName());
+            statement.setString(3, user.getEmail());
+            statement.setString(4, user.getPassword());
+            statement.setBoolean(5, user.isAdmin());
             statement.executeUpdate();
         }
     }

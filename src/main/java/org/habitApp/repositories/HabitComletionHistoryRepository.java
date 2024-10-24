@@ -6,6 +6,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class HabitComletionHistoryRepository {
     /**
@@ -45,11 +46,13 @@ public class HabitComletionHistoryRepository {
      * @throws SQLException ошибка работы с БД
      */
     public void addComletionDateByHabitIdUserIs(int habitId, int userId, LocalDate completionDate) throws SQLException {
-        String sql = "INSERT INTO habit_completion_history (habit_id, user_id, completion_date) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO habit_completion_history (id, habit_id, user_id, completion_date) VALUES (?, ?, ?, ?)";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
-            statement.setInt(1, habitId);
-            statement.setInt(2, userId);
-            statement.setDate(3, Date.valueOf(completionDate));
+            Random random = new Random();
+            statement.setInt(1, random.nextInt());
+            statement.setInt(2, habitId);
+            statement.setInt(3, userId);
+            statement.setDate(4, Date.valueOf(completionDate));
             statement.executeUpdate();
         }
     }
