@@ -1,26 +1,18 @@
-package org.habitApp.models;
+package org.habitApp.dto.userDto;
 
 import java.util.UUID;
 
-/**
- * Модель User
- */
-public class User {
+public class UserDto {
     private UUID id;
     private String email;
     private String password;
     private String name;
     private boolean isAdmin;
 
-    /**
-     * Конструктор User полный
-     * @param id ID пользователя
-     * @param email email
-     * @param password пароль
-     * @param name имя
-     * @param isAdmin флаг админа
-     */
-    public User(UUID id, String email, String password, String name, boolean isAdmin) {
+    public UserDto() {
+    }
+
+    public UserDto(UUID id, String email, String password, String name, boolean isAdmin) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -30,23 +22,13 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "UserDto{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
                 ", isAdmin=" + isAdmin +
                 '}';
-    }
-
-    /**
-     * Конструктор User без ID (при создании нового пользователя)
-     * @param email email
-     * @param password пароль
-     * @param name имя
-     */
-    public static User CreateUser(String email, String password, String name) {
-        return new User(UUID.randomUUID(), email, password, name, false);
     }
 
     public void setId(UUID id) {

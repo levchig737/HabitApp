@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Random;
+import java.util.UUID;
 
 
 /**
@@ -12,12 +13,12 @@ import java.util.Random;
  * Описывает привычку пользователя, включает в себя название, описание, частоту выполнения и историю выполнения.
  */
 public class Habit {
-    private int id;
+    private UUID id;
     private String name;
     private String description;
     private String frequency; // ежедневная или еженедельная
     private LocalDate createdDate;
-    private int userId;
+    private UUID userId;
 
     @Override
     public String toString() {
@@ -40,7 +41,7 @@ public class Habit {
      * @param createdDate дата создания привычки
      * @param userId пользователь id
      */
-    public Habit(int id, String name, String description, String frequency, LocalDate createdDate, int userId) {
+    public Habit(UUID id, String name, String description, String frequency, LocalDate createdDate, UUID userId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -57,14 +58,8 @@ public class Habit {
      * @param createdDate дата создания привычки
      * @param userId пользователь id
      */
-    public Habit(String name, String description, String frequency, LocalDate createdDate, int userId) {
-        Random random = new Random();
-        this.id = random.nextInt();
-        this.name = name;
-        this.description = description;
-        this.frequency = frequency;
-        this.createdDate = createdDate;
-        this.userId = userId;
+    public static Habit CreateHabit(String name, String description, String frequency, LocalDate createdDate, UUID userId) {
+        return new Habit(UUID.randomUUID(), name, description, frequency, createdDate, userId);
     }
 
     /**
@@ -75,17 +70,17 @@ public class Habit {
      */
     public static Habit mapRowToHabit(ResultSet resultSet) throws SQLException {
         Habit habit = new Habit(
-                resultSet.getInt("id"),
+                (UUID) resultSet.getObject("id"),
                 resultSet.getString("name"),
                 resultSet.getString("description"),
                 resultSet.getString("frequency"),
                 resultSet.getDate("created_date").toLocalDate(),
-                resultSet.getInt("user_id")
+                (UUID) resultSet.getObject("user_id")
         );
         return habit;
     }
 
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -105,11 +100,11 @@ public class Habit {
         this.createdDate = createdDate;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -129,7 +124,7 @@ public class Habit {
         return createdDate;
     }
 
-    public int getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 }

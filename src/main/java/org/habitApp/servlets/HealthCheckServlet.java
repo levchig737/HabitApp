@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.habitApp.annotations.Loggable;
 import org.habitApp.dto.HealthResponseDto;
-import org.habitApp.dto.enums.HealthStatus;
 import org.habitApp.services.HealthCheckService;
 
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class HealthCheckServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.setContentType("application/json");
-        HealthStatus healthStatus = healthCheckService.getHealthStatus();
+        HealthResponseDto.HealthStatus healthStatus = healthCheckService.getHealthStatus();
         HealthResponseDto healthResponseDto = new HealthResponseDto(healthStatus);
 
         byte[] bytes = objectMapper.writeValueAsBytes(healthResponseDto);

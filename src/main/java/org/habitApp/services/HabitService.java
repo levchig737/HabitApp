@@ -1,6 +1,7 @@
 package org.habitApp.services;
 
 import org.habitApp.annotations.Loggable;
+import org.habitApp.dto.habitDto.HabitReportDto;
 import org.habitApp.models.Habit;
 import org.habitApp.models.Period;
 import org.habitApp.models.User;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Сервис для управления привычками (CRUD)
@@ -28,46 +30,54 @@ public class HabitService {
 
     /**
      * Создание новой привычки
-     * @param user пользователь, создающий привычку
-     * @param name название привычки
+     *
+     * @param user        пользователь, создающий привычку
+     * @param name        название привычки
      * @param description описание привычки
-     * @param frequency частота выполнения привычки
+     * @param frequency   частота выполнения привычки
      * @throws SQLException ошибка работы с БД
      */
     public void createHabit(User user, String name, String description, Period frequency) throws SQLException {
-        Habit habit = new Habit(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
+        Habit habit = Habit.CreateHabit(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
         habitRepository.createHabit(habit);
         System.out.println("Привычка \"" + name + "\" создана для пользователя " + user.getEmail() + ".");
     }
 
     /**
      * Редактирование привычки
-     * @param habit привычка для редактирования
-     * @param newName новое название
+     *
+     * @param habitId        привычка для редактирования
+     * @param newName        новое название
      * @param newDescription новое описание
-     * @param newFrequency новая частота выполнения
+     * @param newFrequency   новая частота выполнения
      * @throws SQLException ошибка работы с БД
      */
-    public void updateHabit(Habit habit, String newName, String newDescription, Period newFrequency) throws SQLException {
-        habit.setName(newName);
-        habit.setDescription(newDescription);
-        habit.setFrequency(newFrequency.getPeriodName());
-        habitRepository.updateHabit(habit);
+    public void updateHabit(UUID habitId, String newName, String newDescription, Period newFrequency) throws SQLException {
+        Habit habit = new Habit(habitId, newName, newDescription, newFrequency.toString(), null, null);
+
+        habitRepository.updateHabit(habitId, habit);
         System.out.println("Привычка обновлена: " + habit.getName());
     }
 
     /**
      * Удаление привычки
-     * @param habit привычка для удаления
+     *
+     * @param habitId привычка для удаления
      * @throws SQLException ошибка работы с БД
      */
-    public void deleteHabit(Habit habit) throws SQLException {
-        habitRepository.deleteHabit(habit);
-        System.out.println("Привычка \"" + habit.getName() + "\" была удалена.");
+    public void deleteHabit(UUID habitId, User currentUser) throws SQLException {
+        UUID userId = habitRepository.getHabitById(habitId).getUserId();
+        if (userId == currentUser.getId()) {
+            habitRepository.deleteHabit(habitId);
+            System.out.println("Привычка \"" + habitId + "\" была удалена.");
+        } else {
+            System.out.println("Привычка не принадлежит текущему пользователю");
+        }
     }
 
     /**
      * Получение всех привычек пользователя
+     *
      * @param user текущий пользователь
      * @return список привычек пользователя
      * @throws SQLException ошибка работы с БД
@@ -78,9 +88,10 @@ public class HabitService {
 
     /**
      * Получение списка всех привычек для всех пользователей
+     *
      * @param currentUser текущий пользователь
      * @return список всех привычек
-     * @throws SQLException ошибка работы с БД
+     * @throws SQLException           ошибка работы с БД
      * @throws IllegalAccessException доступ для админа
      */
     public List<Habit> getAllHabitsAdmin(User currentUser) throws SQLException, IllegalAccessException {
@@ -92,6 +103,7 @@ public class HabitService {
 
     /**
      * Отметить привычку как выполненную
+     *
      * @param habit привычка, которую нужно отметить сегодня
      */
     public void markHabitAsCompleted(Habit habit) throws SQLException {
@@ -102,15 +114,15 @@ public class HabitService {
                 LocalDate.now())) {
             habitComletionHistoryRepository.addComletionDateByHabitIdUserIs(
                     habit.getId(), habit.getUserId(), LocalDate.now());
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Вы сегодня уже выполняли эту привычку");
         }
     }
 
     /**
      * Генерация статистики выполнения привычки за указанный период (день, неделя, месяц)
-     * @param habit привычка
+     *
+     * @param habit  привычка
      * @param period период ("day", "week", "month")
      * @return статистика выполнения привычки
      */
@@ -134,6 +146,7 @@ public class HabitService {
 
     /**
      * Подсчет текущего streak выполнения привычки
+     *
      * @param habit привычка
      * @return текущий streak
      */
@@ -171,7 +184,8 @@ public class HabitService {
 
     /**
      * Процент успешного выполнения привычки за определенный период (день, неделя, месяц)
-     * @param habit привычка
+     *
+     * @param habit  привычка
      * @param period период ("day", "week", "month")
      * @return процент успешного выполнения привычки
      */
@@ -197,18 +211,16 @@ public class HabitService {
 
     /**
      * Формирование отчета по прогрессу выполнения привычек
-     * @param habit привычка
+     *
+     * @param habit  привычка
      * @param period период ("day", "week", "month")
      * @return отчет о прогрессе
      */
-    public String generateProgressReport(Habit habit, Period period) throws SQLException {
+    public HabitReportDto generateProgressReport(Habit habit, Period period) throws SQLException {
         int streak = calculateCurrentStreak(habit);
         double completionPercentage = calculateCompletionPercentage(habit, period);
         int completionCount = calculateHabitCompletedByPeriod(habit, period);
-        return "Отчет по привычке \"" + habit.getName() + "\":\n" +
-                "Текущий streak: " + streak + " дней подряд\n" +
-                "Процент выполнения за период (" + period + "): " + String.format("%.2f", completionPercentage) + "%\n" +
-                "Привычка за период (" + period + ") была выполнена " + completionCount + " раз(а).\n" +
-                "Описание: " + habit.getDescription();
+        HabitReportDto habitReportDto = new HabitReportDto(habit.getId(), streak, completionPercentage, period, completionCount);
+        return habitReportDto;
     }
 }

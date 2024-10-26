@@ -1,6 +1,6 @@
 package org.habitApp;
 
-import org.habitApp.consoleApp.ConsoleApp;
+//import org.habitApp.consoleApp.ConsoleApp;
 import org.habitApp.database.Database;
 
 /**
@@ -9,9 +9,9 @@ import org.habitApp.database.Database;
  */
 public class Main {
     public static void main(String[] args) {
-        Database.runDB();
-        ConsoleApp consoleApp = new ConsoleApp();
-        consoleApp.run();
+//        Database.runDB();
+//        ConsoleApp consoleApp = new ConsoleApp();
+//        consoleApp.run();
     }
 
 }

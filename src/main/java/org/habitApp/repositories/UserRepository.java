@@ -6,6 +6,7 @@ import org.habitApp.models.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Репозиторий для работы с пользователями в базе данных
@@ -44,7 +45,7 @@ public class UserRepository {
     public void registerUser(User user) throws SQLException {
         String sql = "INSERT INTO users (id, name, email, password, is_admin) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
-            statement.setInt(1, user.getId());
+            statement.setObject(1, user.getId()); // Используем setObject для UUID
             statement.setString(2, user.getName());
             statement.setString(3, user.getEmail());
             statement.setString(4, user.getPassword());
@@ -83,14 +84,14 @@ public class UserRepository {
     }
 
     /**
-     * Удаление пользователя по email
+     * Удаление пользователя по id
      * @param id id пользователя
      * @throws SQLException ошибка работы с БД
      */
-    public void deleteUserById(int id) throws SQLException {
+    public void deleteUserById(UUID id) throws SQLException {
         String sql = "DELETE FROM users WHERE id = ?";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
-            statement.setInt(1, id);
+            statement.setObject(1, id); // Используем setObject для UUID
             statement.executeUpdate();
         }
     }
@@ -120,7 +121,7 @@ public class UserRepository {
      */
     private User mapRowToUser(ResultSet resultSet) throws SQLException {
         return new User(
-                resultSet.getInt("id"),
+                (UUID) resultSet.getObject("id"),
                 resultSet.getString("email"),
                 resultSet.getString("password"),
                 resultSet.getString("name"),
