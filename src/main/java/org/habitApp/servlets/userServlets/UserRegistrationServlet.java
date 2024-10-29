@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.userDto.UserDto;
+import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.repositories.UserRepository;
 import org.habitApp.services.UserService;
 

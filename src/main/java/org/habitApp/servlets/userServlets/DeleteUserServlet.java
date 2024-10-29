@@ -7,10 +7,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.habitDto.HabitMapper;
-import org.habitApp.dto.userDto.UserDto;
-import org.habitApp.dto.userDto.UserMapper;
-import org.habitApp.models.User;
+import org.habitApp.domain.dto.userDto.UserDto;
+import org.habitApp.mappers.UserMapper;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.UserRepository;
 import org.habitApp.services.UserService;
 import org.mapstruct.factory.Mappers;
@@ -38,7 +37,7 @@ public class DeleteUserServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            User currentUser = (User) req.getSession().getAttribute("user");
+            UserEntity currentUser = (UserEntity) req.getSession().getAttribute("user");
 
             UserDto userDto = objectMapper.readValue(req.getInputStream(), UserDto.class);
             userService.deleteUser(userDto.getId(), currentUser);

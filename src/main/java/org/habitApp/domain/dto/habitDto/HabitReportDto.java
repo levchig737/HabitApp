@@ -1,4 +1,4 @@
-package org.habitApp.dto.habitDto;
+package org.habitApp.domain.dto.habitDto;
 
 import org.habitApp.models.Period;
 

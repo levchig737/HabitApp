@@ -1,7 +1,7 @@
 package org.habitApp.repositories;
 
 import org.habitApp.database.Database;
-import org.habitApp.models.User;
+import org.habitApp.domain.entities.UserEntity;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class UserRepository {
      * @return User
      * @throws SQLException ошибка работы с БД
      */
-    public User getUserByEmail(String email) throws SQLException {
+    public UserEntity getUserByEmail(String email) throws SQLException {
         String sql = "SELECT * FROM users WHERE email = ?";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
             statement.setString(1, email);
@@ -42,7 +42,7 @@ public class UserRepository {
      * @param user пользователь для регистрации
      * @throws SQLException ошибка работы с БД
      */
-    public void registerUser(User user) throws SQLException {
+    public void registerUser(UserEntity user) throws SQLException {
         String sql = "INSERT INTO users (id, name, email, password, is_admin) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
             statement.setObject(1, user.getId()); // Используем setObject для UUID
@@ -59,7 +59,7 @@ public class UserRepository {
      * @param user пользователь с новыми данными
      * @throws SQLException ошибка работы с БД
      */
-    public void updateUser(User user) throws SQLException {
+    public void updateUser(UserEntity user) throws SQLException {
         String sql = "UPDATE users SET name = ?, password = ?, is_admin = ? WHERE email = ?";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
             statement.setString(1, user.getName());
@@ -101,8 +101,8 @@ public class UserRepository {
      * @return список пользователей
      * @throws SQLException ошибка работы с БД
      */
-    public List<User> getAllUsers() throws SQLException {
-        List<User> users = new ArrayList<>();
+    public List<UserEntity> getAllUsers() throws SQLException {
+        List<UserEntity> users = new ArrayList<>();
         String sql = "SELECT * FROM users";
         try (Statement statement = Database.connectToDatabase().createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
@@ -119,8 +119,8 @@ public class UserRepository {
      * @return объект User
      * @throws SQLException ошибка работы с БД
      */
-    private User mapRowToUser(ResultSet resultSet) throws SQLException {
-        return new User(
+    private UserEntity mapRowToUser(ResultSet resultSet) throws SQLException {
+        return new UserEntity(
                 (UUID) resultSet.getObject("id"),
                 resultSet.getString("email"),
                 resultSet.getString("password"),

@@ -1,10 +1,9 @@
-package org.habitApp.models;
+package org.habitApp.domain.entities;
 
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Random;
 import java.util.UUID;
 
 
@@ -12,7 +11,7 @@ import java.util.UUID;
  * Модель Habit (Привычка)
  * Описывает привычку пользователя, включает в себя название, описание, частоту выполнения и историю выполнения.
  */
-public class Habit {
+public class HabitEntity {
     private UUID id;
     private String name;
     private String description;
@@ -41,7 +40,7 @@ public class Habit {
      * @param createdDate дата создания привычки
      * @param userId пользователь id
      */
-    public Habit(UUID id, String name, String description, String frequency, LocalDate createdDate, UUID userId) {
+    public HabitEntity(UUID id, String name, String description, String frequency, LocalDate createdDate, UUID userId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -58,8 +57,8 @@ public class Habit {
      * @param createdDate дата создания привычки
      * @param userId пользователь id
      */
-    public static Habit CreateHabit(String name, String description, String frequency, LocalDate createdDate, UUID userId) {
-        return new Habit(UUID.randomUUID(), name, description, frequency, createdDate, userId);
+    public static HabitEntity CreateHabit(String name, String description, String frequency, LocalDate createdDate, UUID userId) {
+        return new HabitEntity(UUID.randomUUID(), name, description, frequency, createdDate, userId);
     }
 
     /**
@@ -68,8 +67,8 @@ public class Habit {
      * @return объект Habit
      * @throws SQLException ошибка работы с БД
      */
-    public static Habit mapRowToHabit(ResultSet resultSet) throws SQLException {
-        Habit habit = new Habit(
+    public static HabitEntity mapRowToHabit(ResultSet resultSet) throws SQLException {
+        HabitEntity habit = new HabitEntity(
                 (UUID) resultSet.getObject("id"),
                 resultSet.getString("name"),
                 resultSet.getString("description"),

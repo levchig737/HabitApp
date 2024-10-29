@@ -1,11 +1,11 @@
-package org.habitApp.models;
+package org.habitApp.domain.entities;
 
 import java.util.UUID;
 
 /**
  * Модель User
  */
-public class User {
+public class UserEntity {
     private UUID id;
     private String email;
     private String password;
@@ -20,7 +20,7 @@ public class User {
      * @param name имя
      * @param isAdmin флаг админа
      */
-    public User(UUID id, String email, String password, String name, boolean isAdmin) {
+    public UserEntity(UUID id, String email, String password, String name, boolean isAdmin) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -45,8 +45,8 @@ public class User {
      * @param password пароль
      * @param name имя
      */
-    public static User CreateUser(String email, String password, String name) {
-        return new User(UUID.randomUUID(), email, password, name, false);
+    public static UserEntity CreateUser(String email, String password, String name) {
+        return new UserEntity(UUID.randomUUID(), email, password, name, false);
     }
 
     public void setId(UUID id) {

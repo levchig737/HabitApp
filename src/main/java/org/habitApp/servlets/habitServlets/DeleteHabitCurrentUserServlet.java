@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.habitApp.annotations.Loggable;
-import org.habitApp.models.User;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
 import org.habitApp.services.HabitService;
@@ -33,7 +33,7 @@ public class DeleteHabitCurrentUserServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             HttpSession session = req.getSession(false);
-            User currentUser = (session != null) ? (User) session.getAttribute("currentUser") : null;
+            UserEntity currentUser = (session != null) ? (UserEntity) session.getAttribute("currentUser") : null;
 
             if (currentUser == null) {
                 resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

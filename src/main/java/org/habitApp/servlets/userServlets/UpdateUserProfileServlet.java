@@ -6,14 +6,11 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.userDto.UserDto;
-import org.habitApp.dto.userDto.UserMapper;
-import org.habitApp.models.User;
+import org.habitApp.domain.dto.userDto.UserDto;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.UserRepository;
 import org.habitApp.services.UserService;
-import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -37,7 +34,7 @@ public class UpdateUserProfileServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
 //            HttpSession session = req.getSession(false);
-            User currentUser = (User) req.getSession().getAttribute("user");
+            UserEntity currentUser = (UserEntity) req.getSession().getAttribute("user");
 
 
             if (currentUser == null) {

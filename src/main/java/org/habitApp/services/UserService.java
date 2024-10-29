@@ -1,6 +1,6 @@
 package org.habitApp.services;
 
-import org.habitApp.models.User;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.UserRepository;
 
 import java.sql.SQLException;
@@ -33,7 +33,7 @@ public class UserService {
         if (userRepository.getUserByEmail(email) != null) {
             throw new IllegalArgumentException("User already exists.");
         }
-        User user = User.CreateUser(email, password, name);
+        UserEntity user = UserEntity.CreateUser(email, password, name);
         userRepository.registerUser(user);
     }
 
@@ -45,8 +45,8 @@ public class UserService {
      * @return User
      * @throws SQLException ошибка работы с БД
      */
-    public User loginUser(String email, String password) throws SQLException {
-        User user = userRepository.getUserByEmail(email);
+    public UserEntity loginUser(String email, String password) throws SQLException {
+        UserEntity user = userRepository.getUserByEmail(email);
         if (user != null && user.getPassword().equals(password)) {
             return user;
         }
@@ -66,7 +66,7 @@ public class UserService {
      * @param newPassword новый пароль
      * @throws SQLException ошибка работы с БД
      */
-    public void updateCurrentUserProfile(String newName, String newPassword, User currentUser) throws SQLException {
+    public void updateCurrentUserProfile(String newName, String newPassword, UserEntity currentUser) throws SQLException {
         if (currentUser != null) {
             currentUser.setName(newName);
             currentUser.setPassword(newPassword);
@@ -81,7 +81,7 @@ public class UserService {
      *
      * @throws SQLException ошибка работы с БД
      */
-    public void deleteCurrentUser(User currentUser) throws SQLException {
+    public void deleteCurrentUser(UserEntity currentUser) throws SQLException {
         if (currentUser != null) {
             userRepository.deleteUserById(currentUser.getId());
             currentUser = null;
@@ -96,7 +96,7 @@ public class UserService {
      * @return User
      * @throws SQLException ошибка работы с БД
      */
-    public User getUser(String email, User currentUser) throws SQLException, IllegalAccessException {
+    public UserEntity getUser(String email, UserEntity currentUser) throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }
@@ -108,7 +108,7 @@ public class UserService {
      * @return список users
      * @throws SQLException ошибка работы с БД
      */
-    public List<User> getAllUsers(User currentUser) throws SQLException, IllegalAccessException {
+    public List<UserEntity> getAllUsers(UserEntity currentUser) throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }
@@ -123,11 +123,11 @@ public class UserService {
      * @param newPassword новый пароль
      * @throws SQLException ошибка работы с БД
      */
-    public User updateUserProfile(String email, String newName, String newPassword, boolean isAdmin, User currentUser) throws SQLException, IllegalAccessException {
+    public UserEntity updateUserProfile(String email, String newName, String newPassword, boolean isAdmin, UserEntity currentUser) throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }
-        User user = userRepository.getUserByEmail(email);
+        UserEntity user = userRepository.getUserByEmail(email);
         if (user != null) {
             user.setName(newName);
             user.setPassword(newPassword);
@@ -144,7 +144,7 @@ public class UserService {
      * @param id id user
      * @throws SQLException ошибка работы с БД
      */
-    public void deleteUser(UUID id, User currentUser) throws SQLException, IllegalAccessException {
+    public void deleteUser(UUID id, UserEntity currentUser) throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }

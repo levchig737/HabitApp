@@ -1,4 +1,4 @@
-package org.habitApp.dto.userDto;
+package org.habitApp.domain.dto.userDto;
 
 import java.util.UUID;
 

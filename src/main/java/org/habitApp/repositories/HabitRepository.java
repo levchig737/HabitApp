@@ -1,15 +1,15 @@
 package org.habitApp.repositories;
 
 import org.habitApp.database.Database;
-import org.habitApp.models.Habit;
-import org.habitApp.models.User;
+import org.habitApp.domain.entities.HabitEntity;
+import org.habitApp.domain.entities.UserEntity;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.habitApp.models.Habit.mapRowToHabit;
+import static org.habitApp.domain.entities.HabitEntity.mapRowToHabit;
 
 /**
  * Репозиторий для работы с привычками в базе данных
@@ -27,8 +27,8 @@ public class HabitRepository {
      * @return список привычек
      * @throws SQLException ошибка работы с БД
      */
-    public List<Habit> getHabitsByUser(User user) throws SQLException {
-        List<Habit> habits = new ArrayList<>();
+    public List<HabitEntity> getHabitsByUser(UserEntity user) throws SQLException {
+        List<HabitEntity> habits = new ArrayList<>();
         String sql = "SELECT * FROM habits WHERE user_id = ?";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
             statement.setObject(1, user.getId()); // Используем setObject для UUID
@@ -47,7 +47,7 @@ public class HabitRepository {
      * @return список привычек
      * @throws SQLException ошибка работы с БД
      */
-    public Habit getHabitById(UUID id) throws SQLException {
+    public HabitEntity getHabitById(UUID id) throws SQLException {
         String sql = "SELECT * FROM habits WHERE id = ?";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
             statement.setObject(1, id);
@@ -65,8 +65,8 @@ public class HabitRepository {
      * @return список привычек
      * @throws SQLException ошибка работы с БД
      */
-    public List<Habit> getAllHabits() throws SQLException {
-        List<Habit> habits = new ArrayList<>();
+    public List<HabitEntity> getAllHabits() throws SQLException {
+        List<HabitEntity> habits = new ArrayList<>();
         String sql = "SELECT * FROM habits";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -83,7 +83,7 @@ public class HabitRepository {
      * @param habit привычка
      * @throws SQLException ошибка работы с БД
      */
-    public void createHabit(Habit habit) throws SQLException {
+    public void createHabit(HabitEntity habit) throws SQLException {
         String sql = "INSERT INTO habits (id, name, description, frequency, created_date, user_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
             statement.setObject(1, habit.getId());
@@ -102,7 +102,7 @@ public class HabitRepository {
      * @param habit привычка
      * @throws SQLException ошибка работы с БД
      */
-public void updateHabit(UUID habiId, Habit habit) throws SQLException {
+public void updateHabit(UUID habiId, HabitEntity habit) throws SQLException {
         String sql = "UPDATE habits SET name = ?, description = ?, frequency = ? WHERE id = ?";
         try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
             statement.setString(1, habit.getName());

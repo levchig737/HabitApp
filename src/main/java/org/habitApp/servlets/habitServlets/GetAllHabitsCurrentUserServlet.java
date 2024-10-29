@@ -9,10 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.habitDto.HabitDto;
-import org.habitApp.dto.habitDto.HabitMapper;
-import org.habitApp.models.Habit;
-import org.habitApp.models.User;
+import org.habitApp.domain.dto.habitDto.HabitDto;
+import org.habitApp.mappers.HabitMapper;
+import org.habitApp.domain.entities.HabitEntity;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
 import org.habitApp.services.HabitService;
@@ -43,7 +43,7 @@ public class GetAllHabitsCurrentUserServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             HttpSession session = req.getSession(false);
-            User currentUser = (session != null) ? (User) session.getAttribute("currentUser") : null;
+            UserEntity currentUser = (session != null) ? (UserEntity) session.getAttribute("currentUser") : null;
 
             if (currentUser == null) {
                 resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -54,10 +54,10 @@ public class GetAllHabitsCurrentUserServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.setContentType("application/json");
 
-            List<Habit> habits = habitService.getAllHabits(currentUser);
+            List<HabitEntity> habits = habitService.getAllHabits(currentUser);
             List<HabitDto> habitDtos = new ArrayList<>();
 
-            for (Habit habit : habits) {
+            for (HabitEntity habit : habits) {
                 habitDtos.add(habitMapper.habitToHabitDto(habit));
             }
 

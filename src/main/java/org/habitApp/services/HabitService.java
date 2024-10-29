@@ -1,10 +1,9 @@
 package org.habitApp.services;
 
-import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.habitDto.HabitReportDto;
-import org.habitApp.models.Habit;
+import org.habitApp.domain.dto.habitDto.HabitReportDto;
+import org.habitApp.domain.entities.HabitEntity;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.models.Period;
-import org.habitApp.models.User;
 import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
 
@@ -37,8 +36,8 @@ public class HabitService {
      * @param frequency   частота выполнения привычки
      * @throws SQLException ошибка работы с БД
      */
-    public void createHabit(User user, String name, String description, Period frequency) throws SQLException {
-        Habit habit = Habit.CreateHabit(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
+    public void createHabit(UserEntity user, String name, String description, Period frequency) throws SQLException {
+        HabitEntity habit = HabitEntity.CreateHabit(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
         habitRepository.createHabit(habit);
         System.out.println("Привычка \"" + name + "\" создана для пользователя " + user.getEmail() + ".");
     }
@@ -53,7 +52,7 @@ public class HabitService {
      * @throws SQLException ошибка работы с БД
      */
     public void updateHabit(UUID habitId, String newName, String newDescription, Period newFrequency) throws SQLException {
-        Habit habit = new Habit(habitId, newName, newDescription, newFrequency.toString(), null, null);
+        HabitEntity habit = new HabitEntity(habitId, newName, newDescription, newFrequency.toString(), null, null);
 
         habitRepository.updateHabit(habitId, habit);
         System.out.println("Привычка обновлена: " + habit.getName());
@@ -65,7 +64,7 @@ public class HabitService {
      * @param habitId привычка для удаления
      * @throws SQLException ошибка работы с БД
      */
-    public void deleteHabit(UUID habitId, User currentUser) throws SQLException {
+    public void deleteHabit(UUID habitId, UserEntity currentUser) throws SQLException {
         UUID userId = habitRepository.getHabitById(habitId).getUserId();
         if (userId == currentUser.getId()) {
             habitRepository.deleteHabit(habitId);
@@ -82,7 +81,7 @@ public class HabitService {
      * @return список привычек пользователя
      * @throws SQLException ошибка работы с БД
      */
-    public List<Habit> getAllHabits(User user) throws SQLException {
+    public List<HabitEntity> getAllHabits(UserEntity user) throws SQLException {
         return habitRepository.getHabitsByUser(user);
     }
 
@@ -94,7 +93,7 @@ public class HabitService {
      * @throws SQLException           ошибка работы с БД
      * @throws IllegalAccessException доступ для админа
      */
-    public List<Habit> getAllHabitsAdmin(User currentUser) throws SQLException, IllegalAccessException {
+    public List<HabitEntity> getAllHabitsAdmin(UserEntity currentUser) throws SQLException, IllegalAccessException {
         if (!currentUser.isAdmin()) {
             throw new IllegalAccessException("User is not admin");
         }
@@ -106,7 +105,7 @@ public class HabitService {
      *
      * @param habit привычка, которую нужно отметить сегодня
      */
-    public void markHabitAsCompleted(Habit habit) throws SQLException {
+    public void markHabitAsCompleted(HabitEntity habit) throws SQLException {
         List<LocalDate> completionHistory = habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId());
 
         if (completionHistory.isEmpty()
@@ -126,7 +125,7 @@ public class HabitService {
      * @param period период ("day", "week", "month")
      * @return статистика выполнения привычки
      */
-    public int calculateHabitCompletedByPeriod(Habit habit, Period period) throws SQLException {
+    public int calculateHabitCompletedByPeriod(HabitEntity habit, Period period) throws SQLException {
         LocalDate now = LocalDate.now();
         LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
             case "day" -> now.minusDays(1);
@@ -150,7 +149,7 @@ public class HabitService {
      * @param habit привычка
      * @return текущий streak
      */
-    public int calculateCurrentStreak(Habit habit) throws SQLException {
+    public int calculateCurrentStreak(HabitEntity habit) throws SQLException {
         List<LocalDate> completions = habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId())
                 .stream()
                 .sorted()
@@ -189,7 +188,7 @@ public class HabitService {
      * @param period период ("day", "week", "month")
      * @return процент успешного выполнения привычки
      */
-    public double calculateCompletionPercentage(Habit habit, Period period) throws SQLException {
+    public double calculateCompletionPercentage(HabitEntity habit, Period period) throws SQLException {
         LocalDate now = LocalDate.now();
         LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
             case "day" -> now.minusDays(1);
@@ -216,7 +215,7 @@ public class HabitService {
      * @param period период ("day", "week", "month")
      * @return отчет о прогрессе
      */
-    public HabitReportDto generateProgressReport(Habit habit, Period period) throws SQLException {
+    public HabitReportDto generateProgressReport(HabitEntity habit, Period period) throws SQLException {
         int streak = calculateCurrentStreak(habit);
         double completionPercentage = calculateCompletionPercentage(habit, period);
         int completionCount = calculateHabitCompletedByPeriod(habit, period);

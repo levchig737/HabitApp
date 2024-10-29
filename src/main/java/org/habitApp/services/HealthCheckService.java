@@ -1,7 +1,7 @@
 package org.habitApp.services;
 
 import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.HealthResponseDto;
+import org.habitApp.domain.dto.HealthResponseDto;
 
 @Loggable
 public class HealthCheckService {

@@ -7,9 +7,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.userDto.UserDto;
-import org.habitApp.dto.userDto.UserMapper;
-import org.habitApp.models.User;
+import org.habitApp.domain.dto.userDto.UserDto;
+import org.habitApp.mappers.UserMapper;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.UserRepository;
 import org.habitApp.services.UserService;
 import org.mapstruct.factory.Mappers;
@@ -38,12 +38,12 @@ public class GetUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            User currentUser = (User) req.getSession().getAttribute("user");
+            UserEntity currentUser = (UserEntity) req.getSession().getAttribute("user");
 
             resp.setContentType("application/json");
 
             UserDto userDto = new ObjectMapper().readValue(req.getInputStream(), UserDto.class);
-            User user = userService.getUser(userDto.getEmail(), currentUser);
+            UserEntity user = userService.getUser(userDto.getEmail(), currentUser);
 
             byte[] bytes = objectMapper.writeValueAsBytes(userMapper.userToUserDto(user));
             resp.getOutputStream().write(bytes);

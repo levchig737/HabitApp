@@ -7,9 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.userDto.UserDto;
-import org.habitApp.dto.userDto.UserMapper;
-import org.habitApp.models.User;
+import org.habitApp.domain.dto.userDto.UserDto;
+import org.habitApp.mappers.UserMapper;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.UserRepository;
 import org.habitApp.services.UserService;
 import org.mapstruct.factory.Mappers;
@@ -36,7 +36,7 @@ public class UserLoginServlet extends HttpServlet {
         try {
             UserDto userDto = new ObjectMapper().readValue(req.getInputStream(), UserDto.class);
 
-            User user = userService.loginUser(userDto.getEmail(), userDto.getPassword());
+            UserEntity user = userService.loginUser(userDto.getEmail(), userDto.getPassword());
 
             if (user != null) {
                 HttpSession session = req.getSession(true);

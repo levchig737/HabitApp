@@ -2,27 +2,21 @@ package org.habitApp.servlets.habitServlets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.habitApp.annotations.Loggable;
-import org.habitApp.dto.habitDto.HabitDto;
-import org.habitApp.dto.habitDto.HabitMapper;
-import org.habitApp.dto.habitDto.HabitStreakDto;
-import org.habitApp.models.Habit;
-import org.habitApp.models.Period;
-import org.habitApp.models.User;
+import org.habitApp.domain.dto.habitDto.HabitDto;
+import org.habitApp.mappers.HabitMapper;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
 import org.habitApp.services.HabitService;
 import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -46,7 +40,7 @@ public class HabitStreakServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             HttpSession session = req.getSession(false);
-            User currentUser = (session != null) ? (User) session.getAttribute("currentUser") : null;
+            UserEntity currentUser = (session != null) ? (UserEntity) session.getAttribute("currentUser") : null;
 
             if (currentUser == null) {
                 resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
