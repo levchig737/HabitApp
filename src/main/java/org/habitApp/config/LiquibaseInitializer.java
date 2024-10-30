@@ -1,4 +1,4 @@
-package org.habitApp.database;
+package org.habitApp.config;
 
 import liquibase.Contexts;
 import liquibase.Liquibase;
@@ -16,26 +16,24 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class LiquibaseInitializer implements ApplicationListener<ContextRefreshedEvent> {
+    private final String jdbcUrl;
+    private final String username;
+    private final String password;
+    private final String changeLogFile;
+    private final String driverClassName;
 
-    private String jdbcUrl;
-    private String username;
-    private String password;
-    private String changeLogFile;
+    public LiquibaseInitializer(Properties properties) {
+        this.jdbcUrl = properties.getProperty("jdbc.url");
+        this.username = properties.getProperty("jdbc.username");
+        this.password = properties.getProperty("jdbc.password");
+        this.changeLogFile = properties.getProperty("liquibase.changeLogFile");
+        this.driverClassName = properties.getProperty("jdbc.driverClassName");
 
-    public LiquibaseInitializer() {
         try {
-            Properties properties = new Properties();
-            properties.load(getClass().getClassLoader().getResourceAsStream("application.properties"));
-            this.jdbcUrl = properties.getProperty("jdbc.url");
-            this.username = properties.getProperty("jdbc.username");
-            this.password = properties.getProperty("jdbc.password");
-            this.changeLogFile = properties.getProperty("liquibase.changeLogFile");
-
-            // Ручная регистрация драйвера PostgreSQL
-            Class.forName("org.postgresql.Driver");
+            Class.forName(driverClassName);
             System.out.println("PostgreSQL JDBC Driver Registered!");
-        } catch (Exception e) {
-            System.err.println("Ошибка загрузки настроек: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println("Ошибка загрузки драйвера PostgreSQL: " + e.getMessage());
         }
     }
 
@@ -49,7 +47,7 @@ public class LiquibaseInitializer implements ApplicationListener<ContextRefreshe
             System.out.println("Liquibase миграции успешно выполнены.");
         } catch (SQLException | LiquibaseException e) {
             System.err.println("Ошибка выполнения миграций Liquibase: " + e.getMessage());
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
 }

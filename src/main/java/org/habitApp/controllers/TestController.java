@@ -18,6 +18,7 @@ public class TestController {
         try {
             return ResponseEntity.ok(testService.sayHello());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Произошла ошибка");
         }
     }

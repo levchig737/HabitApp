@@ -1,7 +1,9 @@
 package org.habitApp.repositories;
 
-import org.habitApp.database.Database;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,11 +11,16 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+@Repository
 public class HabitComletionHistoryRepository {
+    @Autowired
+    private static DataSource dataSource;
+
     /**
      * Конструктор репозитория
      *
      */
+    @Autowired
     public HabitComletionHistoryRepository() {
     }
 
@@ -28,7 +35,7 @@ public class HabitComletionHistoryRepository {
         List<LocalDate> completionHistory = new ArrayList<>();
         String sql = "SELECT completion_date FROM habit_completion_history WHERE habit_id = ?";
 
-        try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
             statement.setString(1, habitId.toString());
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -48,7 +55,7 @@ public class HabitComletionHistoryRepository {
      */
     public void addComletionDateByHabitIdUserIs(UUID habitId, UUID userId, LocalDate completionDate) throws SQLException {
         String sql = "INSERT INTO habit_completion_history (id, habit_id, user_id, completion_date) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement statement = Database.connectToDatabase().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
             Random random = new Random();
             statement.setInt(1, random.nextInt());
             statement.setString(2, habitId.toString());

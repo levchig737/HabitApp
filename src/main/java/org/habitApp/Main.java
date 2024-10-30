@@ -1,7 +1,6 @@
 package org.habitApp;
 
 //import org.habitApp.consoleApp.ConsoleApp;
-import org.habitApp.database.Database;
 
 /**
  * Main класс приложения
