@@ -23,7 +23,6 @@
         <junit.version>5.8.1</junit.version>
         <spring-framework.version>6.0.13</spring-framework.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
-        <lombok.version>1.18.30</lombok.version>
         <plugin.war.version>3.3.1</plugin.war.version>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -61,7 +60,6 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
             <version>${mapstruct.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -95,11 +93,6 @@
             <artifactId>spring-jdbc</artifactId>
             <version>${spring-framework.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -122,11 +115,6 @@
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
                             <version>${mapstruct.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

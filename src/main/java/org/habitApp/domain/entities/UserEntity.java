@@ -1,21 +1,16 @@
 package org.habitApp.domain.entities;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.UUID;
 
 /**
  * Модель User
  */
-@Getter
-@Setter
 public class UserEntity {
     private UUID id;
     private String email;
     private String password;
     private String name;
-    private boolean isAdmin;
+    private boolean flagAdmin;
 
     /**
      * Конструктор User полный
@@ -23,15 +18,17 @@ public class UserEntity {
      * @param email email
      * @param password пароль
      * @param name имя
-     * @param isAdmin флаг админа
+     * @param flagAdmin флаг админа
      */
-    public UserEntity(UUID id, String email, String password, String name, boolean isAdmin) {
+    public UserEntity(UUID id, String email, String password, String name, boolean flagAdmin) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
-        this.isAdmin = isAdmin;
+        this.flagAdmin = flagAdmin;
     }
+
+    public UserEntity(){}
 
     @Override
     public String toString() {
@@ -40,7 +37,7 @@ public class UserEntity {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
-                ", isAdmin=" + isAdmin +
+                ", isAdmin=" + flagAdmin +
                 '}';
     }
 
@@ -52,5 +49,45 @@ public class UserEntity {
      */
     public static UserEntity CreateUser(String email, String password, String name) {
         return new UserEntity(UUID.randomUUID(), email, password, name, false);
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isFlagAdmin() {
+        return flagAdmin;
+    }
+
+    public void setFlagAdmin(boolean flagAdmin) {
+        this.flagAdmin = flagAdmin;
     }
 }

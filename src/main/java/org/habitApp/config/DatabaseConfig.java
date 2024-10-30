@@ -32,4 +32,6 @@ public class DatabaseConfig {
     public LiquibaseInitializer liquibaseInitializer(Properties yamlPropertySource) {
         return new LiquibaseInitializer(yamlPropertySource);
     }
+
+
 }

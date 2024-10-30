@@ -102,7 +102,7 @@ public class HabitService {
      * @return список всех привычек
      */
     public List<HabitEntity> getAllHabitsAdmin(UserEntity currentUser) throws SQLException {
-        if (!currentUser.isAdmin()) {
+        if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
         return habitRepository.getAllHabits();
