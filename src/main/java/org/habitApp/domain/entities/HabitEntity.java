@@ -1,6 +1,9 @@
 package org.habitApp.domain.entities;
 
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -11,6 +14,8 @@ import java.util.UUID;
  * Модель Habit (Привычка)
  * Описывает привычку пользователя, включает в себя название, описание, частоту выполнения и историю выполнения.
  */
+@Getter
+@Setter
 public class HabitEntity {
     private UUID id;
     private String name;
@@ -77,53 +82,5 @@ public class HabitEntity {
                 (UUID) resultSet.getObject("user_id")
         );
         return habit;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setFrequency(String frequency) {
-        this.frequency = frequency;
-    }
-
-    public void setCreatedDate(LocalDate createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getFrequency() {
-        return frequency;
-    }
-
-    public LocalDate getCreatedDate() {
-        return createdDate;
-    }
-
-    public UUID getUserId() {
-        return userId;
     }
 }

@@ -1,7 +1,14 @@
 package org.habitApp.services;
 
 import org.habitApp.domain.entities.UserEntity;
+import org.habitApp.exceptions.UserAlreadyExistsException;
+import org.habitApp.exceptions.InvalidCredentialsException;
+import org.habitApp.exceptions.UserNotFoundException;
+import org.habitApp.exceptions.UnauthorizedAccessException;
+import org.habitApp.mappers.UserMapper;
 import org.habitApp.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,15 +18,13 @@ import java.util.UUID;
  * User сервис
  * Сервис бизнес логики над User
  */
+@Service
 public class UserService {
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    /**
-     * Конструктор с инициализацией репозитория пользователей
-     */
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * Регистрация user
@@ -27,11 +32,10 @@ public class UserService {
      * @param email    email
      * @param password пароль
      * @param name     имя
-     * @throws SQLException ошибка работы с БД
      */
     public void registerUser(String email, String password, String name) throws SQLException {
         if (userRepository.getUserByEmail(email) != null) {
-            throw new IllegalArgumentException("User already exists.");
+            throw new UserAlreadyExistsException("User already exists.");
         }
         UserEntity user = UserEntity.CreateUser(email, password, name);
         userRepository.registerUser(user);
@@ -43,20 +47,20 @@ public class UserService {
      * @param email    email
      * @param password пароль
      * @return User
-     * @throws SQLException ошибка работы с БД
      */
     public UserEntity loginUser(String email, String password) throws SQLException {
         UserEntity user = userRepository.getUserByEmail(email);
         if (user != null && user.getPassword().equals(password)) {
             return user;
         }
-        throw new IllegalArgumentException("Invalid email or password.");
+        throw new InvalidCredentialsException("Invalid email or password.");
     }
 
     /**
      * Выход из аккаунта
      */
     public void unLoginUser() {
+        // Логика выхода
     }
 
     /**
@@ -64,7 +68,7 @@ public class UserService {
      *
      * @param newName     новое имя
      * @param newPassword новый пароль
-     * @throws SQLException ошибка работы с БД
+     * @throws UserNotFoundException если пользователь не найден
      */
     public void updateCurrentUserProfile(String newName, String newPassword, UserEntity currentUser) throws SQLException {
         if (currentUser != null) {
@@ -72,21 +76,20 @@ public class UserService {
             currentUser.setPassword(newPassword);
             userRepository.updateUser(currentUser);
         } else {
-            throw new IllegalArgumentException("User not found.");
+            throw new UserNotFoundException("User not found.");
         }
     }
 
     /**
      * Удаление текущего пользователя
      *
-     * @throws SQLException ошибка работы с БД
+     * @throws UserNotFoundException если пользователь не найден
      */
     public void deleteCurrentUser(UserEntity currentUser) throws SQLException {
         if (currentUser != null) {
             userRepository.deleteUserById(currentUser.getId());
-            currentUser = null;
         } else {
-            throw new IllegalArgumentException("User not found.");
+            throw new UserNotFoundException("User not found.");
         }
     }
 
@@ -94,11 +97,11 @@ public class UserService {
      * Получение user по email
      * @param email email
      * @return User
-     * @throws SQLException ошибка работы с БД
+     * @throws UnauthorizedAccessException если пользователь не администратор
      */
-    public UserEntity getUser(String email, UserEntity currentUser) throws SQLException, IllegalAccessException {
+    public UserEntity getUser(String email, UserEntity currentUser) throws SQLException {
         if (!currentUser.isAdmin()) {
-            throw new IllegalAccessException("User is not admin");
+            throw new UnauthorizedAccessException("User is not admin.");
         }
         return userRepository.getUserByEmail(email);
     }
@@ -106,26 +109,26 @@ public class UserService {
     /**
      * Получение списка всех user
      * @return список users
-     * @throws SQLException ошибка работы с БД
+     * @throws UnauthorizedAccessException если пользователь не администратор
      */
-    public List<UserEntity> getAllUsers(UserEntity currentUser) throws SQLException, IllegalAccessException {
+    public List<UserEntity> getAllUsers(UserEntity currentUser) throws SQLException {
         if (!currentUser.isAdmin()) {
-            throw new IllegalAccessException("User is not admin");
+            throw new UnauthorizedAccessException("User is not admin.");
         }
         return userRepository.getAllUsers();
     }
 
     /**
      * Обновление user
-     * Обновляет все данные пользователя.
      * @param email       email
      * @param newName     новое имя
      * @param newPassword новый пароль
-     * @throws SQLException ошибка работы с БД
+     * @throws UnauthorizedAccessException если пользователь не администратор
+     * @throws UserNotFoundException если пользователь не найден
      */
-    public UserEntity updateUserProfile(String email, String newName, String newPassword, boolean isAdmin, UserEntity currentUser) throws SQLException, IllegalAccessException {
+    public UserEntity updateUserProfile(String email, String newName, String newPassword, boolean isAdmin, UserEntity currentUser) throws SQLException {
         if (!currentUser.isAdmin()) {
-            throw new IllegalAccessException("User is not admin");
+            throw new UnauthorizedAccessException("User is not admin.");
         }
         UserEntity user = userRepository.getUserByEmail(email);
         if (user != null) {
@@ -135,18 +138,18 @@ public class UserService {
             userRepository.updateUser(user);
             return user;
         } else {
-            throw new IllegalArgumentException("User not found.");
+            throw new UserNotFoundException("User not found.");
         }
     }
 
     /**
      * Удаление user
      * @param id id user
-     * @throws SQLException ошибка работы с БД
+     * @throws UnauthorizedAccessException если пользователь не администратор
      */
-    public void deleteUser(UUID id, UserEntity currentUser) throws SQLException, IllegalAccessException {
+    public void deleteUser(UUID id, UserEntity currentUser) throws SQLException {
         if (!currentUser.isAdmin()) {
-            throw new IllegalAccessException("User is not admin");
+            throw new UnauthorizedAccessException("User is not admin.");
         }
         userRepository.deleteUserById(id);
     }

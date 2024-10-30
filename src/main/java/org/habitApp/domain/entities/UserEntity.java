@@ -1,10 +1,15 @@
 package org.habitApp.domain.entities;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.UUID;
 
 /**
  * Модель User
  */
+@Getter
+@Setter
 public class UserEntity {
     private UUID id;
     private String email;
@@ -47,45 +52,5 @@ public class UserEntity {
      */
     public static UserEntity CreateUser(String email, String password, String name) {
         return new UserEntity(UUID.randomUUID(), email, password, name, false);
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
     }
 }

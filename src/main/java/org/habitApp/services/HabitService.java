@@ -3,6 +3,9 @@ package org.habitApp.services;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
+import org.habitApp.exceptions.HabitNotFoundException;
+import org.habitApp.exceptions.UnauthorizedAccessException;
+import org.habitApp.exceptions.HabitAlreadyCompletedException;
 import org.habitApp.models.Period;
 import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
@@ -34,7 +37,6 @@ public class HabitService {
      * @param name        название привычки
      * @param description описание привычки
      * @param frequency   частота выполнения привычки
-     * @throws SQLException ошибка работы с БД
      */
     public void createHabit(UserEntity user, String name, String description, Period frequency) throws SQLException {
         HabitEntity habit = HabitEntity.CreateHabit(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
@@ -49,10 +51,15 @@ public class HabitService {
      * @param newName        новое название
      * @param newDescription новое описание
      * @param newFrequency   новая частота выполнения
-     * @throws SQLException ошибка работы с БД
      */
     public void updateHabit(UUID habitId, String newName, String newDescription, Period newFrequency) throws SQLException {
-        HabitEntity habit = new HabitEntity(habitId, newName, newDescription, newFrequency.toString(), null, null);
+        HabitEntity habit = habitRepository.getHabitById(habitId);
+        if (habit == null) {
+            throw new HabitNotFoundException("Habit not found.");
+        }
+        habit.setName(newName);
+        habit.setDescription(newDescription);
+        habit.setFrequency(newFrequency.toString());
 
         habitRepository.updateHabit(habitId, habit);
         System.out.println("Привычка обновлена: " + habit.getName());
@@ -62,15 +69,19 @@ public class HabitService {
      * Удаление привычки
      *
      * @param habitId привычка для удаления
-     * @throws SQLException ошибка работы с БД
      */
     public void deleteHabit(UUID habitId, UserEntity currentUser) throws SQLException {
-        UUID userId = habitRepository.getHabitById(habitId).getUserId();
-        if (userId == currentUser.getId()) {
+        HabitEntity habit = habitRepository.getHabitById(habitId);
+        if (habit == null) {
+            throw new HabitNotFoundException("Habit not found.");
+        }
+
+        UUID userId = habit.getUserId();
+        if (userId.equals(currentUser.getId())) {
             habitRepository.deleteHabit(habitId);
-            System.out.println("Привычка \"" + habitId + "\" была удалена.");
+            System.out.println("Привычка \"" + habit.getName() + "\" была удалена.");
         } else {
-            System.out.println("Привычка не принадлежит текущему пользователю");
+            throw new UnauthorizedAccessException("Habit does not belong to the current user.");
         }
     }
 
@@ -79,7 +90,6 @@ public class HabitService {
      *
      * @param user текущий пользователь
      * @return список привычек пользователя
-     * @throws SQLException ошибка работы с БД
      */
     public List<HabitEntity> getAllHabits(UserEntity user) throws SQLException {
         return habitRepository.getHabitsByUser(user);
@@ -90,12 +100,10 @@ public class HabitService {
      *
      * @param currentUser текущий пользователь
      * @return список всех привычек
-     * @throws SQLException           ошибка работы с БД
-     * @throws IllegalAccessException доступ для админа
      */
-    public List<HabitEntity> getAllHabitsAdmin(UserEntity currentUser) throws SQLException, IllegalAccessException {
+    public List<HabitEntity> getAllHabitsAdmin(UserEntity currentUser) throws SQLException {
         if (!currentUser.isAdmin()) {
-            throw new IllegalAccessException("User is not admin");
+            throw new UnauthorizedAccessException("User is not admin.");
         }
         return habitRepository.getAllHabits();
     }
@@ -108,13 +116,10 @@ public class HabitService {
     public void markHabitAsCompleted(HabitEntity habit) throws SQLException {
         List<LocalDate> completionHistory = habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId());
 
-        if (completionHistory.isEmpty()
-                || !Objects.equals(completionHistory.get(completionHistory.size() - 1),
-                LocalDate.now())) {
-            habitComletionHistoryRepository.addComletionDateByHabitIdUserIs(
-                    habit.getId(), habit.getUserId(), LocalDate.now());
+        if (completionHistory.isEmpty() || !Objects.equals(completionHistory.get(completionHistory.size() - 1), LocalDate.now())) {
+            habitComletionHistoryRepository.addComletionDateByHabitIdUserIs(habit.getId(), habit.getUserId(), LocalDate.now());
         } else {
-            throw new IllegalArgumentException("Вы сегодня уже выполняли эту привычку");
+            throw new HabitAlreadyCompletedException("Вы сегодня уже выполняли эту привычку.");
         }
     }
 

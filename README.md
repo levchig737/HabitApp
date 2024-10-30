@@ -14,7 +14,7 @@ docker-compose up -d
 ### Запуск в TomCat.
 1. Скачать TomCat10 по ссылке: [TomCat10](https://tomcat.apache.org/download-10.cgi)
 2. Разархивировать.
-3. Запустить проект в IntelliJ IDEA. Maven - lifecycle - package (собрать 2 раза, т.к. после 1 ошибка (чудеса))
+3. Запустить проект в IntelliJ IDEA. Maven - lifecycle - package
 4. Скопировать папку target/HabitApp в TomCat webapps. 
 5. Запустить TomCat:
 - Windows - клик на bin/catalina.bt
