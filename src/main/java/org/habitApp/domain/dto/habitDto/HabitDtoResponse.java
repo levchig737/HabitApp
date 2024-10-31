@@ -2,15 +2,16 @@ package org.habitApp.domain.dto.habitDto;
 
 import java.util.UUID;
 
-public class HabitDto {
+public class HabitDtoResponse {
     private UUID id;
     private String name;
     private String description;
     private String frequency;
     private UUID userId;
 
-    public HabitDto(){}
+    public HabitDtoResponse(){}
 
+    // Геттеры и сеттеры
     public UUID getId() {
         return id;
     }
@@ -49,16 +50,5 @@ public class HabitDto {
 
     public void setUserId(UUID userId) {
         this.userId = userId;
-    }
-
-    @Override
-    public String toString() {
-        return "HabitDto{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", frequency='" + frequency + '\'' +
-                ", userId=" + userId +
-                '}';
     }
 }

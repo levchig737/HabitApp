@@ -1,5 +1,6 @@
 package org.habitApp.repositories;
 
+import org.habitApp.annotations.Loggable;
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,11 @@ import static org.habitApp.domain.entities.HabitEntity.mapRowToHabit;
 /**
  * Репозиторий для работы с привычками в базе данных
  */
+@Loggable
 @Repository
 public class HabitRepository {
     @Autowired
-    private static DataSource dataSource;
+    private DataSource dataSource;
 
     /**
      * Конструктор репозитория

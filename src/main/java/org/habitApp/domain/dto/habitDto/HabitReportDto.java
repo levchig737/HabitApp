@@ -7,36 +7,39 @@ import java.util.UUID;
 public class HabitReportDto {
     private UUID id;
     private int streak;
-    private double percentage;
-    private Period period;
+    private double completionPercentage;
     private int completionCount;
+    private Period period;
 
-    public void setCompletionCount(int completionCount) {
-        this.completionCount = completionCount;
-    }
+    public HabitReportDto(){}
 
-    public int getCompletionCount() {
-        return completionCount;
-    }
-
-    public HabitReportDto(UUID id, int streak, double percentage, Period period, int completionCount) {
+    public HabitReportDto(UUID id, int streak, double completionPercentage, Period period, int completionCount) {
         this.id = id;
         this.streak = streak;
-        this.percentage = percentage;
-        this.period = period;
+        this.completionPercentage = completionPercentage;
         this.completionCount = completionCount;
+        this.period = period;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    // Геттеры и сеттеры
+    public int getStreak() {
+        return streak;
     }
 
     public void setStreak(int streak) {
         this.streak = streak;
     }
 
-    public void setPercentage(double percentage) {
-        this.percentage = percentage;
+    public double getCompletionPercentage() {
+        return completionPercentage;
+    }
+
+    public void setCompletionPercentage(double completionPercentage) {
+        this.completionPercentage = completionPercentage;
+    }
+
+    public Period getPeriod() {
+        return period;
     }
 
     public void setPeriod(Period period) {
@@ -47,15 +50,15 @@ public class HabitReportDto {
         return id;
     }
 
-    public int getStreak() {
-        return streak;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
-    public double getPercentage() {
-        return percentage;
+    public int getCompletionCount() {
+        return completionCount;
     }
 
-    public Period getPeriod() {
-        return period;
+    public void setCompletionCount(int completionCount) {
+        this.completionCount = completionCount;
     }
 }

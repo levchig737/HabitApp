@@ -1,5 +1,6 @@
 package org.habitApp.repositories;
 
+import org.habitApp.annotations.Loggable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -11,10 +12,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+@Loggable
 @Repository
 public class HabitComletionHistoryRepository {
     @Autowired
-    private static DataSource dataSource;
+    private DataSource dataSource;
 
     /**
      * Конструктор репозитория

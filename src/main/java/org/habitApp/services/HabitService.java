@@ -1,5 +1,6 @@
 package org.habitApp.services;
 
+import org.habitApp.annotations.Loggable;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
@@ -9,6 +10,8 @@ import org.habitApp.exceptions.HabitAlreadyCompletedException;
 import org.habitApp.models.Period;
 import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -21,13 +24,31 @@ import java.util.UUID;
  * Сервис для управления привычками (CRUD)
  * Позволяет создавать, редактировать, удалять и просматривать привычки пользователя.
  */
+@Loggable
+@Service
 public class HabitService {
+    @Autowired
     private final HabitRepository habitRepository;
+
+    @Autowired
     private final HabitComletionHistoryRepository habitComletionHistoryRepository;
 
     public HabitService(HabitRepository habitRepository, HabitComletionHistoryRepository habitComletionHistoryRepository) {
         this.habitRepository = habitRepository;
         this.habitComletionHistoryRepository = habitComletionHistoryRepository;
+    }
+
+    public HabitEntity getHabitById(UUID habitId, UserEntity currentUser) throws SQLException, HabitNotFoundException, UnauthorizedAccessException {
+        HabitEntity habit = habitRepository.getHabitById(habitId);
+        if (habit == null) {
+            throw new HabitNotFoundException("Привычка с ID " + habitId + " не найдена.");
+        }
+
+        // Проверка принадлежности привычки текущему пользователю
+        if (!habit.getUserId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("Привычка не принадлежит текущему пользователю.");
+        }
+        return habit;
     }
 
     /**
@@ -111,10 +132,11 @@ public class HabitService {
     /**
      * Отметить привычку как выполненную
      *
-     * @param habit привычка, которую нужно отметить сегодня
+     * @param habitId привычка, которую нужно отметить сегодня
      */
-    public void markHabitAsCompleted(HabitEntity habit) throws SQLException {
-        List<LocalDate> completionHistory = habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId());
+    public void markHabitAsCompleted(UUID habitId) throws SQLException {
+        List<LocalDate> completionHistory = habitComletionHistoryRepository.getCompletionHistoryForHabit(habitId);
+        HabitEntity habit = habitRepository.getHabitById(habitId);
 
         if (completionHistory.isEmpty() || !Objects.equals(completionHistory.get(completionHistory.size() - 1), LocalDate.now())) {
             habitComletionHistoryRepository.addComletionDateByHabitIdUserIs(habit.getId(), habit.getUserId(), LocalDate.now());
