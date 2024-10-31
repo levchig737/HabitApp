@@ -7,6 +7,12 @@ public class HabitDtoCreateUpdate {
 
     public HabitDtoCreateUpdate(){}
 
+    public HabitDtoCreateUpdate(String name, String description, String frequency) {
+        this.name = name;
+        this.description = description;
+        this.frequency = frequency;
+    }
+
     // Геттеры и сеттеры
     public String getName() {
         return name;

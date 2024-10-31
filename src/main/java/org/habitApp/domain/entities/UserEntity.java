@@ -26,6 +26,13 @@ public class UserEntity {
         this.flagAdmin = flagAdmin;
     }
 
+    public UserEntity(String email, String password, String name, boolean flagAdmin) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.flagAdmin = flagAdmin;
+    }
+
     public UserEntity(){}
 
     @Override

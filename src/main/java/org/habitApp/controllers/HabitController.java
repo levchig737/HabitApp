@@ -31,7 +31,12 @@ public class HabitController {
     @Autowired
     private CurrentUserBean currentUserBean;
 
-    // Создание новой привычки
+    /**
+     * Создает новую привычку для текущего аутентифицированного пользователя.
+     *
+     * @param habitDto данные для создания привычки (название, описание, частота).
+     * @return ResponseEntity с сообщением об успешном создании или с сообщением об ошибке.
+     */
     @PostMapping
     public ResponseEntity<?> createHabit(@RequestBody HabitDtoCreateUpdate habitDto) {
         if (!currentUserBean.isAuthenticated()) {
@@ -50,7 +55,13 @@ public class HabitController {
         }
     }
 
-    // Обновление привычки
+    /**
+     * Обновляет существующую привычку, указанную по ID, для текущего аутентифицированного пользователя.
+     *
+     * @param id идентификатор привычки.
+     * @param habitDto данные для обновления привычки (название, описание, частота).
+     * @return ResponseEntity с сообщением об успешном обновлении или с сообщением об ошибке.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateHabit(@PathVariable long id, @RequestBody HabitDtoCreateUpdate habitDto) {
         if (!currentUserBean.isAuthenticated()) {
@@ -69,7 +80,12 @@ public class HabitController {
         }
     }
 
-    // Удаление привычки
+    /**
+     * Удаляет привычку, указанную по ID, для текущего аутентифицированного пользователя.
+     *
+     * @param id идентификатор привычки.
+     * @return ResponseEntity с сообщением об успешном удалении или с сообщением об ошибке.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteHabit(@PathVariable long id) {
         if (!currentUserBean.isAuthenticated()) {
@@ -83,7 +99,11 @@ public class HabitController {
         }
     }
 
-    // Получение всех привычек текущего пользователя
+    /**
+     * Возвращает список всех привычек текущего аутентифицированного пользователя.
+     *
+     * @return ResponseEntity со списком всех привычек или с сообщением об ошибке.
+     */
     @GetMapping
     public ResponseEntity<?> getAllHabits() {
         if (!currentUserBean.isAuthenticated()) {
@@ -98,7 +118,11 @@ public class HabitController {
         }
     }
 
-    // Получение всех привычек для администратора
+    /**
+     * Возвращает список всех привычек для администратора.
+     *
+     * @return ResponseEntity со списком всех привычек или с сообщением об ошибке.
+     */
     @GetMapping("/admin/all")
     public ResponseEntity<?> getAllHabitsAdmin() {
         if (!currentUserBean.isAuthenticated()) {
@@ -113,7 +137,12 @@ public class HabitController {
         }
     }
 
-    // Получение информации о привычке по ID
+    /**
+     * Возвращает привычку по ее идентификатору для текущего аутентифицированного пользователя.
+     *
+     * @param id идентификатор привычки.
+     * @return ResponseEntity с данными о привычке или с сообщением об ошибке.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getHabitById(@PathVariable long id) {
         if (!currentUserBean.isAuthenticated()) {
@@ -129,7 +158,12 @@ public class HabitController {
         }
     }
 
-    // Отметка привычки как выполненной
+    /**
+     * Отмечает привычку как выполненную для текущего аутентифицированного пользователя.
+     *
+     * @param id идентификатор привычки.
+     * @return ResponseEntity с сообщением об успешном завершении или с сообщением об ошибке.
+     */
     @PostMapping("/{id}/complete")
     public ResponseEntity<?> markHabitCompleted(@PathVariable long id) {
         if (!currentUserBean.isAuthenticated()) {
@@ -143,7 +177,13 @@ public class HabitController {
         }
     }
 
-    // Получение статистики выполнения привычки за указанный период
+    /**
+     * Возвращает отчет о привычке за указанный период (количество выполнений и текущий прогресс).
+     *
+     * @param id идентификатор привычки.
+     * @param period период для отчета (например, "день", "неделя").
+     * @return ResponseEntity с отчетом или с сообщением об ошибке.
+     */
     @GetMapping("/{id}/report/{period}")
     public ResponseEntity<?> getHabitReport(@PathVariable long id, @PathVariable String period) {
         if (!currentUserBean.isAuthenticated()) {
@@ -164,7 +204,13 @@ public class HabitController {
         }
     }
 
-    // Вычисление процента выполнения привычки за указанный период
+    /**
+     * Возвращает процент выполнения привычки за указанный период.
+     *
+     * @param id идентификатор привычки.
+     * @param period период для расчета процента выполнения (например, "месяц", "год").
+     * @return ResponseEntity с процентом выполнения или с сообщением об ошибке.
+     */
     @GetMapping("/{id}/completion-percentage/{period}")
     public ResponseEntity<?> getCompletionPercentage(@PathVariable long id, @PathVariable String period) {
         if (!currentUserBean.isAuthenticated()) {
@@ -179,7 +225,13 @@ public class HabitController {
         }
     }
 
-    // Генерация отчета о прогрессе выполнения привычки
+    /**
+     * Генерирует отчет о прогрессе выполнения привычки за указанный период.
+     *
+     * @param id идентификатор привычки.
+     * @param period период для отчета о прогрессе (например, "месяц", "год").
+     * @return ResponseEntity с отчетом о прогрессе или с сообщением об ошибке.
+     */
     @GetMapping("/{id}/progress-report/{period}")
     public ResponseEntity<?> generateProgressReport(@PathVariable long id, @PathVariable String period) {
         if (!currentUserBean.isAuthenticated()) {

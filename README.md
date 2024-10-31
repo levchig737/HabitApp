@@ -5,6 +5,7 @@
 1. [ПР1](https://github.com/levchig737/intensivJavaYLAB/pull/3)
 2. [ПР2](https://github.com/levchig737/intensivJavaYLAB/pull/4)
 3. [ПР3](https://github.com/levchig737/intensivJavaYLAB/pull/5)
+3. [ПР4](https://github.com/levchig737/intensivJavaYLAB/pull/6)
 
 ## Запуск:
 ### Подключение к бд

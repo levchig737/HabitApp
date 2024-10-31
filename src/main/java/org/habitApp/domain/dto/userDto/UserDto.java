@@ -28,6 +28,13 @@ public class UserDto {
         this.flagAdmin = flagAdmin;
     }
 
+    public UserDto(String email, String password, String name, boolean flagAdmin) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.flagAdmin = flagAdmin;
+    }
+
     /**
      * Конструктор
      */

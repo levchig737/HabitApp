@@ -11,6 +11,12 @@ public class HabitDtoResponse {
 
     public HabitDtoResponse(){}
 
+    public HabitDtoResponse(String name, String description, String frequency) {
+        this.name = name;
+        this.description = description;
+        this.frequency = frequency;
+    }
+
     // Геттеры и сеттеры
     public long getId() {
         return id;
