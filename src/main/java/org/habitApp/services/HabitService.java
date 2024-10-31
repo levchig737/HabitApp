@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Сервис для управления привычками (CRUD)
@@ -38,14 +37,14 @@ public class HabitService {
         this.habitComletionHistoryRepository = habitComletionHistoryRepository;
     }
 
-    public HabitEntity getHabitById(UUID habitId, UserEntity currentUser) throws SQLException, HabitNotFoundException, UnauthorizedAccessException {
+    public HabitEntity getHabitById(long habitId, UserEntity currentUser) throws SQLException, HabitNotFoundException, UnauthorizedAccessException {
         HabitEntity habit = habitRepository.getHabitById(habitId);
         if (habit == null) {
             throw new HabitNotFoundException("Привычка с ID " + habitId + " не найдена.");
         }
 
         // Проверка принадлежности привычки текущему пользователю
-        if (!habit.getUserId().equals(currentUser.getId())) {
+        if (habit.getUserId() != (currentUser.getId())) {
             throw new UnauthorizedAccessException("Привычка не принадлежит текущему пользователю.");
         }
         return habit;
@@ -60,7 +59,7 @@ public class HabitService {
      * @param frequency   частота выполнения привычки
      */
     public void createHabit(UserEntity user, String name, String description, Period frequency) throws SQLException {
-        HabitEntity habit = HabitEntity.CreateHabit(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
+        HabitEntity habit = new HabitEntity(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
         habitRepository.createHabit(habit);
         System.out.println("Привычка \"" + name + "\" создана для пользователя " + user.getEmail() + ".");
     }
@@ -73,7 +72,7 @@ public class HabitService {
      * @param newDescription новое описание
      * @param newFrequency   новая частота выполнения
      */
-    public void updateHabit(UUID habitId, String newName, String newDescription, Period newFrequency) throws SQLException {
+    public void updateHabit(long habitId, String newName, String newDescription, Period newFrequency) throws SQLException {
         HabitEntity habit = habitRepository.getHabitById(habitId);
         if (habit == null) {
             throw new HabitNotFoundException("Habit not found.");
@@ -91,14 +90,14 @@ public class HabitService {
      *
      * @param habitId привычка для удаления
      */
-    public void deleteHabit(UUID habitId, UserEntity currentUser) throws SQLException {
+    public void deleteHabit(long habitId, UserEntity currentUser) throws SQLException {
         HabitEntity habit = habitRepository.getHabitById(habitId);
         if (habit == null) {
             throw new HabitNotFoundException("Habit not found.");
         }
 
-        UUID userId = habit.getUserId();
-        if (userId.equals(currentUser.getId())) {
+        long userId = habit.getUserId();
+        if (userId == currentUser.getId()) {
             habitRepository.deleteHabit(habitId);
             System.out.println("Привычка \"" + habit.getName() + "\" была удалена.");
         } else {
@@ -134,7 +133,7 @@ public class HabitService {
      *
      * @param habitId привычка, которую нужно отметить сегодня
      */
-    public void markHabitAsCompleted(UUID habitId) throws SQLException {
+    public void markHabitAsCompleted(long habitId) throws SQLException {
         List<LocalDate> completionHistory = habitComletionHistoryRepository.getCompletionHistoryForHabit(habitId);
         HabitEntity habit = habitRepository.getHabitById(habitId);
 

@@ -3,20 +3,20 @@ package org.habitApp.domain.dto.habitDto;
 import java.util.UUID;
 
 public class HabitDtoResponse {
-    private UUID id;
+    private long id;
     private String name;
     private String description;
     private String frequency;
-    private UUID userId;
+    private long userId;
 
     public HabitDtoResponse(){}
 
     // Геттеры и сеттеры
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -44,11 +44,11 @@ public class HabitDtoResponse {
         this.frequency = frequency;
     }
 
-    public UUID getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 }

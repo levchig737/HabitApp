@@ -10,7 +10,6 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.habitApp.domain.entities.HabitEntity.mapRowToHabit;
 
@@ -40,7 +39,7 @@ public class HabitRepository {
         List<HabitEntity> habits = new ArrayList<>();
         String sql = "SELECT * FROM habits WHERE user_id = ?";
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
-            statement.setObject(1, user.getId()); // Используем setObject для UUID
+            statement.setLong(1, user.getId());
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     habits.add(mapRowToHabit(resultSet));
@@ -56,10 +55,10 @@ public class HabitRepository {
      * @return список привычек
      * @throws SQLException ошибка работы с БД
      */
-    public HabitEntity getHabitById(UUID id) throws SQLException {
+    public HabitEntity getHabitById(long id) throws SQLException {
         String sql = "SELECT * FROM habits WHERE id = ?";
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
-            statement.setObject(1, id);
+            statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapRowToHabit(resultSet);
@@ -95,12 +94,12 @@ public class HabitRepository {
     public void createHabit(HabitEntity habit) throws SQLException {
         String sql = "INSERT INTO habits (id, name, description, frequency, created_date, user_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
-            statement.setObject(1, habit.getId());
+            statement.setLong(1, habit.getId());
             statement.setString(2, habit.getName());
             statement.setString(3, habit.getDescription());
             statement.setString(4, habit.getFrequency());
             statement.setDate(5, Date.valueOf(habit.getCreatedDate()));
-            statement.setObject(6, habit.getUserId());
+            statement.setLong(6, habit.getUserId());
             statement.executeUpdate();
         }
     }
@@ -111,13 +110,13 @@ public class HabitRepository {
      * @param habit привычка
      * @throws SQLException ошибка работы с БД
      */
-public void updateHabit(UUID habiId, HabitEntity habit) throws SQLException {
+public void updateHabit(long habiId, HabitEntity habit) throws SQLException {
         String sql = "UPDATE habits SET name = ?, description = ?, frequency = ? WHERE id = ?";
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
             statement.setString(1, habit.getName());
             statement.setString(2, habit.getDescription());
             statement.setString(3, habit.getFrequency());
-            statement.setObject(4, habiId);
+            statement.setLong(4, habiId);
             statement.executeUpdate();
         }
     }
@@ -127,10 +126,10 @@ public void updateHabit(UUID habiId, HabitEntity habit) throws SQLException {
      * @param habitId привычка
      * @throws SQLException ошибка работы с БД
      */
-    public void deleteHabit(UUID habitId) throws SQLException {
+    public void deleteHabit(long habitId) throws SQLException {
         String sql = "DELETE FROM habits WHERE id = ?";
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
-            statement.setObject(1, habitId);
+            statement.setLong(1, habitId);
             statement.executeUpdate();
         }
     }

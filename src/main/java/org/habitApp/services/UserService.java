@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Сервис для работы с пользователями.
@@ -44,9 +43,6 @@ public class UserService {
             throw new UserAlreadyExistsException("User already exists.");
         }
         UserEntity user = userMapper.userDtoRegisterUpdateToUser(userDtoRegisterUpdate);
-
-        // Генерируем UUID для нового пользователя
-        user.setId(UUID.randomUUID());
 
         userRepository.registerUser(user);
     }
@@ -151,7 +147,7 @@ public class UserService {
      * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      * @throws UserNotFoundException Если пользователь с указанным ID не найден
      */
-    public UserDto updateUserProfile(UUID id, UserDto userDto, UserEntity currentUser)
+    public UserDto updateUserProfile(long id, UserDto userDto, UserEntity currentUser)
             throws SQLException, UnauthorizedAccessException, UserNotFoundException {
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
@@ -176,7 +172,7 @@ public class UserService {
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      */
-    public void deleteUser(UUID id, UserEntity currentUser) throws SQLException, UnauthorizedAccessException {
+    public void deleteUser(long id, UserEntity currentUser) throws SQLException, UnauthorizedAccessException {
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }

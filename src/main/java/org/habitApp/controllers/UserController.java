@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Контроллер для обработки запросов, связанных с пользователями.
@@ -176,7 +175,7 @@ public class UserController {
      * @return Ответ с обновленными данными пользователя
      */
     @PutMapping("/admin/{email}")
-    public ResponseEntity<?> updateUserProfile(@PathVariable UUID id, @RequestBody UserDto userDto) {
+    public ResponseEntity<?> updateUserProfile(@PathVariable long id, @RequestBody UserDto userDto) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -196,7 +195,7 @@ public class UserController {
      * @return Ответ с кодом состояния
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteUser(@PathVariable long id) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }

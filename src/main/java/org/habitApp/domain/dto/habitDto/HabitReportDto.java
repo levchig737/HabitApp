@@ -5,7 +5,7 @@ import org.habitApp.models.Period;
 import java.util.UUID;
 
 public class HabitReportDto {
-    private UUID id;
+    private long id;
     private int streak;
     private double completionPercentage;
     private int completionCount;
@@ -13,7 +13,7 @@ public class HabitReportDto {
 
     public HabitReportDto(){}
 
-    public HabitReportDto(UUID id, int streak, double completionPercentage, Period period, int completionCount) {
+    public HabitReportDto(long id, int streak, double completionPercentage, Period period, int completionCount) {
         this.id = id;
         this.streak = streak;
         this.completionPercentage = completionPercentage;
@@ -46,11 +46,11 @@ public class HabitReportDto {
         this.period = period;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(long id) {
         this.id = id;
     }
 

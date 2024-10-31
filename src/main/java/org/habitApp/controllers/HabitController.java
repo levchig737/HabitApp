@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 @Loggable
 @RestController
@@ -53,7 +52,7 @@ public class HabitController {
 
     // Обновление привычки
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateHabit(@PathVariable UUID id, @RequestBody HabitDtoCreateUpdate habitDto) {
+    public ResponseEntity<?> updateHabit(@PathVariable long id, @RequestBody HabitDtoCreateUpdate habitDto) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -72,7 +71,7 @@ public class HabitController {
 
     // Удаление привычки
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteHabit(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteHabit(@PathVariable long id) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -116,7 +115,7 @@ public class HabitController {
 
     // Получение информации о привычке по ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getHabitById(@PathVariable UUID id) {
+    public ResponseEntity<?> getHabitById(@PathVariable long id) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -132,7 +131,7 @@ public class HabitController {
 
     // Отметка привычки как выполненной
     @PostMapping("/{id}/complete")
-    public ResponseEntity<?> markHabitCompleted(@PathVariable UUID id) {
+    public ResponseEntity<?> markHabitCompleted(@PathVariable long id) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -146,7 +145,7 @@ public class HabitController {
 
     // Получение статистики выполнения привычки за указанный период
     @GetMapping("/{id}/report/{period}")
-    public ResponseEntity<?> getHabitReport(@PathVariable UUID id, @PathVariable String period) {
+    public ResponseEntity<?> getHabitReport(@PathVariable long id, @PathVariable String period) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -167,7 +166,7 @@ public class HabitController {
 
     // Вычисление процента выполнения привычки за указанный период
     @GetMapping("/{id}/completion-percentage/{period}")
-    public ResponseEntity<?> getCompletionPercentage(@PathVariable UUID id, @PathVariable String period) {
+    public ResponseEntity<?> getCompletionPercentage(@PathVariable long id, @PathVariable String period) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -182,7 +181,7 @@ public class HabitController {
 
     // Генерация отчета о прогрессе выполнения привычки
     @GetMapping("/{id}/progress-report/{period}")
-    public ResponseEntity<?> generateProgressReport(@PathVariable UUID id, @PathVariable String period) {
+    public ResponseEntity<?> generateProgressReport(@PathVariable long id, @PathVariable String period) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }

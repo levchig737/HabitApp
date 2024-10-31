@@ -8,7 +8,7 @@
     <!-- Создание таблицы Users -->
     <changeSet id="2" author="levchig737">
         <createTable tableName="users">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -29,7 +29,7 @@
     <!-- Создание таблицы Habits -->
     <changeSet id="3" author="levchig737">
         <createTable tableName="habits">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -42,7 +42,7 @@
             <column name="created_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column name="user_id" type="UUID">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_habits_users" references="users(id)"/>
             </column>
         </createTable>
@@ -51,13 +51,13 @@
     <!-- Создание таблицы habit_completion_history -->
     <changeSet id="4" author="levchig737">
         <createTable tableName="habit_completion_history">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="habit_id" type="UUID">
+            <column name="habit_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_habit_history_habits" references="habits(id)"/>
             </column>
-            <column name="user_id" type="UUID">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_habit_history_users" references="users(id)"/>
             </column>
             <column name="completion_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">

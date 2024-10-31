@@ -1,12 +1,10 @@
 package org.habitApp.domain.entities;
 
-import java.util.UUID;
-
 /**
  * Модель User
  */
 public class UserEntity {
-    private UUID id;
+    private long id; // изменен на long
     private String email;
     private String password;
     private String name;
@@ -20,7 +18,7 @@ public class UserEntity {
      * @param name имя
      * @param flagAdmin флаг админа
      */
-    public UserEntity(UUID id, String email, String password, String name, boolean flagAdmin) {
+    public UserEntity(long id, String email, String password, String name, boolean flagAdmin) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -41,21 +39,22 @@ public class UserEntity {
                 '}';
     }
 
-    /**
-     * Конструктор User без ID (при создании нового пользователя)
-     * @param email email
-     * @param password пароль
-     * @param name имя
-     */
+    // Изменение метода CreateUser для генерации ID типа long
     public static UserEntity CreateUser(String email, String password, String name) {
-        return new UserEntity(UUID.randomUUID(), email, password, name, false);
+        return new UserEntity(generateRandomId(), email, password, name, false);
     }
 
-    public UUID getId() {
+    // Метод для генерации случайного long id
+    private static long generateRandomId() {
+        return (long) (Math.random() * Long.MAX_VALUE);
+    }
+
+    // Геттеры и сеттеры
+    public long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(long id) {
         this.id = id;
     }
 

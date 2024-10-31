@@ -9,7 +9,6 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Репозиторий для работы с данными пользователей.
@@ -53,10 +52,10 @@ public class UserRepository {
      * @return Пользователь с указанным ID или null, если не найден
      * @throws SQLException В случае ошибок при работе с базой данных
      */
-    public UserEntity getUserById(UUID id) throws SQLException {
+    public UserEntity getUserById(long id) throws SQLException {
         String sql = "SELECT * FROM users WHERE id = ?";
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
-            statement.setObject(1, id);
+            statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapRowToUser(resultSet);
@@ -121,7 +120,7 @@ public class UserRepository {
      * @param id ID пользователя, которого нужно удалить
      * @throws SQLException В случае ошибок при работе с базой данных
      */
-    public void deleteUserById(UUID id) throws SQLException {
+    public void deleteUserById(long id) throws SQLException {
         String sql = "DELETE FROM users WHERE id = ?";
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
             statement.setObject(1, id);
@@ -156,7 +155,7 @@ public class UserRepository {
      */
     private UserEntity mapRowToUser(ResultSet resultSet) throws SQLException {
         return new UserEntity(
-                (UUID) resultSet.getObject("id"),
+                resultSet.getLong("id"),
                 resultSet.getString("email"),
                 resultSet.getString("password"),
                 resultSet.getString("name"),

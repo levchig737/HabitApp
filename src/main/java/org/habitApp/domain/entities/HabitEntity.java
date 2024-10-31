@@ -12,12 +12,14 @@ import java.util.UUID;
  */
 
 public class HabitEntity {
-    private UUID id;
+    private long id;
     private String name;
     private String description;
     private String frequency; // ежедневная или еженедельная
     private LocalDate createdDate;
-    private UUID userId;
+    private long userId;
+
+    public HabitEntity(){}
 
     @Override
     public String toString() {
@@ -31,16 +33,7 @@ public class HabitEntity {
                 '}';
     }
 
-    /**
-     * Конструктор Habit
-     * @param id индекс привычки
-     * @param name название привычки
-     * @param description описание привычки
-     * @param frequency частота выполнения привычки (ежедневно, еженедельно)
-     * @param createdDate дата создания привычки
-     * @param userId пользователь id
-     */
-    public HabitEntity(UUID id, String name, String description, String frequency, LocalDate createdDate, UUID userId) {
+    public HabitEntity(long id, String name, String description, String frequency, LocalDate createdDate, long userId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -57,8 +50,12 @@ public class HabitEntity {
      * @param createdDate дата создания привычки
      * @param userId пользователь id
      */
-    public static HabitEntity CreateHabit(String name, String description, String frequency, LocalDate createdDate, UUID userId) {
-        return new HabitEntity(UUID.randomUUID(), name, description, frequency, createdDate, userId);
+    public HabitEntity(String name, String description, String frequency, LocalDate createdDate, long userId) {
+        this.name = name;
+        this.description = description;
+        this.frequency = frequency;
+        this.createdDate = createdDate;
+        this.userId = userId;
     }
 
     /**
@@ -69,21 +66,20 @@ public class HabitEntity {
      */
     public static HabitEntity mapRowToHabit(ResultSet resultSet) throws SQLException {
         HabitEntity habit = new HabitEntity(
-                (UUID) resultSet.getObject("id"),
+                resultSet.getLong("id"),
                 resultSet.getString("name"),
                 resultSet.getString("description"),
                 resultSet.getString("frequency"),
                 resultSet.getDate("created_date").toLocalDate(),
-                (UUID) resultSet.getObject("user_id")
-        );
+                resultSet.getLong("user_id"));
         return habit;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -119,11 +115,11 @@ public class HabitEntity {
         this.createdDate = createdDate;
     }
 
-    public UUID getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 }

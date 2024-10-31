@@ -6,7 +6,7 @@ import java.util.UUID;
  * UserDto
  */
 public class UserDto {
-    private UUID id;
+    private long id;
     private String email;
     private String password;
     private String name;
@@ -20,7 +20,7 @@ public class UserDto {
      * @param name name
      * @param flagAdmin flagAdmin
      */
-    public UserDto(UUID id, String email, String password, String name, boolean flagAdmin) {
+    public UserDto(long id, String email, String password, String name, boolean flagAdmin) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -44,7 +44,7 @@ public class UserDto {
                 '}';
     }
 
-    public void setId(UUID id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -64,7 +64,7 @@ public class UserDto {
         this.flagAdmin = flagAdmin;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 
