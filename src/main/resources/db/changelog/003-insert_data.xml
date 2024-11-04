@@ -9,21 +9,21 @@
     <!-- Заполнение таблицы users данными -->
     <changeSet id="5-1" author="levchig737">
         <insert tableName="users">
-            <column name="id" value="123e4567-e89b-12d3-a456-426614174000"/>
+            <column name="id" value="1"/>
             <column name="name" value="root"/>
             <column name="email" value="root"/>
             <column name="password" value="root"/>
             <column name="is_admin" valueBoolean="true"/>
         </insert>
         <insert tableName="users">
-            <column name="id" value="223e4567-e89b-12d3-a456-426614174001"/>
+            <column name="id" value="2"/>
             <column name="name" value="user"/>
             <column name="email" value="user"/>
             <column name="password" value="user"/>
             <column name="is_admin" valueBoolean="false"/>
         </insert>
         <insert tableName="users">
-            <column name="id" value="323e4567-e89b-12d3-a456-426614174002"/>
+            <column name="id" value="3"/>
             <column name="name" value="Bob"/>
             <column name="email" value="bob@example.com"/>
             <column name="password" value="1234"/>
@@ -34,47 +34,47 @@
     <!-- Заполнение таблицы habits данными -->
     <changeSet id="6-1" author="levchig737">
         <insert tableName="habits">
-            <column name="id" value="423e4567-e89b-12d3-a456-426614174003"/>
+            <column name="id" value="1"/>
             <column name="name" value="Daily Exercise"/>
             <column name="description" value="Morning workout routine"/>
             <column name="frequency" value="day"/>
             <column name="created_date" valueDate="2024-10-15"/>
-            <column name="user_id" value="123e4567-e89b-12d3-a456-426614174000"/> <!-- ID пользователя root -->
+            <column name="user_id" value="1"/> <!-- ID пользователя root -->
         </insert>
         <insert tableName="habits">
-            <column name="id" value="523e4567-e89b-12d3-a456-426614174004"/>
+            <column name="id" value="2"/>
             <column name="name" value="Reading"/>
             <column name="description" value="Read one book per month"/>
             <column name="frequency" value="month"/>
             <column name="created_date" valueDate="2024-10-15"/>
-            <column name="user_id" value="223e4567-e89b-12d3-a456-426614174001"/> <!-- ID пользователя user -->
+            <column name="user_id" value="2"/> <!-- ID пользователя user -->
         </insert>
         <insert tableName="habits">
-            <column name="id" value="623e4567-e89b-12d3-a456-426614174005"/>
+            <column name="id" value="3"/>
             <column name="name" value="Yoga"/>
             <column name="description" value="Practice yoga every evening"/>
             <column name="frequency" value="day"/>
             <column name="created_date" valueDate="2024-10-15"/>
-            <column name="user_id" value="323e4567-e89b-12d3-a456-426614174002"/> <!-- ID пользователя Bob -->
+            <column name="user_id" value="3"/> <!-- ID пользователя Bob -->
         </insert>
     </changeSet>
 
     <!-- Заполнение таблицы habit_completion_history -->
     <changeSet id="7-1" author="levchig737">
         <insert tableName="habit_completion_history">
-            <column name="id" value="723e4567-e89b-12d3-a456-426614174006"/>
-            <column name="habit_id" value="423e4567-e89b-12d3-a456-426614174003"/> <!-- ID привычки Daily Exercise -->
-            <column name="user_id" value="123e4567-e89b-12d3-a456-426614174000"/> <!-- ID пользователя root -->
+            <column name="id" value="1"/>
+            <column name="habit_id" value="1"/> <!-- ID привычки Daily Exercise -->
+            <column name="user_id" value="1"/> <!-- ID пользователя root -->
         </insert>
         <insert tableName="habit_completion_history">
-            <column name="id" value="823e4567-e89b-12d3-a456-426614174007"/>
-            <column name="habit_id" value="523e4567-e89b-12d3-a456-426614174004"/> <!-- ID привычки Reading -->
-            <column name="user_id" value="223e4567-e89b-12d3-a456-426614174001"/> <!-- ID пользователя user -->
+            <column name="id" value="2"/>
+            <column name="habit_id" value="2"/> <!-- ID привычки Reading -->
+            <column name="user_id" value="2"/> <!-- ID пользователя user -->
         </insert>
         <insert tableName="habit_completion_history">
-            <column name="id" value="923e4567-e89b-12d3-a456-426614174008"/>
-            <column name="habit_id" value="623e4567-e89b-12d3-a456-426614174005"/> <!-- ID привычки Yoga -->
-            <column name="user_id" value="323e4567-e89b-12d3-a456-426614174002"/> <!-- ID пользователя Bob -->
+            <column name="id" value="3"/>
+            <column name="habit_id" value="3"/> <!-- ID привычки Yoga -->
+            <column name="user_id" value="3"/> <!-- ID пользователя Bob -->
         </insert>
     </changeSet>
 </databaseChangeLog>

@@ -1,6 +1,11 @@
 package org.habitApp.services;
 
-import org.habitApp.models.User;
+import org.habitApp.domain.dto.userDto.UserDto;
+import org.habitApp.domain.dto.userDto.UserDtoLogin;
+import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
+import org.habitApp.domain.entities.UserEntity;
+import org.habitApp.exceptions.*;
+import org.habitApp.mappers.UserMapper;
 import org.habitApp.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,157 +25,113 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private UserMapper userMapper;
+
     @InjectMocks
     private UserService userService;
 
-    private User adminUser;
-    private User regularUser;
+    private UserDtoRegisterUpdate userDtoRegister;
+    private UserDtoLogin userDtoLogin;
+    private UserEntity userEntity;
+    private UserDto userDto;
 
     @BeforeEach
     void setUp() {
-        adminUser = new User(UUID.randomUUID(), "admin@example.com", "password", "Admin User", true);
-        regularUser = new User(UUID.randomUUID(), "user@example.com", "password", "Regular User", false);
+        userDtoRegister = new UserDtoRegisterUpdate("test@example.com", "Test User", "password123");
+        userDtoLogin = new UserDtoLogin("test@example.com", "password123");
+        userEntity = new UserEntity("test@example.com", "password123", "Test User", false);
+        userDto = new UserDto("test@example.com", "password", "Test User", false);
     }
 
     @Test
-    void testRegisterUser_Successful() throws SQLException {
-        String email = "newuser@example.com";
-        String password = "newpassword";
-        String name = "New User";
+    void registerUser_SuccessfulRegistration() throws SQLException, UserAlreadyExistsException {
+        when(userRepository.getUserByEmail(userDtoRegister.getEmail())).thenReturn(null);
+        when(userMapper.userDtoRegisterUpdateToUser(userDtoRegister)).thenReturn(userEntity);
 
-        when(userRepository.getUserByEmail(email)).thenReturn(null);
+        assertDoesNotThrow(() -> userService.registerUser(userDtoRegister));
 
-        userService.registerUser(email, password, name);
-
-        verify(userRepository, times(1)).registerUser(any(User.class));
+        verify(userRepository, times(1)).registerUser(userEntity);
     }
 
     @Test
-    void testRegisterUser_AlreadyExists() throws SQLException {
-        String email = "existing@example.com";
-        String password = "password";
-        String name = "Existing User";
+    void registerUser_UserAlreadyExists() throws SQLException {
+        when(userRepository.getUserByEmail(userDtoRegister.getEmail())).thenReturn(userEntity);
 
-        when(userRepository.getUserByEmail(email)).thenReturn(new User(UUID.randomUUID(), email, password, name, false));
-
-        assertThrows(IllegalArgumentException.class, () -> userService.registerUser(email, password, name));
+        assertThrows(UserAlreadyExistsException.class, () -> userService.registerUser(userDtoRegister));
     }
 
     @Test
-    void testLoginUser_Successful() throws SQLException {
-        String email = regularUser.getEmail();
-        String password = regularUser.getPassword();
+    void loginUser_SuccessfulLogin() throws SQLException, InvalidCredentialsException {
+        when(userRepository.getUserByEmail(userDtoLogin.getEmail())).thenReturn(userEntity);
+        when(userMapper.userToUserDto(userEntity)).thenReturn(userDto);
 
-        when(userRepository.getUserByEmail(email)).thenReturn(regularUser);
+        UserDto result = userService.loginUser(userDtoLogin);
 
-        User user = userService.loginUser(email, password);
-
-        assertNotNull(user);
-        assertEquals(email, user.getEmail());
+        assertEquals(userDto, result);
+        verify(userRepository, times(1)).getUserByEmail(userDtoLogin.getEmail());
     }
 
     @Test
-    void testLoginUser_InvalidCredentials() throws SQLException {
-        String email = "nonexistent@example.com";
-        String password = "wrongpassword";
+    void loginUser_InvalidCredentials() throws SQLException {
+        when(userRepository.getUserByEmail(userDtoLogin.getEmail())).thenReturn(null);
 
-        when(userRepository.getUserByEmail(email)).thenReturn(null);
-
-        assertThrows(IllegalArgumentException.class, () -> userService.loginUser(email, password));
+        assertThrows(InvalidCredentialsException.class, () -> userService.loginUser(userDtoLogin));
     }
 
     @Test
-    void testUpdateCurrentUserProfile_Successful() throws SQLException {
-        String newName = "Updated User";
-        String newPassword = "updatedPassword";
-
-        userService.updateCurrentUserProfile(newName, newPassword, regularUser);
-
-        assertEquals(newName, regularUser.getName());
-        assertEquals(newPassword, regularUser.getPassword());
-        verify(userRepository, times(1)).updateUser(regularUser);
+    void updateCurrentUserProfile_UserNotFound() throws SQLException {
+        assertThrows(UserNotFoundException.class, () -> userService.updateCurrentUserProfile(userDtoRegister, null));
     }
 
     @Test
-    void testUpdateCurrentUserProfile_UserNotFound() {
-        assertThrows(IllegalArgumentException.class, () -> userService.updateCurrentUserProfile("New Name", "New Password", null));
+    void updateCurrentUserProfile_SuccessfulUpdate() throws SQLException, UserNotFoundException, UserAlreadyExistsException {
+        UserEntity currentUser = new UserEntity("old@example.com", "Old User", "oldPassword", false);
+
+        when(userRepository.getUserByEmail(userDtoRegister.getEmail())).thenReturn(null);
+
+        assertDoesNotThrow(() -> userService.updateCurrentUserProfile(userDtoRegister, currentUser));
+        verify(userRepository, times(1)).updateUser(currentUser);
     }
 
     @Test
-    void testDeleteCurrentUser_Successful() throws SQLException {
-        userService.deleteCurrentUser(regularUser);
+    void deleteCurrentUser_SuccessfulDeletion() throws SQLException, UserNotFoundException {
+        UserEntity currentUser = new UserEntity("test@example.com", "Test User", "password123", false);
 
-        verify(userRepository, times(1)).deleteUserById(regularUser.getId());
+        assertDoesNotThrow(() -> userService.deleteCurrentUser(currentUser));
+        verify(userRepository, times(1)).deleteUserById(currentUser.getId());
     }
 
     @Test
-    void testDeleteCurrentUser_UserNotFound() {
-        assertThrows(IllegalArgumentException.class, () -> userService.deleteCurrentUser(null));
+    void deleteCurrentUser_UserNotFound() throws SQLException {
+        assertThrows(UserNotFoundException.class, () -> userService.deleteCurrentUser(null));
     }
 
     @Test
-    void testGetUser_AdminAccess() throws SQLException, IllegalAccessException {
-        when(userRepository.getUserByEmail(regularUser.getEmail())).thenReturn(regularUser);
+    void getUser_UnauthorizedAccess() {
+        UserEntity nonAdminUser = new UserEntity("nonadmin@example.com", "Non-Admin", "password123", false);
 
-        User user = userService.getUser(regularUser.getEmail(), adminUser);
-
-        assertNotNull(user);
-        assertEquals(regularUser.getEmail(), user.getEmail());
+        assertThrows(UnauthorizedAccessException.class, () -> userService.getUser("target@example.com", nonAdminUser));
     }
 
     @Test
-    void testGetUser_NonAdminAccess() {
-        assertThrows(IllegalAccessException.class, () -> userService.getUser(regularUser.getEmail(), regularUser));
+    void getAllUsers_UnauthorizedAccess() {
+        UserEntity nonAdminUser = new UserEntity("nonadmin@example.com", "Non-Admin", "password123", false);
+
+        assertThrows(UnauthorizedAccessException.class, () -> userService.getAllUsers(nonAdminUser));
     }
 
     @Test
-    void testGetAllUsers_AdminAccess() throws SQLException, IllegalAccessException {
-        when(userRepository.getAllUsers()).thenReturn(List.of(adminUser, regularUser));
+    void updateUserProfile_UnauthorizedAccess() {
+        UserEntity nonAdminUser = new UserEntity("nonadmin@example.com", "Non-Admin", "password123", false);
 
-        List<User> users = userService.getAllUsers(adminUser);
-
-        assertNotNull(users);
-        assertEquals(2, users.size());
+        assertThrows(UnauthorizedAccessException.class, () -> userService.updateUserProfile(1L, userDto, nonAdminUser));
     }
 
     @Test
-    void testGetAllUsers_NonAdminAccess() {
-        assertThrows(IllegalAccessException.class, () -> userService.getAllUsers(regularUser));
-    }
+    void deleteUser_UnauthorizedAccess() {
+        UserEntity nonAdminUser = new UserEntity("nonadmin@example.com", "Non-Admin", "password123", false);
 
-    @Test
-    void testUpdateUserProfile_AdminAccess() throws SQLException, IllegalAccessException {
-        String email = regularUser.getEmail();
-        String newName = "Updated Name";
-        String newPassword = "UpdatedPassword";
-        boolean isAdmin = true;
-
-        when(userRepository.getUserByEmail(email)).thenReturn(regularUser);
-
-        User updatedUser = userService.updateUserProfile(email, newName, newPassword, isAdmin, adminUser);
-
-        assertEquals(newName, updatedUser.getName());
-        assertEquals(newPassword, updatedUser.getPassword());
-        assertTrue(updatedUser.isAdmin());
-        verify(userRepository, times(1)).updateUser(updatedUser);
-    }
-
-    @Test
-    void testUpdateUserProfile_NonAdminAccess() {
-        assertThrows(IllegalAccessException.class, () -> userService.updateUserProfile(regularUser.getEmail(), "Name", "Password", true, regularUser));
-    }
-
-    @Test
-    void testDeleteUser_AdminAccess() throws SQLException, IllegalAccessException {
-        UUID userId = regularUser.getId();
-
-        userService.deleteUser(userId, adminUser);
-
-        verify(userRepository, times(1)).deleteUserById(userId);
-    }
-
-    @Test
-    void testDeleteUser_NonAdminAccess() {
-        assertThrows(IllegalAccessException.class, () -> userService.deleteUser(regularUser.getId(), regularUser));
+        assertThrows(UnauthorizedAccessException.class, () -> userService.deleteUser(1L, nonAdminUser));
     }
 }

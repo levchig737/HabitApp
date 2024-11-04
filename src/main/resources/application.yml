@@ -1,0 +1,8 @@
+jdbc:
+  url: jdbc:postgresql://localhost:5431/habit_app
+  username: habit_app
+  password: 1234
+  driverClassName: org.postgresql.Driver
+
+liquibase:
+  changeLogFile: db/changelog/changelog.xml

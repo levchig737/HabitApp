@@ -1,27 +1,28 @@
 package org.habitApp.services;
 
-import org.habitApp.models.Habit;
+import org.habitApp.domain.dto.habitDto.HabitReportDto;
+import org.habitApp.domain.entities.HabitEntity;
+import org.habitApp.domain.entities.UserEntity;
+import org.habitApp.exceptions.HabitAlreadyCompletedException;
+import org.habitApp.exceptions.HabitNotFoundException;
+import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.models.Period;
-import org.habitApp.models.User;
 import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class HabitServiceTest {
+public class HabitServiceTest {
 
     @Mock
     private HabitRepository habitRepository;
@@ -32,122 +33,104 @@ class HabitServiceTest {
     @InjectMocks
     private HabitService habitService;
 
-    private User user;
-    private Habit habit;
-    private Period period;
+    private UserEntity testUser;
+    private HabitEntity testHabit;
 
     @BeforeEach
-    void setUp() {
-        user = new User(UUID.randomUUID(), "user", "password", "user", true);
-        habit = new Habit(UUID.randomUUID(), "Exercise", "Daily exercise", "day", LocalDate.now(), user.getId());
-        period = Period.DAY;
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        testUser = new UserEntity(1, "testUser@example.com", "password123", "Test User", false);
+        testHabit = new HabitEntity(1, "Test Habit", "Testing", "day", LocalDate.now(), testUser.getId());
     }
 
     @Test
-    void testCreateHabit() throws SQLException {
-        habitService.createHabit(user, habit.getName(), habit.getDescription(), period);
+    public void getHabitById_ShouldReturnHabit_WhenUserHasAccess() throws SQLException, HabitNotFoundException, UnauthorizedAccessException {
+        when(habitRepository.getHabitById(1L)).thenReturn(testHabit);
 
-        verify(habitRepository, times(1)).createHabit(any(Habit.class));
+        HabitEntity habit = habitService.getHabitById(1L, testUser);
+
+        assertEquals(testHabit, habit);
+        verify(habitRepository, times(1)).getHabitById(1L);
     }
 
     @Test
-    void testUpdateHabit() throws SQLException {
-        UUID habitId = habit.getId();
-        String newName = "Exercise Updated";
-        String newDescription = "Updated daily exercise";
-        Period newFrequency = Period.WEEK;
+    public void getHabitById_ShouldThrowUnauthorizedAccessException_WhenUserDoesNotOwnHabit() throws SQLException {
+        UserEntity otherUser = new UserEntity(2,"otherUser@example.com", "password123", "Other User", false);
+        when(habitRepository.getHabitById(1)).thenReturn(testHabit);
 
-        habitService.updateHabit(habitId, newName, newDescription, newFrequency);
-
-        verify(habitRepository, times(1)).updateHabit(eq(habitId), any(Habit.class));
+        assertThrows(UnauthorizedAccessException.class, () -> habitService.getHabitById(1, otherUser));
     }
 
     @Test
-    void testDeleteHabitWithCorrectUser() throws SQLException {
-        when(habitRepository.getHabitById(habit.getId())).thenReturn(habit);
-        doNothing().when(habitRepository).deleteHabit(habit.getId());
+    public void createHabit_ShouldCallRepositorySaveMethod() throws SQLException {
+        Period frequency = Period.DAY;
 
-        habitService.deleteHabit(habit.getId(), user);
+        habitService.createHabit(testUser, "New Habit", "Description", frequency);
 
-        verify(habitRepository, times(1)).deleteHabit(habit.getId());
-    }
-
-
-
-    @Test
-    void testDeleteHabitWithIncorrectUser() throws SQLException {
-        User otherUser = new User(UUID.randomUUID(), "other@example.com", "Other User", "test", false);
-        when(habitRepository.getHabitById(habit.getId())).thenReturn(habit);
-
-        habitService.deleteHabit(habit.getId(), otherUser);
-
-        verify(habitRepository, times(0)).deleteHabit(habit.getId());
+        verify(habitRepository, times(1)).createHabit(any(HabitEntity.class));
     }
 
     @Test
-    void testGetAllHabitsForUser() throws SQLException {
-        when(habitRepository.getHabitsByUser(user)).thenReturn(List.of(habit));
+    public void deleteHabit_ShouldThrowUnauthorizedAccessException_WhenUserDoesNotOwnHabit() throws SQLException {
+        UserEntity otherUser = new UserEntity(2,"otherUser@example.com", "password123", "Other User", false);
 
-        List<Habit> habits = habitService.getAllHabits(user);
+        when(habitRepository.getHabitById(1)).thenReturn(testHabit);
 
-        assertNotNull(habits);
+        assertThrows(UnauthorizedAccessException.class, () -> habitService.deleteHabit(1, otherUser));
+    }
+
+    @Test
+    public void getAllHabits_ShouldReturnUserHabits() throws SQLException {
+        when(habitRepository.getHabitsByUser(testUser)).thenReturn(List.of(testHabit));
+
+        List<HabitEntity> habits = habitService.getAllHabits(testUser);
+
         assertEquals(1, habits.size());
-        assertEquals(habit, habits.get(0));
+        assertEquals(testHabit, habits.get(0));
     }
 
     @Test
-    void testGetAllHabitsAdminWithAdminUser() throws SQLException, IllegalAccessException {
-        when(habitRepository.getAllHabits()).thenReturn(List.of(habit));
+    public void markHabitAsCompleted_ShouldThrowHabitAlreadyCompletedException_WhenCompletedToday() throws SQLException {
+        when(habitComletionHistoryRepository.getCompletionHistoryForHabit(1L)).thenReturn(List.of(LocalDate.now()));
+        when(habitRepository.getHabitById(1L)).thenReturn(testHabit);
 
-        List<Habit> habits = habitService.getAllHabitsAdmin(user);
-
-        assertNotNull(habits);
-        assertEquals(1, habits.size());
+        assertThrows(HabitAlreadyCompletedException.class, () -> habitService.markHabitAsCompleted(1L));
     }
 
     @Test
-    void testGetAllHabitsAdminWithNonAdminUser() {
-        User nonAdminUser = new User(UUID.randomUUID(), "nonadmin@example.com", "Non Admin", "test",false);
+    public void calculateCurrentStreak_ShouldReturnStreakCount() throws SQLException {
+        List<LocalDate> completionHistory = List.of(
+                LocalDate.now().minusDays(2),
+                LocalDate.now().minusDays(1),
+                LocalDate.now()
+        );
+        when(habitComletionHistoryRepository.getCompletionHistoryForHabit(1L)).thenReturn(completionHistory);
 
-        assertThrows(IllegalAccessException.class, () -> habitService.getAllHabitsAdmin(nonAdminUser));
-    }
-
-    @Test
-    void testMarkHabitAsCompleted() throws SQLException {
-        when(habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId()))
-                .thenReturn(List.of(LocalDate.now().minusDays(1)));
-
-        habitService.markHabitAsCompleted(habit);
-
-        verify(habitComletionHistoryRepository, times(1))
-                .addComletionDateByHabitIdUserIs(habit.getId(), habit.getUserId(), LocalDate.now());
-    }
-
-    @Test
-    void testMarkHabitAsCompletedTwiceInOneDayThrowsException() throws SQLException {
-        when(habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId()))
-                .thenReturn(List.of(LocalDate.now()));
-
-        assertThrows(IllegalArgumentException.class, () -> habitService.markHabitAsCompleted(habit));
-    }
-
-    @Test
-    void testCalculateCurrentStreak() throws SQLException {
-        when(habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId()))
-                .thenReturn(List.of(LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), LocalDate.now()));
-
-        int streak = habitService.calculateCurrentStreak(habit);
+        int streak = habitService.calculateCurrentStreak(testHabit);
 
         assertEquals(3, streak);
     }
 
     @Test
-    void testCalculateCompletionPercentage() throws SQLException {
-        when(habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId()))
-                .thenReturn(List.of(LocalDate.now().minusDays(1), LocalDate.now()));
+    public void calculateCompletionPercentage_ShouldReturnPercentage() throws SQLException {
+        List<LocalDate> completionHistory = List.of(
+                LocalDate.now().minusDays(2),
+                LocalDate.now().minusDays(1)
+        );
+        when(habitComletionHistoryRepository.getCompletionHistoryForHabit(1L)).thenReturn(completionHistory);
 
-        double percentage = habitService.calculateCompletionPercentage(habit, period);
+        double percentage = habitService.calculateCompletionPercentage(testHabit, Period.WEEK);
 
         assertTrue(percentage > 0);
+    }
+
+    @Test
+    public void generateProgressReport_ShouldReturnHabitReportDto() throws SQLException {
+        when(habitComletionHistoryRepository.getCompletionHistoryForHabit(1)).thenReturn(List.of(LocalDate.now().minusDays(1)));
+        when(habitRepository.getHabitById(1)).thenReturn(testHabit);
+
+        HabitReportDto report = habitService.generateProgressReport(testHabit, Period.DAY);
+
+        assertNotNull(report);
     }
 }

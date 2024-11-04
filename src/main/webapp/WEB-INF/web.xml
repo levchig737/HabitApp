@@ -4,12 +4,4 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
-  <servlet>
-    <servlet-name>version</servlet-name>
-    <servlet-class>org.habitApp.servlets.VersionServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>version</servlet-name>
-    <url-pattern>/version</url-pattern>
-  </servlet-mapping>
 </web-app>
