@@ -1,5 +1,8 @@
 package org.habitApp.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.habitApp.annotations.Loggable;
 import org.habitApp.config.beans.CurrentUserBean;
 import org.habitApp.domain.dto.userDto.UserDto;
@@ -23,18 +26,25 @@ import java.util.List;
  * Обеспечивает регистрацию, вход, выход, обновление и удаление профилей пользователей.
  */
 @Loggable
+@Tag(name = "User Controller", description = "Операции для работы с профилями пользователей, включая регистрацию, вход, обновление и удаление.")
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    private final UserService userService; // Сервис для работы с пользователями
+    private final UserMapper userMapper; // Маппер для преобразования между UserDto и UserEntity
+    private final CurrentUserBean currentUserBean;  // Инжектируем сессионный бин
 
-    @Autowired
-    private UserService userService; // Сервис для работы с пользователями
-
-    @Autowired
-    private UserMapper userMapper; // Маппер для преобразования между UserDto и UserEntity
-
-    @Autowired
-    private CurrentUserBean currentUserBean;  // Инжектируем сессионный бин
+    /**
+     * Конструктор UserController
+     * @param userService userService
+     * @param userMapper userMapper
+     * @param currentUserBean currentUserBean
+     */
+    public UserController(UserService userService, UserMapper userMapper, CurrentUserBean currentUserBean) {
+        this.userService = userService;
+        this.userMapper = userMapper;
+        this.currentUserBean = currentUserBean;
+    }
 
     /**
      * Регистрация нового пользователя.
@@ -42,6 +52,7 @@ public class UserController {
      * @param userDtoRegisterUpdate Данные для регистрации пользователя
      * @return Ответ с кодом состояния и сообщением
      */
+    @Operation(summary = "Регистрация нового пользователя", description = "Регистрирует нового пользователя с переданными данными.")
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDtoRegisterUpdate userDtoRegisterUpdate) {
         try {
@@ -58,6 +69,7 @@ public class UserController {
      * @param userDtoLogin Данные для входа (email и пароль)
      * @return Ответ с данными пользователя или сообщение об ошибке
      */
+    @Operation(summary = "Вход пользователя", description = "Выполняет аутентификацию пользователя по его email и паролю.")
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserDtoLogin userDtoLogin) {
         try {
@@ -78,6 +90,7 @@ public class UserController {
      *
      * @return Ответ с сообщением об успешном выходе
      */
+    @Operation(summary = "Выход пользователя", description = "Завершает сессию текущего пользователя.")
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser() {
         if (!currentUserBean.isAuthenticated()) {
@@ -95,6 +108,7 @@ public class UserController {
      * @param userDtoRegisterUpdate Данные для обновления профиля
      * @return Ответ с кодом состояния
      */
+    @Operation(summary = "Обновление профиля", description = "Обновляет информацию профиля текущего пользователя.")
     @PutMapping("/profile")
     public ResponseEntity<?> updateCurrentUserProfile(@RequestBody UserDtoRegisterUpdate userDtoRegisterUpdate) {
         if (!currentUserBean.isAuthenticated()) {
@@ -114,6 +128,7 @@ public class UserController {
      *
      * @return Ответ с кодом состояния
      */
+    @Operation(summary = "Удаление профиля", description = "Удаляет текущий профиль пользователя.")
     @DeleteMapping("/profile")
     public ResponseEntity<?> deleteCurrentUser() {
         if (!currentUserBean.isAuthenticated()) {
@@ -134,8 +149,9 @@ public class UserController {
      * @param email Email пользователя
      * @return Ответ с данными пользователя
      */
+    @Operation(summary = "Получение пользователя по email", description = "Возвращает информацию о пользователе для администратора.")
     @GetMapping("/admin/{email}")
-    public ResponseEntity<?> getUser(@PathVariable String email) {
+    public ResponseEntity<?> getUser(@RequestParam String email) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -153,6 +169,7 @@ public class UserController {
      *
      * @return Ответ со списком пользователей
      */
+    @Operation(summary = "Получение списка пользователей", description = "Возвращает список всех пользователей для администратора.")
     @GetMapping("/admin")
     public ResponseEntity<?> getAllUsers() {
         if (!currentUserBean.isAuthenticated()) {
@@ -174,14 +191,15 @@ public class UserController {
      * @param userDto Данные для обновления
      * @return Ответ с обновленными данными пользователя
      */
-    @PutMapping("/admin/{email}")
-    public ResponseEntity<?> updateUserProfile(@PathVariable long id, @RequestBody UserDto userDto) {
+    @Operation(summary = "Обновление профиля пользователя", description = "Обновляет профиль пользователя по его ID для администратора.")
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<?> updateUserProfile(@RequestParam long id, @RequestBody UserDtoRegisterUpdate userDtoRegisterUpdate) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
 
         try {
-            UserDto updatedUserDto = userService.updateUserProfile(id, userDto, currentUserBean.getCurrentUser());
+            UserDto updatedUserDto = userService.updateUserProfile(id, userDtoRegisterUpdate, currentUserBean.getCurrentUser());
             return ResponseEntity.ok(updatedUserDto);
         } catch (SQLException | UnauthorizedAccessException | UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -194,8 +212,9 @@ public class UserController {
      * @param id ID пользователя
      * @return Ответ с кодом состояния
      */
+    @Operation(summary = "Удаление пользователя по ID", description = "Удаляет профиль пользователя по его ID для администратора.")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable long id) {
+    public ResponseEntity<?> deleteUser(@RequestParam long id) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }

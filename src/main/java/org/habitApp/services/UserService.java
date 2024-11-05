@@ -24,12 +24,18 @@ import java.util.List;
 @Loggable
 @Service
 public class UserService {
+    private final UserRepository userRepository; // Репозиторий для работы с данными пользователей
+    private final UserMapper userMapper; // Маппер для преобразования между UserDto и UserEntity
 
-    @Autowired
-    private UserRepository userRepository; // Репозиторий для работы с данными пользователей
-
-    @Autowired
-    private UserMapper userMapper; // Маппер для преобразования между UserDto и UserEntity
+    /**
+     * Констрктор UserService
+     * @param userRepository userRepository
+     * @param userMapper userMapper
+     */
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
 
     /**
      * Регистрация нового пользователя.
@@ -147,16 +153,15 @@ public class UserService {
      * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      * @throws UserNotFoundException Если пользователь с указанным ID не найден
      */
-    public UserDto updateUserProfile(long id, UserDto userDto, UserEntity currentUser)
+    public UserDto updateUserProfile(long id, UserDtoRegisterUpdate userDtoRegisterUpdate, UserEntity currentUser)
             throws SQLException, UnauthorizedAccessException, UserNotFoundException {
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
         UserEntity user = userRepository.getUserById(id);
         if (user != null) {
-            user.setName(userDto.getName());
-            user.setPassword(userDto.getPassword());
-            user.setFlagAdmin(userDto.isFlagAdmin());
+            user.setName(userDtoRegisterUpdate.getName());
+            user.setPassword(userDtoRegisterUpdate.getPassword());
             userRepository.updateUser(user);
             return userMapper.userToUserDto(user);
         } else {

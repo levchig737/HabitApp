@@ -26,12 +26,14 @@ import java.util.Objects;
 @Loggable
 @Service
 public class HabitService {
-    @Autowired
     private final HabitRepository habitRepository;
-
-    @Autowired
     private final HabitComletionHistoryRepository habitComletionHistoryRepository;
 
+    /**
+     * Конструктор HabitService
+     * @param habitRepository habitRepository
+     * @param habitComletionHistoryRepository habitComletionHistoryRepository
+     */
     public HabitService(HabitRepository habitRepository, HabitComletionHistoryRepository habitComletionHistoryRepository) {
         this.habitRepository = habitRepository;
         this.habitComletionHistoryRepository = habitComletionHistoryRepository;
