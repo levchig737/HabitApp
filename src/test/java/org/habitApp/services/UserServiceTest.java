@@ -125,7 +125,7 @@ class UserServiceTest {
     void updateUserProfile_UnauthorizedAccess() {
         UserEntity nonAdminUser = new UserEntity("nonadmin@example.com", "Non-Admin", "password123", false);
 
-        assertThrows(UnauthorizedAccessException.class, () -> userService.updateUserProfile(1L, userDto, nonAdminUser));
+        assertThrows(UnauthorizedAccessException.class, () -> userService.updateUserProfile(1L, userDtoRegister, nonAdminUser));
     }
 
     @Test

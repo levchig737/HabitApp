@@ -22,7 +22,7 @@ public class LoggingAspect {
      * @return result
      * @throws Throwable Throwable
      */
-    @Around("@within(org.habitApp.annotations.Loggable) && execution(* org.habitApp..*(..))")
+    @Around("execution(* org.habitApp..controllers..*(..)) || execution(* org.habitApp..services..*(..)) || execution(* org.habitApp..repositories..*(..))")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         logger.info("Method {} is about to execute with arguments: {}",

@@ -1,6 +1,5 @@
 package org.habitApp.repositories;
 
-import org.habitApp.annotations.Loggable;
 import org.habitApp.domain.entities.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -14,7 +13,6 @@ import java.util.List;
  * Репозиторий для работы с данными пользователей.
  * Содержит методы для выполнения операций с базой данных, связанных с пользователями.
  */
-@Loggable
 @Repository
 public class UserRepository {
 

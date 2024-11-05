@@ -21,7 +21,6 @@ import java.util.List;
  * Сервис для работы с пользователями.
  * Содержит бизнес-логику для регистрации, аутентификации, обновления и удаления пользователей.
  */
-@Loggable
 @Service
 public class UserService {
     private final UserRepository userRepository; // Репозиторий для работы с данными пользователей
@@ -146,7 +145,7 @@ public class UserService {
      * Обновление профиля пользователя по ID (доступно только администраторам).
      *
      * @param id ID пользователя
-     * @param userDto Данные для обновления
+     * @param userDtoRegisterUpdate Данные для обновления
      * @param currentUser Текущий пользователь
      * @return Данные обновленного пользователя
      * @throws SQLException В случае ошибок при работе с базой данных

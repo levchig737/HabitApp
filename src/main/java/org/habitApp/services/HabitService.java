@@ -1,6 +1,5 @@
 package org.habitApp.services;
 
-import org.habitApp.annotations.Loggable;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
@@ -12,7 +11,6 @@ import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -25,7 +23,6 @@ import java.util.Objects;
  * Сервис для управления привычками (CRUD)
  * Позволяет создавать, редактировать, удалять и просматривать привычки пользователя.
  */
-@Loggable
 @Service
 public class HabitService {
     private final HabitRepository habitRepository;

@@ -167,10 +167,10 @@ class UserControllerTest {
     // updateUserProfile
     @Test
     void updateUserProfile_AdminAccess() throws SQLException, UnauthorizedAccessException, UserNotFoundException {
-        UserDto updateData = new UserDto();
+        UserDtoRegisterUpdate updateData = new UserDtoRegisterUpdate();
         when(currentUserBean.isAuthenticated()).thenReturn(true);
 
-        ResponseEntity<?> response = userController.updateUserProfile(1L, updateData);
+        ResponseEntity<?> response = userController.updateUserProfile(1, updateData);
         assertEquals(200, response.getStatusCodeValue());
     }
 
@@ -178,7 +178,7 @@ class UserControllerTest {
     void updateUserProfile_Unauthorized() {
         when(currentUserBean.isAuthenticated()).thenReturn(false);
 
-        ResponseEntity<?> response = userController.updateUserProfile(1L, new UserDto());
+        ResponseEntity<?> response = userController.updateUserProfile(1, new UserDtoRegisterUpdate());
         assertEquals(401, response.getStatusCodeValue());
     }
 
@@ -187,16 +187,16 @@ class UserControllerTest {
     void deleteUser_AdminAccess() throws SQLException, UnauthorizedAccessException {
         when(currentUserBean.isAuthenticated()).thenReturn(true);
 
-        ResponseEntity<?> response = userController.deleteUser(1L);
+        ResponseEntity<?> response = userController.deleteUser(1);
         assertEquals(200, response.getStatusCodeValue());
-        verify(userService).deleteUser(1L, currentUserBean.getCurrentUser());
+        verify(userService).deleteUser(1, currentUserBean.getCurrentUser());
     }
 
     @Test
     void deleteUser_Unauthorized() {
         when(currentUserBean.isAuthenticated()).thenReturn(false);
 
-        ResponseEntity<?> response = userController.deleteUser(1L);
+        ResponseEntity<?> response = userController.deleteUser(1);
         assertEquals(401, response.getStatusCodeValue());
     }
 }

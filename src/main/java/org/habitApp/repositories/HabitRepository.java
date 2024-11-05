@@ -16,7 +16,6 @@ import static org.habitApp.domain.entities.HabitEntity.mapRowToHabit;
 /**
  * Репозиторий для работы с привычками в базе данных
  */
-@Loggable
 @Repository
 public class HabitRepository {
     @Autowired

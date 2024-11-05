@@ -1,6 +1,5 @@
 package org.habitApp.repositories;
 
-import org.habitApp.annotations.Loggable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Loggable
 @Repository
 public class HabitComletionHistoryRepository {
     @Autowired
