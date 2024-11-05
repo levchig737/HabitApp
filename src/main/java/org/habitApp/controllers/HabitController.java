@@ -1,5 +1,7 @@
 package org.habitApp.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.habitApp.annotations.Loggable;
 import org.habitApp.config.beans.CurrentUserBean;
 import org.habitApp.domain.dto.habitDto.HabitDtoCreateUpdate;
@@ -18,18 +20,25 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Loggable
+@Tag(name = "HabitController", description = "Контроллер для управления привычками пользователя.")
 @RestController
 @RequestMapping("/habits")
 public class HabitController {
+    private final HabitService habitService;
+    private final HabitMapper habitMapper;
+    private final CurrentUserBean currentUserBean;
 
-    @Autowired
-    private HabitService habitService;
-
-    @Autowired
-    private HabitMapper habitMapper;
-
-    @Autowired
-    private CurrentUserBean currentUserBean;
+    /**
+     * Конструктор HabitController
+     * @param habitService habitService
+     * @param habitMapper habitMapper
+     * @param currentUserBean currentUserBean
+     */
+    public HabitController(HabitService habitService, HabitMapper habitMapper, CurrentUserBean currentUserBean) {
+        this.habitService = habitService;
+        this.habitMapper = habitMapper;
+        this.currentUserBean = currentUserBean;
+    }
 
     /**
      * Создает новую привычку для текущего аутентифицированного пользователя.
@@ -37,6 +46,7 @@ public class HabitController {
      * @param habitDto данные для создания привычки (название, описание, частота).
      * @return ResponseEntity с сообщением об успешном создании или с сообщением об ошибке.
      */
+    @Operation(summary = "Создание привычки", description = "Создает новую привычку для текущего аутентифицированного пользователя.")
     @PostMapping
     public ResponseEntity<?> createHabit(@RequestBody HabitDtoCreateUpdate habitDto) {
         if (!currentUserBean.isAuthenticated()) {
@@ -62,8 +72,9 @@ public class HabitController {
      * @param habitDto данные для обновления привычки (название, описание, частота).
      * @return ResponseEntity с сообщением об успешном обновлении или с сообщением об ошибке.
      */
+    @Operation(summary = "Обновление привычки", description = "Обновляет существующую привычку, указанную по ID, для текущего аутентифицированного пользователя.")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateHabit(@PathVariable long id, @RequestBody HabitDtoCreateUpdate habitDto) {
+    public ResponseEntity<?> updateHabit(@RequestParam long id, @RequestBody HabitDtoCreateUpdate habitDto) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -86,8 +97,9 @@ public class HabitController {
      * @param id идентификатор привычки.
      * @return ResponseEntity с сообщением об успешном удалении или с сообщением об ошибке.
      */
+    @Operation(summary = "Удаление привычки", description = "Удаляет привычку, указанную по ID, для текущего аутентифицированного пользователя.")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteHabit(@PathVariable long id) {
+    public ResponseEntity<?> deleteHabit(@RequestParam long id) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -104,6 +116,7 @@ public class HabitController {
      *
      * @return ResponseEntity со списком всех привычек или с сообщением об ошибке.
      */
+    @Operation(summary = "Получение всех привычек пользователя авторизованного", description = "Возвращает список всех привычек текущего аутентифицированного пользователя.")
     @GetMapping
     public ResponseEntity<?> getAllHabits() {
         if (!currentUserBean.isAuthenticated()) {
@@ -123,6 +136,7 @@ public class HabitController {
      *
      * @return ResponseEntity со списком всех привычек или с сообщением об ошибке.
      */
+    @Operation(summary = "Получение всех привычек для администратора", description = "Возвращает список всех привычек для администратора.")
     @GetMapping("/admin/all")
     public ResponseEntity<?> getAllHabitsAdmin() {
         if (!currentUserBean.isAuthenticated()) {
@@ -143,8 +157,9 @@ public class HabitController {
      * @param id идентификатор привычки.
      * @return ResponseEntity с данными о привычке или с сообщением об ошибке.
      */
+    @Operation(summary = "Получение привычки по ID", description = "Возвращает привычку по ее идентификатору для текущего аутентифицированного пользователя.")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getHabitById(@PathVariable long id) {
+    public ResponseEntity<?> getHabitById(@RequestParam long id) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -164,8 +179,9 @@ public class HabitController {
      * @param id идентификатор привычки.
      * @return ResponseEntity с сообщением об успешном завершении или с сообщением об ошибке.
      */
+    @Operation(summary = "Отметка привычки как выполненной", description = "Отмечает привычку как выполненную для текущего аутентифицированного пользователя.")
     @PostMapping("/{id}/complete")
-    public ResponseEntity<?> markHabitCompleted(@PathVariable long id) {
+    public ResponseEntity<?> markHabitCompleted(@RequestParam long id) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -184,8 +200,9 @@ public class HabitController {
      * @param period период для отчета (например, "день", "неделя").
      * @return ResponseEntity с отчетом или с сообщением об ошибке.
      */
+    @Operation(summary = "Получение отчета о привычке", description = "Возвращает отчет о привычке за указанный период (количество выполнений и текущий прогресс).")
     @GetMapping("/{id}/report/{period}")
-    public ResponseEntity<?> getHabitReport(@PathVariable long id, @PathVariable String period) {
+    public ResponseEntity<?> getHabitReport(@RequestParam long id, @RequestParam String period) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -211,8 +228,9 @@ public class HabitController {
      * @param period период для расчета процента выполнения (например, "месяц", "год").
      * @return ResponseEntity с процентом выполнения или с сообщением об ошибке.
      */
+    @Operation(summary = "Получение процента выполнения привычки", description = "Возвращает процент выполнения привычки за указанный период.")
     @GetMapping("/{id}/completion-percentage/{period}")
-    public ResponseEntity<?> getCompletionPercentage(@PathVariable long id, @PathVariable String period) {
+    public ResponseEntity<?> getCompletionPercentage(@RequestParam long id, @RequestParam String period) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -232,8 +250,9 @@ public class HabitController {
      * @param period период для отчета о прогрессе (например, "месяц", "год").
      * @return ResponseEntity с отчетом о прогрессе или с сообщением об ошибке.
      */
+    @Operation(summary = "Генерация отчета о прогрессе привычки", description = "Генерирует отчет о прогрессе выполнения привычки за указанный период.")
     @GetMapping("/{id}/progress-report/{period}")
-    public ResponseEntity<?> generateProgressReport(@PathVariable long id, @PathVariable String period) {
+    public ResponseEntity<?> generateProgressReport(@RequestParam long id, @RequestParam String period) {
         if (!currentUserBean.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
