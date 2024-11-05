@@ -10,6 +10,8 @@ import org.habitApp.exceptions.HabitAlreadyCompletedException;
 import org.habitApp.models.Period;
 import org.habitApp.repositories.HabitComletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,7 @@ import java.util.Objects;
 public class HabitService {
     private final HabitRepository habitRepository;
     private final HabitComletionHistoryRepository habitComletionHistoryRepository;
+    private static final Logger logger = LoggerFactory.getLogger(HabitService.class);
 
     /**
      * Конструктор HabitService
@@ -63,7 +66,7 @@ public class HabitService {
     public void createHabit(UserEntity user, String name, String description, Period frequency) throws SQLException {
         HabitEntity habit = new HabitEntity(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
         habitRepository.createHabit(habit);
-        System.out.println("Привычка \"" + name + "\" создана для пользователя " + user.getEmail() + ".");
+        logger.info("Привычка \" {} \" создана для пользователя: {}.", name, user.getEmail());
     }
 
     /**
@@ -84,7 +87,7 @@ public class HabitService {
         habit.setFrequency(newFrequency.toString());
 
         habitRepository.updateHabit(habitId, habit);
-        System.out.println("Привычка обновлена: " + habit.getName());
+        logger.info("Привычка обновлена: {}", habit.getName());
     }
 
     /**
@@ -101,7 +104,8 @@ public class HabitService {
         long userId = habit.getUserId();
         if (userId == currentUser.getId()) {
             habitRepository.deleteHabit(habitId);
-            System.out.println("Привычка \"" + habit.getName() + "\" была удалена.");
+            logger.info("Привычка \"{} \" была удалена.",
+                    habit.getName());
         } else {
             throw new UnauthorizedAccessException("Habit does not belong to the current user.");
         }

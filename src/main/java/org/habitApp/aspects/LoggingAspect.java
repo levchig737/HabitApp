@@ -1,26 +1,54 @@
 package org.habitApp.aspects;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.habitApp.annotations.Loggable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+@Aspect
+@Component
+/**
+ * Аспект логирования
+ */
+public class LoggingAspect {
 
-public class LoggingAspect implements MethodInterceptor {
+    private static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
 
-    @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    /**
+     * Логирование выполнения метода и возврата результата.
+     * @param joinPoint joinPoint
+     * @return result
+     * @throws Throwable Throwable
+     */
+    @Around("@within(org.habitApp.annotations.Loggable) && execution(* org.habitApp..*(..))")
+    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
-        String className = invocation.getMethod().getDeclaringClass().getSimpleName();
-        String methodName = invocation.getMethod().getName();
-        Object[] args = invocation.getArguments();
+        logger.info("Method {} is about to execute with arguments: {}",
+                joinPoint.getSignature(),
+                joinPoint.getArgs());
 
-        System.out.println("Entering " + className + "." + methodName + " with arguments: " + Arrays.toString(args));
+        Object result;
+        try {
+            result = joinPoint.proceed();
 
-        Object result = invocation.proceed();
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("Exiting " + className + "." + methodName + ", execution time: " + (endTime - startTime) + " ms");
-
+            long endTime = System.currentTimeMillis();
+            logger.info("Method {} executed successfully, returned: {}, execution time: {} ms",
+                    joinPoint.getSignature(),
+                    result,
+                    endTime - startTime);
+        } catch (Throwable throwable) {
+            logger.error("Exception in method {}: {}",
+                    joinPoint.getSignature(),
+                    throwable.getMessage());
+            throw throwable;
+        }
         return result;
     }
 }
