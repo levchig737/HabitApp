@@ -3,9 +3,5 @@ spring:
     url: jdbc:postgresql://localhost:5431/habit_app
     username: habit_app
     password: 1234
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
   liquibase:
     change-log: classpath:db/changelog/changelog.xml
