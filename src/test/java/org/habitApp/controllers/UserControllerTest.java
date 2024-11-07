@@ -1,6 +1,5 @@
 package org.habitApp.controllers;
 
-import org.habitApp.config.beans.CurrentUserBean;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;

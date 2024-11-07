@@ -1,5 +1,6 @@
 package org.habitApp.services;
 
+import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
@@ -17,7 +18,7 @@ import java.util.List;
 
 /**
  * Сервис для работы с пользователями.
- * Содержит бизнес-логику для регистрации, аутентификации, обновления и удаления пользователей.
+ * Содержит бизнес-логику для обновления и удаления пользователей.
  */
 @Service
 public class UserService {
@@ -35,48 +36,16 @@ public class UserService {
     }
 
     /**
-     * Регистрация нового пользователя.
-     *
-     * @param userDtoRegisterUpdate Данные для регистрации пользователя
-     * @throws UserAlreadyExistsException Если пользователь с таким email уже существует
-     * @throws SQLException В случае ошибок при работе с базой данных
-     */
-    public void registerUser(UserDtoRegisterUpdate userDtoRegisterUpdate) throws UserAlreadyExistsException, SQLException {
-        if (userRepository.getUserByEmail(userDtoRegisterUpdate.getEmail()) != null) {
-            throw new UserAlreadyExistsException("User already exists.");
-        }
-        UserEntity user = userMapper.userDtoRegisterUpdateToUser(userDtoRegisterUpdate);
-
-        userRepository.registerUser(user);
-    }
-
-    /**
-     * Вход пользователя в систему.
-     *
-     * @param userDtoLogin Данные для входа (email и пароль)
-     * @return Данные пользователя после успешного входа
-     * @throws SQLException В случае ошибок при работе с базой данных
-     * @throws InvalidCredentialsException Если указаны неверные учетные данные
-     */
-    public UserDto loginUser(UserDtoLogin userDtoLogin) throws SQLException, InvalidCredentialsException {
-        UserEntity user = userRepository.getUserByEmail(userDtoLogin.getEmail());
-        if (user != null && user.getPassword().equals(userDtoLogin.getPassword())) {
-            return userMapper.userToUserDto(user);
-        }
-        throw new InvalidCredentialsException("Invalid email or password.");
-    }
-
-    /**
      * Обновление профиля текущего пользователя.
      *
      * @param userDtoRegisterUpdate Данные для обновления профиля
-     * @param currentUser Текущий пользователь
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UserNotFoundException Если текущий пользователь не найден
      * @throws UserAlreadyExistsException Если пользователь с таким email уже существует
      */
-    public void updateCurrentUserProfile(UserDtoRegisterUpdate userDtoRegisterUpdate, UserEntity currentUser)
+    public void updateCurrentUserProfile(UserDtoRegisterUpdate userDtoRegisterUpdate)
             throws SQLException, UserNotFoundException, UserAlreadyExistsException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
         if (currentUser != null) {
             if (userRepository.getUserByEmail(userDtoRegisterUpdate.getEmail()) != null) {
                 throw new UserAlreadyExistsException("User already exists.");
@@ -94,15 +63,15 @@ public class UserService {
     /**
      * Удаление текущего пользователя.
      *
-     * @param currentUser Текущий пользователь
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UserNotFoundException Если текущий пользователь не найден
      */
-    public void deleteCurrentUser(UserEntity currentUser) throws SQLException, UserNotFoundException {
+    public void deleteCurrentUser() throws SQLException, UserNotFoundException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
         if (currentUser != null) {
             userRepository.deleteUserById(currentUser.getId());
         } else {
-            throw new UserNotFoundException("User not found.");
+            throw new UnauthorizedAccessException("Unauthorized");
         }
     }
 
@@ -110,12 +79,17 @@ public class UserService {
      * Получение информации о пользователе по email (доступно только администраторам).
      *
      * @param email Email пользователя
-     * @param currentUser Текущий пользователь
      * @return Данные запрашиваемого пользователя
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      */
-    public UserDto getUser(String email, UserEntity currentUser) throws SQLException, UnauthorizedAccessException {
+    public UserDto getUser(String email) throws SQLException, UnauthorizedAccessException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
@@ -126,12 +100,17 @@ public class UserService {
     /**
      * Получение списка всех пользователей (доступно только администраторам).
      *
-     * @param currentUser Текущий пользователь
      * @return Список пользователей
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      */
-    public List<UserDto> getAllUsers(UserEntity currentUser) throws SQLException, UnauthorizedAccessException {
+    public List<UserDto> getAllUsers() throws SQLException, UnauthorizedAccessException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
@@ -144,14 +123,19 @@ public class UserService {
      *
      * @param id ID пользователя
      * @param userDtoRegisterUpdate Данные для обновления
-     * @param currentUser Текущий пользователь
      * @return Данные обновленного пользователя
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      * @throws UserNotFoundException Если пользователь с указанным ID не найден
      */
-    public UserDto updateUserProfile(long id, UserDtoRegisterUpdate userDtoRegisterUpdate, UserEntity currentUser)
+    public UserDto updateUserProfile(long id, UserDtoRegisterUpdate userDtoRegisterUpdate)
             throws SQLException, UnauthorizedAccessException, UserNotFoundException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
@@ -170,14 +154,29 @@ public class UserService {
      * Удаление пользователя по ID (доступно только администраторам).
      *
      * @param id ID пользователя
-     * @param currentUser Текущий пользователь
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      */
-    public void deleteUser(long id, UserEntity currentUser) throws SQLException, UnauthorizedAccessException {
+    public void deleteUser(long id) throws SQLException, UnauthorizedAccessException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
         userRepository.deleteUserById(id);
+    }
+
+    /**
+     * Метод для получения пользователя для аутентификации
+     * @param id id
+     * @return UserEntity
+     * @throws SQLException В случае ошибок при работе с базой данных
+     */
+    public UserEntity findByEmailForAuthentication(Long id) throws SQLException {
+        return userRepository.getUserById(id);
     }
 }

@@ -22,6 +22,7 @@
         <org.springdoc.version>2.6.0</org.springdoc.version>
         <org.slf4j.version>2.0.13</org.slf4j.version>
         <spring-framework.version>6.0.13</spring-framework.version>
+        <java-jwt.version>4.4.0</java-jwt.version>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -98,6 +99,12 @@
             <artifactId>slf4j-api</artifactId>
             <version>${org.slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>${java-jwt.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

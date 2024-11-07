@@ -5,3 +5,8 @@ spring:
     password: 1234
   liquibase:
     change-log: classpath:db/changelog/changelog.xml
+
+security:
+  jwt:
+    secret: SECRETKEY
+    expirationMinutes: 5

@@ -76,7 +76,7 @@ public class HabitServiceTest {
 
         when(habitRepository.getHabitById(1)).thenReturn(testHabit);
 
-        assertThrows(UnauthorizedAccessException.class, () -> habitService.deleteHabit(1, otherUser));
+        assertThrows(UnauthorizedAccessException.class, () -> habitService.deleteHabit(1));
     }
 
     @Test

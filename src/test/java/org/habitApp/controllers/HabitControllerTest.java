@@ -1,13 +1,10 @@
 package org.habitApp.controllers;
 
-import org.habitApp.config.beans.CurrentUserBean;
 import org.habitApp.domain.dto.habitDto.HabitDtoCreateUpdate;
 import org.habitApp.domain.dto.habitDto.HabitDtoResponse;
-import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.exceptions.HabitNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.HabitMapper;
-import org.habitApp.models.Period;
 import org.habitApp.services.HabitService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +14,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
@@ -115,7 +111,7 @@ class HabitControllerTest {
     @Test
     void testDeleteHabit_Success() throws SQLException, UnauthorizedAccessException, HabitNotFoundException {
         when(currentUserBean.isAuthenticated()).thenReturn(true);
-        doNothing().when(habitService).deleteHabit(anyLong(), any());
+        doNothing().when(habitService).deleteHabit(anyLong());
 
         ResponseEntity<?> response = habitController.deleteHabit(1L);
 
@@ -126,7 +122,7 @@ class HabitControllerTest {
     @Test
     void testDeleteHabit_NotFoundException() throws SQLException, UnauthorizedAccessException, HabitNotFoundException {
         when(currentUserBean.isAuthenticated()).thenReturn(true);
-        doThrow(new HabitNotFoundException("Habit not found")).when(habitService).deleteHabit(anyLong(), any());
+        doThrow(new HabitNotFoundException("Habit not found")).when(habitService).deleteHabit(anyLong());
 
         ResponseEntity<?> response = habitController.deleteHabit(1L);
 
@@ -137,7 +133,7 @@ class HabitControllerTest {
     @Test
     void testDeleteHabit_UnauthorizedAccessException() throws SQLException, UnauthorizedAccessException, HabitNotFoundException {
         when(currentUserBean.isAuthenticated()).thenReturn(true);
-        doThrow(new UnauthorizedAccessException("Unauthorized access")).when(habitService).deleteHabit(anyLong(), any());
+        doThrow(new UnauthorizedAccessException("Unauthorized access")).when(habitService).deleteHabit(anyLong());
 
         ResponseEntity<?> response = habitController.deleteHabit(1L);
 

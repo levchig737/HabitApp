@@ -1,5 +1,6 @@
 package org.habitApp.services;
 
+import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
@@ -39,7 +40,18 @@ public class HabitService {
         this.habitComletionHistoryRepository = habitComletionHistoryRepository;
     }
 
-    public HabitEntity getHabitById(long habitId, UserEntity currentUser) throws SQLException, HabitNotFoundException, UnauthorizedAccessException {
+    /**
+     * Получение привычки по id
+     * @param habitId id
+     * @return HabitEnity
+     */
+    public HabitEntity getHabitById(long habitId) throws SQLException, HabitNotFoundException,
+            UnauthorizedAccessException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         HabitEntity habit = habitRepository.getHabitById(habitId);
         if (habit == null) {
             throw new HabitNotFoundException("Привычка с ID " + habitId + " не найдена.");
@@ -55,15 +67,20 @@ public class HabitService {
     /**
      * Создание новой привычки
      *
-     * @param user        пользователь, создающий привычку
      * @param name        название привычки
      * @param description описание привычки
      * @param frequency   частота выполнения привычки
      */
-    public void createHabit(UserEntity user, String name, String description, Period frequency) throws SQLException {
-        HabitEntity habit = new HabitEntity(name, description, frequency.getPeriodName(), LocalDate.now(), user.getId());
+    public void createHabit(String name, String description, Period frequency)
+            throws SQLException, UnauthorizedAccessException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
+        HabitEntity habit = new HabitEntity(name, description, frequency.getPeriodName(), LocalDate.now(), currentUser.getId());
         habitRepository.createHabit(habit);
-        logger.info("Привычка \" {} \" создана для пользователя: {}.", name, user.getEmail());
+        logger.info("Привычка \" {} \" создана для пользователя: {}.", name, currentUser.getEmail());
     }
 
     /**
@@ -74,7 +91,13 @@ public class HabitService {
      * @param newDescription новое описание
      * @param newFrequency   новая частота выполнения
      */
-    public void updateHabit(long habitId, String newName, String newDescription, Period newFrequency) throws SQLException {
+    public void updateHabit(long habitId, String newName, String newDescription, Period newFrequency)
+            throws SQLException, UnauthorizedAccessException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         HabitEntity habit = habitRepository.getHabitById(habitId);
         if (habit == null) {
             throw new HabitNotFoundException("Habit not found.");
@@ -92,7 +115,12 @@ public class HabitService {
      *
      * @param habitId привычка для удаления
      */
-    public void deleteHabit(long habitId, UserEntity currentUser) throws SQLException {
+    public void deleteHabit(long habitId) throws SQLException, UnauthorizedAccessException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         HabitEntity habit = habitRepository.getHabitById(habitId);
         if (habit == null) {
             throw new HabitNotFoundException("Habit not found.");
@@ -109,22 +137,30 @@ public class HabitService {
     }
 
     /**
-     * Получение всех привычек пользователя
+     * Получение всех привычек текущего пользователя
      *
-     * @param user текущий пользователь
      * @return список привычек пользователя
      */
-    public List<HabitEntity> getAllHabits(UserEntity user) throws SQLException {
-        return habitRepository.getHabitsByUser(user);
+    public List<HabitEntity> getAllHabits() throws SQLException, UnauthorizedAccessException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
+        return habitRepository.getHabitsByUser(currentUser);
     }
 
     /**
      * Получение списка всех привычек для всех пользователей
      *
-     * @param currentUser текущий пользователь
      * @return список всех привычек
      */
-    public List<HabitEntity> getAllHabitsAdmin(UserEntity currentUser) throws SQLException {
+    public List<HabitEntity> getAllHabitsAdmin() throws SQLException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
@@ -137,6 +173,11 @@ public class HabitService {
      * @param habitId привычка, которую нужно отметить сегодня
      */
     public void markHabitAsCompleted(long habitId) throws SQLException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         List<LocalDate> completionHistory = habitComletionHistoryRepository.getCompletionHistoryForHabit(habitId);
         HabitEntity habit = habitRepository.getHabitById(habitId);
 
@@ -155,6 +196,11 @@ public class HabitService {
      * @return статистика выполнения привычки
      */
     public int calculateHabitCompletedByPeriod(HabitEntity habit, Period period) throws SQLException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         LocalDate now = LocalDate.now();
         LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
             case "day" -> now.minusDays(1);
@@ -179,6 +225,11 @@ public class HabitService {
      * @return текущий streak
      */
     public int calculateCurrentStreak(HabitEntity habit) throws SQLException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         List<LocalDate> completions = habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId())
                 .stream()
                 .sorted()
@@ -218,6 +269,11 @@ public class HabitService {
      * @return процент успешного выполнения привычки
      */
     public double calculateCompletionPercentage(HabitEntity habit, Period period) throws SQLException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         LocalDate now = LocalDate.now();
         LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
             case "day" -> now.minusDays(1);
@@ -245,6 +301,11 @@ public class HabitService {
      * @return отчет о прогрессе
      */
     public HabitReportDto generateProgressReport(HabitEntity habit, Period period) throws SQLException {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        if (currentUser == null) {
+            throw new UnauthorizedAccessException("Unauthorized");
+        }
+
         int streak = calculateCurrentStreak(habit);
         double completionPercentage = calculateCompletionPercentage(habit, period);
         int completionCount = calculateHabitCompletedByPeriod(habit, period);
