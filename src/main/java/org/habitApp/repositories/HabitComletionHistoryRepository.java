@@ -10,17 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static org.habitApp.repositories.constants.HabitCompletionHistorySqlQueries.*;
+
 @Repository
 public class HabitComletionHistoryRepository {
-    @Autowired
-    private DataSource dataSource;
+
+    private final DataSource dataSource;
 
     /**
      * Конструктор репозитория
      *
      */
-    @Autowired
-    public HabitComletionHistoryRepository() {
+    public HabitComletionHistoryRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
@@ -32,9 +34,8 @@ public class HabitComletionHistoryRepository {
      */
     public List<LocalDate> getCompletionHistoryForHabit(long habitId) throws SQLException {
         List<LocalDate> completionHistory = new ArrayList<>();
-        String sql = "SELECT completion_date FROM habit_completion_history WHERE habit_id = ?";
 
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(GET_COMPLETION_HISTORY_FOR_HABIT)) {
             statement.setLong(1, habitId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -53,8 +54,7 @@ public class HabitComletionHistoryRepository {
      * @throws SQLException ошибка работы с БД
      */
     public void addComletionDateByHabitIdUserIs(long habitId, long userId, LocalDate completionDate) throws SQLException {
-        String sql = "INSERT INTO habit_completion_history (id, habit_id, user_id, completion_date) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(ADD_COMPLETION_DATE_BY_HABIT_ID_USER_ID)) {
             Random random = new Random();
             statement.setInt(1, random.nextInt());
             statement.setLong(2, habitId);

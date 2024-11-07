@@ -1,6 +1,7 @@
 package org.habitApp.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.habitApp.domain.dto.habitDto.HabitDtoCreateUpdate;
 import org.habitApp.domain.dto.habitDto.HabitDtoResponse;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Tag(name = "HabitController", description = "Контроллер для управления привычками пользователя.")
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/habits")
 public class HabitController {
     private final HabitService habitService;

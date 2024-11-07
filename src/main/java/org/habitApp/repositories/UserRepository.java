@@ -9,6 +9,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.habitApp.repositories.constants.UserSqlQueries.*;
+
 /**
  * Репозиторий для работы с данными пользователей.
  * Содержит методы для выполнения операций с базой данных, связанных с пользователями.
@@ -16,11 +18,10 @@ import java.util.List;
 @Repository
 public class UserRepository {
 
-    @Autowired
-    private DataSource dataSource; // Источник данных для подключения к базе данных
+    private final DataSource dataSource; // Источник данных для подключения к базе данных
 
-    @Autowired
-    public UserRepository() {
+    public UserRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
@@ -31,8 +32,7 @@ public class UserRepository {
      * @throws SQLException В случае ошибок при работе с базой данных
      */
     public UserEntity getUserByEmail(String email) throws SQLException {
-        String sql = "SELECT * FROM users WHERE email = ?";
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(GET_USER_BY_EMAIL)) {
             statement.setString(1, email);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -51,8 +51,7 @@ public class UserRepository {
      * @throws SQLException В случае ошибок при работе с базой данных
      */
     public UserEntity getUserById(long id) throws SQLException {
-        String sql = "SELECT * FROM users WHERE id = ?";
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(GET_USER_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -70,8 +69,7 @@ public class UserRepository {
      * @throws SQLException В случае ошибок при работе с базой данных
      */
     public void registerUser(UserEntity user) throws SQLException {
-        String sql = "INSERT INTO users (id, name, email, password, is_admin) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(REGISTER_USER)) {
             statement.setObject(1, user.getId());
             statement.setString(2, user.getName());
             statement.setString(3, user.getEmail());
@@ -88,8 +86,7 @@ public class UserRepository {
      * @throws SQLException В случае ошибок при работе с базой данных
      */
     public void updateUser(UserEntity user) throws SQLException {
-        String sql = "UPDATE users SET name = ?, password = ?, is_admin = ? WHERE email = ?";
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(UPDATE_USER)) {
             statement.setString(1, user.getName());
             statement.setString(2, user.getPassword());
             statement.setBoolean(3, user.isFlagAdmin());
@@ -105,8 +102,7 @@ public class UserRepository {
      * @throws SQLException В случае ошибок при работе с базой данных
      */
     public void deleteUserByEmail(String email) throws SQLException {
-        String sql = "DELETE FROM users WHERE email = ?";
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(DELETE_USER_BY_EMAIL)) {
             statement.setString(1, email);
             statement.executeUpdate();
         }
@@ -119,8 +115,7 @@ public class UserRepository {
      * @throws SQLException В случае ошибок при работе с базой данных
      */
     public void deleteUserById(long id) throws SQLException {
-        String sql = "DELETE FROM users WHERE id = ?";
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(DELETE_USER_BY_ID)) {
             statement.setObject(1, id);
             statement.executeUpdate();
         }
@@ -134,9 +129,8 @@ public class UserRepository {
      */
     public List<UserEntity> getAllUsers() throws SQLException {
         List<UserEntity> users = new ArrayList<>();
-        String sql = "SELECT * FROM users";
         try (Statement statement = dataSource.getConnection().createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+             ResultSet resultSet = statement.executeQuery(GET_ALL_USERS)) {
             while (resultSet.next()) {
                 users.add(mapRowToUser(resultSet));
             }

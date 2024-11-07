@@ -22,7 +22,7 @@ import java.util.List;
  * Контроллер для обработки запросов, связанных с пользователями.
  * Обеспечивает, обновление и удаление профилей пользователей.
  */
-@Tag(name = "User Controller", description = "Операции для работы с профилями пользователей, включая регистрацию, вход, обновление и удаление.")
+@Tag(name = "User Controller", description = "Операции для работы с профилями пользователей: обновление и удаление.")
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/users")
