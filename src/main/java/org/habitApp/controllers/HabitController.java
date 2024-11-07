@@ -2,7 +2,6 @@ package org.habitApp.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.habitApp.annotations.Loggable;
 import org.habitApp.config.beans.CurrentUserBean;
 import org.habitApp.domain.dto.habitDto.HabitDtoCreateUpdate;
 import org.habitApp.domain.dto.habitDto.HabitDtoResponse;
@@ -12,7 +11,6 @@ import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.HabitMapper;
 import org.habitApp.models.Period;
 import org.habitApp.services.HabitService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

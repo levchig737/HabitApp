@@ -1,6 +1,5 @@
 package org.habitApp.services;
 
-import org.habitApp.annotations.Loggable;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
@@ -11,7 +10,6 @@ import org.habitApp.exceptions.UserNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;

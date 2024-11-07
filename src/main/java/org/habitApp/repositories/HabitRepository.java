@@ -1,6 +1,5 @@
 package org.habitApp.repositories;
 
-import org.habitApp.annotations.Loggable;
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;

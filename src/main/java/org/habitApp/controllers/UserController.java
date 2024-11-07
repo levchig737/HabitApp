@@ -1,9 +1,7 @@
 package org.habitApp.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.habitApp.annotations.Loggable;
 import org.habitApp.config.beans.CurrentUserBean;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
@@ -14,7 +12,6 @@ import org.habitApp.exceptions.UserAlreadyExistsException;
 import org.habitApp.exceptions.UserNotFoundException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
