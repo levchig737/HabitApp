@@ -7,8 +7,8 @@ import org.habitApp.exceptions.HabitAlreadyCompletedException;
 import org.habitApp.exceptions.HabitNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.models.Period;
-import org.habitApp.repositories.HabitComletionHistoryRepository;
-import org.habitApp.repositories.HabitRepository;
+import org.habitApp.repositories.impl.HabitComletionHistoryRepositoryImpl;
+import org.habitApp.repositories.impl.HabitRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,10 +25,10 @@ import static org.mockito.Mockito.*;
 public class HabitServiceTest {
 
     @Mock
-    private HabitRepository habitRepository;
+    private HabitRepositoryImpl habitRepository;
 
     @Mock
-    private HabitComletionHistoryRepository habitComletionHistoryRepository;
+    private HabitComletionHistoryRepositoryImpl habitComletionHistoryRepository;
 
     @InjectMocks
     private HabitService habitService;

@@ -58,23 +58,6 @@ public class HabitEntity {
         this.userId = userId;
     }
 
-    /**
-     * Преобразование строки из ResultSet в объект Habit
-     * @param resultSet строка результата
-     * @return объект Habit
-     * @throws SQLException ошибка работы с БД
-     */
-    public static HabitEntity mapRowToHabit(ResultSet resultSet) throws SQLException {
-        HabitEntity habit = new HabitEntity(
-                resultSet.getLong("id"),
-                resultSet.getString("name"),
-                resultSet.getString("description"),
-                resultSet.getString("frequency"),
-                resultSet.getDate("created_date").toLocalDate(),
-                resultSet.getLong("user_id"));
-        return habit;
-    }
-
     public long getId() {
         return id;
     }

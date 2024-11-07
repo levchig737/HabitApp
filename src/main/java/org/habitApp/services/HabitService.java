@@ -8,8 +8,8 @@ import org.habitApp.exceptions.HabitNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.exceptions.HabitAlreadyCompletedException;
 import org.habitApp.models.Period;
-import org.habitApp.repositories.HabitComletionHistoryRepository;
-import org.habitApp.repositories.HabitRepository;
+import org.habitApp.repositories.HabitCompletionHistoryRepository;
+import org.habitApp.repositories.impl.HabitRepositoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Сервис для управления привычками (CRUD)
@@ -26,8 +27,8 @@ import java.util.Objects;
  */
 @Service
 public class HabitService {
-    private final HabitRepository habitRepository;
-    private final HabitComletionHistoryRepository habitComletionHistoryRepository;
+    private final HabitRepositoryImpl habitRepository;
+    private final HabitCompletionHistoryRepository habitComletionHistoryRepository;
     private static final Logger logger = LoggerFactory.getLogger(HabitService.class);
 
     /**
@@ -35,7 +36,7 @@ public class HabitService {
      * @param habitRepository habitRepository
      * @param habitComletionHistoryRepository habitComletionHistoryRepository
      */
-    public HabitService(HabitRepository habitRepository, HabitComletionHistoryRepository habitComletionHistoryRepository) {
+    public HabitService(HabitRepositoryImpl habitRepository, HabitCompletionHistoryRepository habitComletionHistoryRepository) {
         this.habitRepository = habitRepository;
         this.habitComletionHistoryRepository = habitComletionHistoryRepository;
     }
@@ -52,16 +53,16 @@ public class HabitService {
             throw new UnauthorizedAccessException("Unauthorized");
         }
 
-        HabitEntity habit = habitRepository.getHabitById(habitId);
-        if (habit == null) {
+        Optional<HabitEntity> habit = habitRepository.findById(habitId);
+        if (habit.isPresent()) {// Проверка принадлежности привычки текущему пользователю
+            if (habit.get().getUserId() != (currentUser.getId())) {
+                throw new UnauthorizedAccessException("Привычка не принадлежит текущему пользователю.");
+            }
+            return habit.orElse(null);
+        } else {
             throw new HabitNotFoundException("Привычка с ID " + habitId + " не найдена.");
         }
 
-        // Проверка принадлежности привычки текущему пользователю
-        if (habit.getUserId() != (currentUser.getId())) {
-            throw new UnauthorizedAccessException("Привычка не принадлежит текущему пользователю.");
-        }
-        return habit;
     }
 
     /**
@@ -79,7 +80,7 @@ public class HabitService {
         }
 
         HabitEntity habit = new HabitEntity(name, description, frequency.getPeriodName(), LocalDate.now(), currentUser.getId());
-        habitRepository.createHabit(habit);
+        habitRepository.create(habit);
         logger.info("Привычка \" {} \" создана для пользователя: {}.", name, currentUser.getEmail());
     }
 
@@ -98,16 +99,18 @@ public class HabitService {
             throw new UnauthorizedAccessException("Unauthorized");
         }
 
-        HabitEntity habit = habitRepository.getHabitById(habitId);
-        if (habit == null) {
+        Optional<HabitEntity> habit = habitRepository.findById(habitId);
+        if (habit.isPresent()) {
+            habit.get().setId(habitId);
+            habit.get().setName(newName);
+            habit.get().setDescription(newDescription);
+            habit.get().setFrequency(newFrequency.toString());
+
+            habitRepository.update(habit.get());
+            logger.info("Привычка обновлена: {}", habit.get().getName());
+        } else {
             throw new HabitNotFoundException("Habit not found.");
         }
-        habit.setName(newName);
-        habit.setDescription(newDescription);
-        habit.setFrequency(newFrequency.toString());
-
-        habitRepository.updateHabit(habitId, habit);
-        logger.info("Привычка обновлена: {}", habit.getName());
     }
 
     /**
@@ -121,19 +124,20 @@ public class HabitService {
             throw new UnauthorizedAccessException("Unauthorized");
         }
 
-        HabitEntity habit = habitRepository.getHabitById(habitId);
-        if (habit == null) {
+        Optional<HabitEntity> habit = habitRepository.findById(habitId);
+        if (habit.isPresent()) {
+            long userId = habit.get().getUserId();
+            if (userId == currentUser.getId()) {
+                habitRepository.deleteById(habitId);
+                logger.info("Привычка \"{} \" была удалена.",
+                        habit.get().getName());
+            } else {
+                throw new UnauthorizedAccessException("Habit does not belong to the current user.");
+            }
+        } else {
             throw new HabitNotFoundException("Habit not found.");
         }
 
-        long userId = habit.getUserId();
-        if (userId == currentUser.getId()) {
-            habitRepository.deleteHabit(habitId);
-            logger.info("Привычка \"{} \" была удалена.",
-                    habit.getName());
-        } else {
-            throw new UnauthorizedAccessException("Habit does not belong to the current user.");
-        }
     }
 
     /**
@@ -164,7 +168,7 @@ public class HabitService {
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
-        return habitRepository.getAllHabits();
+        return habitRepository.findAll();
     }
 
     /**
@@ -179,10 +183,10 @@ public class HabitService {
         }
 
         List<LocalDate> completionHistory = habitComletionHistoryRepository.getCompletionHistoryForHabit(habitId);
-        HabitEntity habit = habitRepository.getHabitById(habitId);
+        Optional<HabitEntity> habit = habitRepository.findById(habitId);
 
         if (completionHistory.isEmpty() || !Objects.equals(completionHistory.get(completionHistory.size() - 1), LocalDate.now())) {
-            habitComletionHistoryRepository.addComletionDateByHabitIdUserIs(habit.getId(), habit.getUserId(), LocalDate.now());
+            habitComletionHistoryRepository.addCompletionDateByHabitIdUserId(habit.get().getId(), habit.get().getUserId(), LocalDate.now());
         } else {
             throw new HabitAlreadyCompletedException("Вы сегодня уже выполняли эту привычку.");
         }

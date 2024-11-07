@@ -2,19 +2,19 @@ package org.habitApp.services;
 
 import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDto;
-import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.UserAlreadyExistsException;
-import org.habitApp.exceptions.InvalidCredentialsException;
 import org.habitApp.exceptions.UserNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.repositories.UserRepository;
+import org.habitApp.repositories.impl.UserRepositoryImpl;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Сервис для работы с пользователями.
@@ -30,7 +30,7 @@ public class UserService {
      * @param userRepository userRepository
      * @param userMapper userMapper
      */
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepositoryImpl userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
     }
@@ -47,14 +47,14 @@ public class UserService {
             throws SQLException, UserNotFoundException, UserAlreadyExistsException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
         if (currentUser != null) {
-            if (userRepository.getUserByEmail(userDtoRegisterUpdate.getEmail()) != null) {
+            if (userRepository.findByEmail(userDtoRegisterUpdate.getEmail()).isPresent()) {
                 throw new UserAlreadyExistsException("User already exists.");
             }
 
             currentUser.setEmail(userDtoRegisterUpdate.getEmail());
             currentUser.setName(userDtoRegisterUpdate.getName());
             currentUser.setPassword(userDtoRegisterUpdate.getPassword());
-            userRepository.updateUser(currentUser);
+            userRepository.update(currentUser);
         } else {
             throw new UserNotFoundException("User not found.");
         }
@@ -69,7 +69,7 @@ public class UserService {
     public void deleteCurrentUser() throws SQLException, UserNotFoundException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
         if (currentUser != null) {
-            userRepository.deleteUserById(currentUser.getId());
+            userRepository.deleteById(currentUser.getId());
         } else {
             throw new UnauthorizedAccessException("Unauthorized");
         }
@@ -93,8 +93,8 @@ public class UserService {
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
-        UserEntity user = userRepository.getUserByEmail(email);
-        return userMapper.userToUserDto(user);
+        Optional<UserEntity> user = userRepository.findByEmail(email);
+        return userMapper.userToUserDto(user.orElse(null));
     }
 
     /**
@@ -114,7 +114,7 @@ public class UserService {
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
-        List<UserEntity> users = userRepository.getAllUsers();
+        List<UserEntity> users = userRepository.findAll();
         return users.stream().map(userMapper::userToUserDto).toList();
     }
 
@@ -139,12 +139,12 @@ public class UserService {
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
-        UserEntity user = userRepository.getUserById(id);
-        if (user != null) {
-            user.setName(userDtoRegisterUpdate.getName());
-            user.setPassword(userDtoRegisterUpdate.getPassword());
-            userRepository.updateUser(user);
-            return userMapper.userToUserDto(user);
+        Optional<UserEntity> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            user.get().setName(userDtoRegisterUpdate.getName());
+            user.get().setPassword(userDtoRegisterUpdate.getPassword());
+            userRepository.update(user.get());
+            return userMapper.userToUserDto(user.orElse(null));
         } else {
             throw new UserNotFoundException("User not found.");
         }
@@ -167,7 +167,7 @@ public class UserService {
         if (!currentUser.isFlagAdmin()) {
             throw new UnauthorizedAccessException("User is not admin.");
         }
-        userRepository.deleteUserById(id);
+        userRepository.deleteById(id);
     }
 
     /**
@@ -177,6 +177,7 @@ public class UserService {
      * @throws SQLException В случае ошибок при работе с базой данных
      */
     public UserEntity findByEmailForAuthentication(Long id) throws SQLException {
-        return userRepository.getUserById(id);
+        Optional<UserEntity> user = userRepository.findById(id);
+        return user.orElse(null);
     }
 }
