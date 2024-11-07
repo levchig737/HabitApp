@@ -7,6 +7,7 @@ import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.*;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.repositories.impl.UserRepositoryImpl;
+import org.habitApp.services.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +30,7 @@ class UserServiceTest {
     private UserMapper userMapper;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     private UserDtoRegisterUpdate userDtoRegister;
     private UserDtoLogin userDtoLogin;

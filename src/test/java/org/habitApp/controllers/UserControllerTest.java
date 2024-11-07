@@ -5,7 +5,7 @@ import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.exceptions.*;
 import org.habitApp.mappers.UserMapper;
-import org.habitApp.services.UserService;
+import org.habitApp.services.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 class UserControllerTest {
 
     @Mock
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Mock
     private UserMapper userMapper;

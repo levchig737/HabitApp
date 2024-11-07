@@ -11,6 +11,7 @@ import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.HabitMapper;
 import org.habitApp.models.Period;
 import org.habitApp.services.HabitService;
+import org.habitApp.services.impl.HabitServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class HabitController {
      * @param habitService habitService
      * @param habitMapper habitMapper
      */
-    public HabitController(HabitService habitService, HabitMapper habitMapper) {
+    public HabitController(HabitServiceImpl habitService, HabitMapper habitMapper) {
         this.habitService = habitService;
         this.habitMapper = habitMapper;
     }

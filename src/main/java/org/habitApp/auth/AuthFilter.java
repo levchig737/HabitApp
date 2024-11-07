@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.habitApp.domain.entities.UserEntity;
-import org.habitApp.services.UserService;
+import org.habitApp.services.impl.UserServiceImpl;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,10 +18,10 @@ import java.sql.SQLException;
  */
 @Component("authFilter")
 public class AuthFilter extends HttpFilter {
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final JwtUtil jwtUtil;
 
-    public AuthFilter(UserService userService, JwtUtil jwtUtil) {
+    public AuthFilter(UserServiceImpl userService, JwtUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }

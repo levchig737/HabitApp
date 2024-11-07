@@ -3,15 +3,14 @@ package org.habitApp.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
-import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.exceptions.UserAlreadyExistsException;
 import org.habitApp.exceptions.UserNotFoundException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.services.UserService;
+import org.habitApp.services.impl.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +34,7 @@ public class UserController {
      * @param userService userService
      * @param userMapper userMapper
      */
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserServiceImpl userService, UserMapper userMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
     }

@@ -5,7 +5,7 @@ import org.habitApp.domain.dto.habitDto.HabitDtoResponse;
 import org.habitApp.exceptions.HabitNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.HabitMapper;
-import org.habitApp.services.HabitService;
+import org.habitApp.services.impl.HabitServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 class HabitControllerTest {
 
     @Mock
-    private HabitService habitService;
+    private HabitServiceImpl habitService;
     @Mock
     private HabitMapper habitMapper;
     @Mock

@@ -9,6 +9,7 @@ import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.models.Period;
 import org.habitApp.repositories.impl.HabitComletionHistoryRepositoryImpl;
 import org.habitApp.repositories.impl.HabitRepositoryImpl;
+import org.habitApp.services.impl.HabitServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -31,7 +32,7 @@ public class HabitServiceTest {
     private HabitComletionHistoryRepositoryImpl habitComletionHistoryRepository;
 
     @InjectMocks
-    private HabitService habitService;
+    private HabitServiceImpl habitService;
 
     private UserEntity testUser;
     private HabitEntity testHabit;

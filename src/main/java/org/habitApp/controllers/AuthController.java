@@ -10,6 +10,7 @@ import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.InvalidCredentialsException;
 import org.habitApp.exceptions.UserAlreadyExistsException;
 import org.habitApp.services.AuthService;
+import org.habitApp.services.impl.AuthServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthServiceImpl authService) {
         this.authService = authService;
     }
 
