@@ -37,3 +37,44 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+####### habbit-logging-starter
+habit-logging-starter/target/
+habit-logging-starter/!.mvn/wrapper/maven-wrapper.jar
+habit-logging-starter/!**/src/main/**/target/
+habit-logging-starter/!**/src/test/**/target/
+
+### IntelliJ IDEA ###
+habit-logging-starter/.idea/modules.xml
+habit-logging-starter/.idea/jarRepositories.xml
+habit-logging-starter/.idea/compiler.xml
+habit-logging-starter/.idea/libraries/
+habit-logging-starter/.idea
+habit-logging-starter/*.iws
+habit-logging-starter/*.iml
+habit-logging-starter/*.ipr
+
+### Eclipse ###
+habit-logging-starter/.apt_generated
+habit-logging-starter/.classpath
+habit-logging-starter/.factorypath
+habit-logging-starter/.project
+habit-logging-starter/.settings
+habit-logging-starter/.springBeans
+habit-logging-starter/.sts4-cache
+
+### NetBeans ###
+habit-logging-starter//nbproject/private/
+habit-logging-starter//nbbuild/
+habit-logging-starter//dist/
+habit-logging-starter//nbdist/
+habit-logging-starter//.nb-gradle/
+habit-logging-starter/build/
+habit-logging-starter/!**/src/main/**/build/
+habit-logging-starter/!**/src/test/**/build/
+
+### VS Code ###
+habit-logging-starter/.vscode/
+
+### Mac OS ###
+habit-logging-starter/.DS_Store
