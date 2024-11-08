@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.habitApp.annotations.RequiresAuthorization;
 import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
@@ -67,18 +68,28 @@ public class AuthController {
     /**
      * Проверяет авторизацию пользователя
      *
-     * @return Ответ об авторизации пользователя.
+     * @return Ответ с данными авторизированного пользователя
      */
     @Operation(summary = "Тест авторизации пользователя", description = "Проверяет авторизацию пользователя.")
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/test")
+    @RequiresAuthorization
     public ResponseEntity<?> testAuth() {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        return ResponseEntity.ok(currentUser.toString());
+    }
 
-        if (currentUser != null) {
-            return ResponseEntity.ok(currentUser.toString());
-        }
-
-        return ResponseEntity.status(401).body("Unauthorized");
+    /**
+     * Проверяет пользователя на права админа
+     *
+     * @return Ответ с данными пользователя админа.
+     */
+    @Operation(summary = "Тест авторизации пользователя", description = "Проверяет авторизацию пользователя.")
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/admin/test")
+    @RequiresAuthorization(forAdmin = true)
+    public ResponseEntity<?> testAdmin() {
+        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+        return ResponseEntity.ok(currentUser.toString());
     }
 }

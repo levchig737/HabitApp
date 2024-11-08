@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.habitApp.annotations.RequiresAuthorization;
 import org.habitApp.domain.dto.habitDto.HabitDtoCreateUpdate;
 import org.habitApp.domain.dto.habitDto.HabitDtoResponse;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
@@ -36,6 +37,7 @@ public class HabitController {
      */
     @Operation(summary = "Создание привычки", description = "Создает новую привычку для текущего аутентифицированного пользователя.")
     @PostMapping
+    @RequiresAuthorization
     public ResponseEntity<?> createHabit(@RequestBody HabitDtoCreateUpdate habitDto) {
         try {
             habitService.createHabit(
@@ -58,6 +60,7 @@ public class HabitController {
      */
     @Operation(summary = "Обновление привычки", description = "Обновляет существующую привычку, указанную по ID, для текущего аутентифицированного пользователя.")
     @PutMapping("/{id}")
+    @RequiresAuthorization
     public ResponseEntity<?> updateHabit(@RequestParam long id, @RequestBody HabitDtoCreateUpdate habitDto) {
         try {
             habitService.updateHabit(
@@ -80,6 +83,7 @@ public class HabitController {
      */
     @Operation(summary = "Удаление привычки", description = "Удаляет привычку, указанную по ID, для текущего аутентифицированного пользователя.")
     @DeleteMapping("/{id}")
+    @RequiresAuthorization
     public ResponseEntity<?> deleteHabit(@RequestParam long id) {
         try {
             habitService.deleteHabit(id);
@@ -96,6 +100,7 @@ public class HabitController {
      */
     @Operation(summary = "Получение всех привычек пользователя авторизованного", description = "Возвращает список всех привычек текущего аутентифицированного пользователя.")
     @GetMapping
+    @RequiresAuthorization
     public ResponseEntity<?> getAllHabits() {
         try {
             List<HabitDtoResponse> habits = habitService.getAllHabits()
@@ -113,6 +118,7 @@ public class HabitController {
      */
     @Operation(summary = "Получение всех привычек для администратора", description = "Возвращает список всех привычек для администратора.")
     @GetMapping("/admin/all")
+    @RequiresAuthorization(forAdmin = true)
     public ResponseEntity<?> getAllHabitsAdmin() {
         try {
             List<HabitDtoResponse> habits = habitService.getAllHabitsAdmin()
@@ -131,6 +137,7 @@ public class HabitController {
      */
     @Operation(summary = "Получение привычки по ID", description = "Возвращает привычку по ее идентификатору для текущего аутентифицированного пользователя.")
     @GetMapping("/{id}")
+    @RequiresAuthorization
     public ResponseEntity<?> getHabitById(@RequestParam long id) {
         try {
             HabitDtoResponse habitDtoResponse = habitMapper.habitToHabitDtoResponse(
@@ -150,6 +157,7 @@ public class HabitController {
      */
     @Operation(summary = "Отметка привычки как выполненной", description = "Отмечает привычку как выполненную для текущего аутентифицированного пользователя.")
     @PostMapping("/{id}/complete")
+    @RequiresAuthorization
     public ResponseEntity<?> markHabitCompleted(@RequestParam long id) {
         try {
             habitService.markHabitAsCompleted(id);
@@ -168,6 +176,7 @@ public class HabitController {
      */
     @Operation(summary = "Получение отчета о привычке", description = "Возвращает отчет о привычке за указанный период (количество выполнений и текущий прогресс).")
     @GetMapping("/{id}/report/{period}")
+    @RequiresAuthorization
     public ResponseEntity<?> getHabitReport(@RequestParam long id, @RequestParam String period) {
         try {
             int completionCount = habitService.calculateHabitCompletedByPeriod(
@@ -193,6 +202,7 @@ public class HabitController {
      */
     @Operation(summary = "Получение процента выполнения привычки", description = "Возвращает процент выполнения привычки за указанный период.")
     @GetMapping("/{id}/completion-percentage/{period}")
+    @RequiresAuthorization
     public ResponseEntity<?> getCompletionPercentage(@RequestParam long id, @RequestParam String period) {
         try {
             double completionPercentage = habitService.calculateCompletionPercentage(
@@ -212,6 +222,7 @@ public class HabitController {
      */
     @Operation(summary = "Генерация отчета о прогрессе привычки", description = "Генерирует отчет о прогрессе выполнения привычки за указанный период.")
     @GetMapping("/{id}/progress-report/{period}")
+    @RequiresAuthorization
     public ResponseEntity<?> generateProgressReport(@RequestParam long id, @RequestParam String period) {
         try {
             HabitReportDto reportDto = habitService.generateProgressReport(

@@ -36,4 +36,8 @@ public class UserEntity {
                 ", isAdmin=" + flagAdmin +
                 '}';
     }
+
+    public boolean isAdmin() {
+        return flagAdmin;
+    }
 }

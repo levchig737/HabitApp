@@ -1,6 +1,5 @@
 package org.habitApp.config;
 
-import org.habitApp.aspects.LoggingAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

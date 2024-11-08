@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.habitApp.annotations.RequiresAuthorization;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.exceptions.UnauthorizedAccessException;
@@ -11,7 +12,6 @@ import org.habitApp.exceptions.UserAlreadyExistsException;
 import org.habitApp.exceptions.UserNotFoundException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.services.UserService;
-import org.habitApp.services.impl.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +39,7 @@ public class UserController {
      */
     @Operation(summary = "Обновление профиля", description = "Обновляет информацию профиля текущего пользователя.")
     @PutMapping("/profile")
+    @RequiresAuthorization
     public ResponseEntity<?> updateCurrentUserProfile(@RequestBody UserDtoRegisterUpdate userDtoRegisterUpdate) {
         try {
             userService.updateCurrentUserProfile(userDtoRegisterUpdate);
@@ -55,6 +56,7 @@ public class UserController {
      */
     @Operation(summary = "Удаление профиля", description = "Удаляет текущий профиль пользователя.")
     @DeleteMapping("/profile")
+    @RequiresAuthorization
     public ResponseEntity<?> deleteCurrentUser() {
         try {
             userService.deleteCurrentUser();
@@ -72,6 +74,7 @@ public class UserController {
      */
     @Operation(summary = "Получение пользователя по email", description = "Возвращает информацию о пользователе для администратора.")
     @GetMapping("/admin/{email}")
+    @RequiresAuthorization(forAdmin = true)
     public ResponseEntity<?> getUser(@RequestParam String email) {
         try {
             UserDto userDto = userService.getUser(email);
@@ -88,6 +91,7 @@ public class UserController {
      */
     @Operation(summary = "Получение списка пользователей", description = "Возвращает список всех пользователей для администратора.")
     @GetMapping("/admin")
+    @RequiresAuthorization(forAdmin = true)
     public ResponseEntity<?> getAllUsers() {
         try {
             List<UserDto> users = userService.getAllUsers();
@@ -106,6 +110,7 @@ public class UserController {
      */
     @Operation(summary = "Обновление профиля пользователя", description = "Обновляет профиль пользователя по его ID для администратора.")
     @PutMapping("/admin/{id}")
+    @RequiresAuthorization(forAdmin = true)
     public ResponseEntity<?> updateUserProfile(@RequestParam long id, @RequestBody UserDtoRegisterUpdate userDtoRegisterUpdate) {
 
         try {
@@ -123,7 +128,8 @@ public class UserController {
      * @return Ответ с кодом состояния
      */
     @Operation(summary = "Удаление пользователя по ID", description = "Удаляет профиль пользователя по его ID для администратора.")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/{id}")
+    @RequiresAuthorization(forAdmin = true)
     public ResponseEntity<?> deleteUser(@RequestParam long id) {
 
         try {

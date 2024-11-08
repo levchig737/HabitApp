@@ -44,9 +44,6 @@ public class HabitServiceImpl implements HabitService {
     public HabitEntity getHabitById(long habitId) throws SQLException, HabitNotFoundException,
             UnauthorizedAccessException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         Optional<HabitEntity> habit = habitRepository.findById(habitId);
         if (habit.isPresent()) {// Проверка принадлежности привычки текущему пользователю
@@ -71,9 +68,6 @@ public class HabitServiceImpl implements HabitService {
     public void createHabit(String name, String description, Period frequency)
             throws SQLException, UnauthorizedAccessException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         HabitEntity habit = new HabitEntity(name, description, frequency.getPeriodName(), LocalDate.now(), currentUser.getId());
         habitRepository.create(habit);
@@ -92,9 +86,7 @@ public class HabitServiceImpl implements HabitService {
     public void updateHabit(long habitId, String newName, String newDescription, Period newFrequency)
             throws SQLException, UnauthorizedAccessException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
+
 
         Optional<HabitEntity> habit = habitRepository.findById(habitId);
         if (habit.isPresent()) {
@@ -118,9 +110,6 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public void deleteHabit(long habitId) throws SQLException, UnauthorizedAccessException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         Optional<HabitEntity> habit = habitRepository.findById(habitId);
         if (habit.isPresent()) {
@@ -146,9 +135,6 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public List<HabitEntity> getAllHabits() throws SQLException, UnauthorizedAccessException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         return habitRepository.getHabitsByUser(currentUser);
     }
@@ -160,14 +146,7 @@ public class HabitServiceImpl implements HabitService {
      */
     @Override
     public List<HabitEntity> getAllHabitsAdmin() throws SQLException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
-        if (!currentUser.isFlagAdmin()) {
-            throw new UnauthorizedAccessException("User is not admin.");
-        }
         return habitRepository.findAll();
     }
 
@@ -178,10 +157,6 @@ public class HabitServiceImpl implements HabitService {
      */
     @Override
     public void markHabitAsCompleted(long habitId) throws SQLException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         List<LocalDate> completionHistory = habitComletionHistoryRepository.getCompletionHistoryForHabit(habitId);
         Optional<HabitEntity> habit = habitRepository.findById(habitId);
@@ -203,9 +178,6 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public int calculateHabitCompletedByPeriod(HabitEntity habit, Period period) throws SQLException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         LocalDate now = LocalDate.now();
         LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
@@ -233,9 +205,6 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public int calculateCurrentStreak(HabitEntity habit) throws SQLException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         List<LocalDate> completions = habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId())
                 .stream()
@@ -277,10 +246,6 @@ public class HabitServiceImpl implements HabitService {
      */
     @Override
     public double calculateCompletionPercentage(HabitEntity habit, Period period) throws SQLException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         LocalDate now = LocalDate.now();
         LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
@@ -310,10 +275,6 @@ public class HabitServiceImpl implements HabitService {
      */
     @Override
     public HabitReportDto generateProgressReport(HabitEntity habit, Period period) throws SQLException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
 
         int streak = calculateCurrentStreak(habit);
         double completionPercentage = calculateCompletionPercentage(habit, period);

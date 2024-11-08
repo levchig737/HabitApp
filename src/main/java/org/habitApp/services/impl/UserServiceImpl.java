@@ -63,11 +63,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteCurrentUser() throws SQLException, UserNotFoundException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        if (currentUser != null) {
-            userRepository.deleteById(currentUser.getId());
-        } else {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
+        userRepository.deleteById(currentUser.getId());
     }
 
     /**
@@ -80,15 +76,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto getUser(String email) throws SQLException, UnauthorizedAccessException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
 
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
-
-        if (!currentUser.isFlagAdmin()) {
-            throw new UnauthorizedAccessException("User is not admin.");
-        }
         Optional<UserEntity> user = userRepository.findByEmail(email);
         return userMapper.userToUserDto(user.orElse(null));
     }
@@ -102,15 +90,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<UserDto> getAllUsers() throws SQLException, UnauthorizedAccessException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
 
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
-
-        if (!currentUser.isFlagAdmin()) {
-            throw new UnauthorizedAccessException("User is not admin.");
-        }
         List<UserEntity> users = userRepository.findAll();
         return users.stream().map(userMapper::userToUserDto).toList();
     }
@@ -130,13 +110,6 @@ public class UserServiceImpl implements UserService {
             throws SQLException, UnauthorizedAccessException, UserNotFoundException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
 
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
-
-        if (!currentUser.isFlagAdmin()) {
-            throw new UnauthorizedAccessException("User is not admin.");
-        }
         Optional<UserEntity> user = userRepository.findById(id);
         if (user.isPresent()) {
             user.get().setName(userDtoRegisterUpdate.getName());
@@ -159,13 +132,6 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(long id) throws SQLException, UnauthorizedAccessException {
         UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
 
-        if (currentUser == null) {
-            throw new UnauthorizedAccessException("Unauthorized");
-        }
-
-        if (!currentUser.isFlagAdmin()) {
-            throw new UnauthorizedAccessException("User is not admin.");
-        }
         userRepository.deleteById(id);
     }
 

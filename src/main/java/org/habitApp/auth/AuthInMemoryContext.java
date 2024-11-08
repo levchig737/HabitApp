@@ -1,21 +1,20 @@
 package org.habitApp.auth;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 
+/**
+ * Контекст авторизации пользователя
+ */
 public final class AuthInMemoryContext {
     private final static AuthInMemoryContext CONTEXT = new AuthInMemoryContext();
 
     private UserEntity authenticatedUser;
+    @Setter
+    @Getter
     private String ip;
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
 
     public static synchronized AuthInMemoryContext getContext() {
         return CONTEXT;
@@ -23,7 +22,7 @@ public final class AuthInMemoryContext {
 
     public UserEntity getAuthentication() {
         if (authenticatedUser == null) {
-            throw new UnauthorizedAccessException("Ошибка авторизации");
+            throw new UnauthorizedAccessException("Unauthorized");
         }
         return authenticatedUser;
     }
