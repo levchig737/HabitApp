@@ -1,5 +1,6 @@
 package org.habitApp.services.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
@@ -22,19 +23,10 @@ import java.util.Optional;
  * Содержит бизнес-логику для обновления и удаления пользователей.
  */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository; // Репозиторий для работы с данными пользователей
     private final UserMapper userMapper; // Маппер для преобразования между UserDto и UserEntity
-
-    /**
-     * Констрктор UserService
-     * @param userRepository userRepository
-     * @param userMapper userMapper
-     */
-    public UserServiceImpl(UserRepositoryImpl userRepository, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-    }
 
     /**
      * Обновление профиля текущего пользователя.

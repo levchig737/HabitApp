@@ -1,5 +1,6 @@
 package org.habitApp.services.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.habitApp.auth.JwtUtil;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
@@ -19,17 +20,12 @@ import java.util.Optional;
  * Содержит бизнес-логику для регистрации, аутентификации пользователей.
  */
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepositoryImpl userRepository;
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
-
-    public AuthServiceImpl(UserRepositoryImpl userRepository, UserMapper userMapper, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.jwtUtil = jwtUtil;
-    }
 
     /**
      * Регистрация нового пользователя.

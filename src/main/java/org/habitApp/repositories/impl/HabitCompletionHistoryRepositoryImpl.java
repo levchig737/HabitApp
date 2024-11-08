@@ -1,5 +1,6 @@
 package org.habitApp.repositories.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.habitApp.domain.entities.HabitCompletionHistoryEntity;
 import org.habitApp.repositories.HabitCompletionHistoryRepository;
 import org.springframework.stereotype.Repository;
@@ -18,16 +19,10 @@ import static org.habitApp.repositories.constants.HabitCompletionHistorySqlQueri
  * Реализация репозитория для работы с историей выполнения привычек.
  */
 @Repository
+@RequiredArgsConstructor
 public class HabitCompletionHistoryRepositoryImpl implements HabitCompletionHistoryRepository {
 
     private final DataSource dataSource;
-
-    /**
-     * Конструктор репозитория
-     */
-    public HabitCompletionHistoryRepositoryImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
 
     /**
      * Получение истории выполнения для конкретной привычки

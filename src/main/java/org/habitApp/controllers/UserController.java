@@ -3,6 +3,7 @@ package org.habitApp.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.exceptions.UnauthorizedAccessException;
@@ -25,19 +26,10 @@ import java.util.List;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService; // Сервис для работы с пользователями
     private final UserMapper userMapper; // Маппер для преобразования между UserDto и UserEntity
-
-    /**
-     * Конструктор UserController
-     * @param userService userService
-     * @param userMapper userMapper
-     */
-    public UserController(UserServiceImpl userService, UserMapper userMapper) {
-        this.userService = userService;
-        this.userMapper = userMapper;
-    }
 
     /**
      * Обновление профиля текущего пользователя.

@@ -1,10 +1,17 @@
 package org.habitApp.domain.dto.userDto;
 
+import lombok.*;
+
 import java.util.UUID;
 
 /**
  * UserDto
  */
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 public class UserDto {
     private long id;
     private String email;
@@ -12,33 +19,12 @@ public class UserDto {
     private String name;
     private boolean flagAdmin;
 
-    /**
-     * Конструктор UserDto
-     * @param id id
-     * @param email email
-     * @param password password
-     * @param name name
-     * @param flagAdmin flagAdmin
-     */
-    public UserDto(long id, String email, String password, String name, boolean flagAdmin) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.flagAdmin = flagAdmin;
-    }
-
     public UserDto(String email, String password, String name, boolean flagAdmin) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.flagAdmin = flagAdmin;
     }
-
-    /**
-     * Конструктор
-     */
-    public UserDto(){}
 
     @Override
     public String toString() {
@@ -49,45 +35,5 @@ public class UserDto {
                 ", name='" + name + '\'' +
                 ", isAdmin=" + flagAdmin +
                 '}';
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setFlagAdmin(boolean flagAdmin) {
-        this.flagAdmin = flagAdmin;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean isFlagAdmin() {
-        return flagAdmin;
     }
 }

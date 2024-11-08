@@ -3,6 +3,7 @@ package org.habitApp.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.habitApp.domain.dto.habitDto.HabitDtoCreateUpdate;
 import org.habitApp.domain.dto.habitDto.HabitDtoResponse;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
@@ -22,19 +23,10 @@ import java.util.List;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/habits")
+@RequiredArgsConstructor
 public class HabitController {
     private final HabitService habitService;
     private final HabitMapper habitMapper;
-
-    /**
-     * Конструктор HabitController
-     * @param habitService habitService
-     * @param habitMapper habitMapper
-     */
-    public HabitController(HabitServiceImpl habitService, HabitMapper habitMapper) {
-        this.habitService = habitService;
-        this.habitMapper = habitMapper;
-    }
 
     /**
      * Создает новую привычку для текущего аутентифицированного пользователя.

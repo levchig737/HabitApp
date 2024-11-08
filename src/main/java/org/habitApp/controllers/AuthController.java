@@ -3,6 +3,7 @@ package org.habitApp.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
@@ -24,13 +25,10 @@ import java.sql.SQLException;
 @Tag(name = "AuthController", description = "Операции для авторизации пользователей, регистрации.")
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
-
-    public AuthController(AuthServiceImpl authService) {
-        this.authService = authService;
-    }
 
     /**
      * Регистрация нового пользователя.

@@ -1,5 +1,7 @@
 package org.habitApp.services.impl;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.domain.entities.HabitEntity;
@@ -27,20 +29,11 @@ import java.util.Optional;
  * Позволяет создавать, редактировать, удалять и просматривать привычки пользователя.
  */
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class HabitServiceImpl implements HabitService {
     private final HabitRepositoryImpl habitRepository;
     private final HabitCompletionHistoryRepository habitComletionHistoryRepository;
-    private static final Logger logger = LoggerFactory.getLogger(HabitServiceImpl.class);
-
-    /**
-     * Конструктор HabitService
-     * @param habitRepository habitRepository
-     * @param habitComletionHistoryRepository habitComletionHistoryRepository
-     */
-    public HabitServiceImpl(HabitRepositoryImpl habitRepository, HabitCompletionHistoryRepository habitComletionHistoryRepository) {
-        this.habitRepository = habitRepository;
-        this.habitComletionHistoryRepository = habitComletionHistoryRepository;
-    }
 
     /**
      * Получение привычки по id
@@ -84,7 +77,7 @@ public class HabitServiceImpl implements HabitService {
 
         HabitEntity habit = new HabitEntity(name, description, frequency.getPeriodName(), LocalDate.now(), currentUser.getId());
         habitRepository.create(habit);
-        logger.info("Привычка \" {} \" создана для пользователя: {}.", name, currentUser.getEmail());
+        log.info("Привычка \" {} \" создана для пользователя: {}.", name, currentUser.getEmail());
     }
 
     /**
@@ -111,7 +104,7 @@ public class HabitServiceImpl implements HabitService {
             habit.get().setFrequency(newFrequency.toString());
 
             habitRepository.update(habit.get());
-            logger.info("Привычка обновлена: {}", habit.get().getName());
+            log.info("Привычка обновлена: {}", habit.get().getName());
         } else {
             throw new HabitNotFoundException("Habit not found.");
         }
@@ -134,7 +127,7 @@ public class HabitServiceImpl implements HabitService {
             long userId = habit.get().getUserId();
             if (userId == currentUser.getId()) {
                 habitRepository.deleteById(habitId);
-                logger.info("Привычка \"{} \" была удалена.",
+                log.info("Привычка \"{} \" была удалена.",
                         habit.get().getName());
             } else {
                 throw new UnauthorizedAccessException("Habit does not belong to the current user.");
@@ -325,7 +318,7 @@ public class HabitServiceImpl implements HabitService {
         int streak = calculateCurrentStreak(habit);
         double completionPercentage = calculateCompletionPercentage(habit, period);
         int completionCount = calculateHabitCompletedByPeriod(habit, period);
-        HabitReportDto habitReportDto = new HabitReportDto(habit.getId(), streak, completionPercentage, period, completionCount);
+        HabitReportDto habitReportDto = new HabitReportDto(habit.getId(), streak, completionPercentage, completionCount, period);
         return habitReportDto;
     }
 }

@@ -1,6 +1,7 @@
 // package org.habitApp.repositories.impl;
 package org.habitApp.repositories.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.UserRepository;
 import org.springframework.stereotype.Repository;
@@ -18,13 +19,11 @@ import static org.habitApp.repositories.constants.UserSqlQueries.*;
  * Содержит методы для выполнения операций с базой данных, связанных с пользователями.
  */
 @Repository
+@RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
     private final DataSource dataSource; // Источник данных для подключения к базе данных
 
-    public UserRepositoryImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
 
     /**
      * Получение пользователя по email.

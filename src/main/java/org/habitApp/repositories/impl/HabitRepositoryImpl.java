@@ -1,5 +1,6 @@
 package org.habitApp.repositories.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.repositories.HabitRepository;
@@ -17,16 +18,10 @@ import static org.habitApp.repositories.constants.HabitSqlQueries.*;
  * Репозиторий для работы с привычками в базе данных
  */
 @Repository
+@RequiredArgsConstructor
 public class HabitRepositoryImpl implements HabitRepository {
 
     private final DataSource dataSource;
-
-    /**
-     * Конструктор репозитория
-     */
-    public HabitRepositoryImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
 
     /**
      * Получение всех привычек пользователя

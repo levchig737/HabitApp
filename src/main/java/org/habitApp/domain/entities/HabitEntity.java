@@ -1,5 +1,7 @@
 package org.habitApp.domain.entities;
 
+import lombok.*;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -11,6 +13,11 @@ import java.util.UUID;
  * Описывает привычку пользователя, включает в себя название, описание, частоту выполнения и историю выполнения.
  */
 
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 public class HabitEntity {
     private long id;
     private String name;
@@ -18,8 +25,6 @@ public class HabitEntity {
     private String frequency; // ежедневная или еженедельная
     private LocalDate createdDate;
     private long userId;
-
-    public HabitEntity(){}
 
     @Override
     public String toString() {
@@ -31,15 +36,6 @@ public class HabitEntity {
                 ", createdDate=" + createdDate +
                 ", userId=" + userId +
                 '}';
-    }
-
-    public HabitEntity(long id, String name, String description, String frequency, LocalDate createdDate, long userId) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.frequency = frequency;
-        this.createdDate = createdDate;
-        this.userId = userId;
     }
 
     /**
@@ -55,54 +51,6 @@ public class HabitEntity {
         this.description = description;
         this.frequency = frequency;
         this.createdDate = createdDate;
-        this.userId = userId;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getFrequency() {
-        return frequency;
-    }
-
-    public void setFrequency(String frequency) {
-        this.frequency = frequency;
-    }
-
-    public LocalDate getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDate createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
         this.userId = userId;
     }
 }
