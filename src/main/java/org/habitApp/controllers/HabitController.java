@@ -177,7 +177,7 @@ public class HabitController {
     @Operation(summary = "Получение отчета о привычке", description = "Возвращает отчет о привычке за указанный период (количество выполнений и текущий прогресс).")
     @GetMapping("/{id}/report/{period}")
     @RequiresAuthorization
-    public ResponseEntity<?> getHabitReport(@PathVariable("id") long id, @PathVariable("id") String period) {
+    public ResponseEntity<?> getHabitReport(@PathVariable("id") long id, @PathVariable("period") String period) {
         try {
             int completionCount = habitService.calculateHabitCompletedByPeriod(
                     habitService.getHabitById(id), Period.fromString(period));
@@ -203,7 +203,7 @@ public class HabitController {
     @Operation(summary = "Получение процента выполнения привычки", description = "Возвращает процент выполнения привычки за указанный период.")
     @GetMapping("/{id}/completion-percentage/{period}")
     @RequiresAuthorization
-    public ResponseEntity<?> getCompletionPercentage(@PathVariable("id") long id, @PathVariable("id") String period) {
+    public ResponseEntity<?> getCompletionPercentage(@PathVariable("id") long id, @PathVariable("period") String period) {
         try {
             double completionPercentage = habitService.calculateCompletionPercentage(
                     habitService.getHabitById(id), Period.fromString(period));
@@ -223,7 +223,7 @@ public class HabitController {
     @Operation(summary = "Генерация отчета о прогрессе привычки", description = "Генерирует отчет о прогрессе выполнения привычки за указанный период.")
     @GetMapping("/{id}/progress-report/{period}")
     @RequiresAuthorization
-    public ResponseEntity<?> generateProgressReport(@PathVariable("id") long id, @PathVariable("id") String period) {
+    public ResponseEntity<?> generateProgressReport(@PathVariable("id") long id, @PathVariable("period") String period) {
         try {
             HabitReportDto reportDto = habitService.generateProgressReport(
                     habitService.getHabitById(id), Period.fromString(period));
