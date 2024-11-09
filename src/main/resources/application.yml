@@ -9,4 +9,4 @@ spring:
 security:
   jwt:
     secret: SECRETKEY
-    expirationMinutes: 5
+    expirationTimeInMilliseconds: 600000

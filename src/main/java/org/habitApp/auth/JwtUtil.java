@@ -18,13 +18,13 @@ import java.util.UUID;
 @Component
 @PropertySource(value = "classpath:application.yml", factory = YamlPropertySourceFactory.class)
 public class JwtUtil {
-    private final int expirationTime;
+    private final int expirationTimeInMilliseconds;
     private final Algorithm algorithm;
 
     @Autowired
-    public JwtUtil(@Value("${security.jwt.secret}") String jwtSecret, @Value("${security.jwt.expirationMinutes}") int expirationTime) {
+    public JwtUtil(@Value("${security.jwt.secret}") String jwtSecret, @Value("${security.jwt.expirationTimeInMilliseconds}") int expirationTimeInMilliseconds) {
         algorithm = Algorithm.HMAC256(jwtSecret);
-        this.expirationTime = expirationTime * 60 * 1000;
+        this.expirationTimeInMilliseconds = expirationTimeInMilliseconds;
     }
 
     public String generate(Long userId) {
@@ -33,7 +33,7 @@ public class JwtUtil {
                 .withSubject("Habit Tracker Client")
                 .withClaim("userId", userId)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
+                .withExpiresAt(new Date(System.currentTimeMillis() + expirationTimeInMilliseconds))
                 .withJWTId(UUID.randomUUID()
                         .toString())
                 .sign(algorithm);
