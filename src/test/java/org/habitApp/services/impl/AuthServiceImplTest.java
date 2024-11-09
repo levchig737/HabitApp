@@ -48,7 +48,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    @DisplayName("Регистрирует пользователя успешно")
+    @DisplayName("[registerUser_success] Регистрирует пользователя успешно")
     void registerUser_success() throws SQLException, UserAlreadyExistsException {
         UserEntity userEntity = new UserEntity();
         when(userRepository.findByEmail(userDtoRegisterUpdate.getEmail())).thenReturn(Optional.empty());
@@ -60,7 +60,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    @DisplayName("Ошибка регистрации: пользователь с таким email уже существует")
+    @DisplayName("[registerUser_userAlreadyExists] Ошибка регистрации: пользователь с таким email уже существует")
     void registerUser_userAlreadyExists() throws SQLException {
         when(userRepository.findByEmail(userDtoRegisterUpdate.getEmail())).thenReturn(Optional.of(new UserEntity()));
 
@@ -68,7 +68,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    @DisplayName("Успешный вход пользователя")
+    @DisplayName("[loginUser_success] Успешный вход пользователя")
     void loginUser_success() throws SQLException, InvalidCredentialsException {
         UserEntity userEntity = new UserEntity();
         userEntity.setPassword("password");
@@ -82,7 +82,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    @DisplayName("Ошибка входа: неверный пароль")
+    @DisplayName("[loginUser_invalidCredentials] Ошибка входа: неверный пароль")
     void loginUser_invalidCredentials() throws SQLException {
         UserEntity userEntity = new UserEntity();
         userEntity.setPassword("correct_password");
@@ -92,7 +92,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    @DisplayName("Ошибка входа: пользователь не найден")
+    @DisplayName("[loginUser_userNotFound] Ошибка входа: пользователь не найден")
     void loginUser_userNotFound() throws SQLException {
         when(userRepository.findByEmail(userDtoLogin.getEmail())).thenReturn(Optional.empty());
 

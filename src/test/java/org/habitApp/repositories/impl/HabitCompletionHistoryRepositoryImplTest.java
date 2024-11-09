@@ -14,8 +14,8 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
 import static org.habitApp.repositories.constants.HabitCompletionHistorySqlQueries.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -46,7 +46,7 @@ class HabitCompletionHistoryRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("Возвращает историю выполнения для конкретного ID привычки")
+    @DisplayName("[getCompletionHistoryForHabit] Должен вернуть историю выполнения для конкретного ID привычки")
     void testGetCompletionHistoryForHabit() throws SQLException {
         long habitId = 1L;
         when(connection.prepareStatement(GET_COMPLETION_HISTORY_FOR_HABIT)).thenReturn(preparedStatement);
@@ -61,7 +61,7 @@ class HabitCompletionHistoryRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("Добавляет дату выполнения по ID привычки и ID пользователя")
+    @DisplayName("[addCompletionDateByHabitIdUserId] Должен добавить дату выполнения по ID привычки и ID пользователя")
     void testAddCompletionDateByHabitIdUserId() throws SQLException {
         long habitId = 1L;
         long userId = 1L;
@@ -79,7 +79,7 @@ class HabitCompletionHistoryRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("Создает новую запись истории выполнения привычки")
+    @DisplayName("[create] Должен создать новую запись в истории выполнения привычки")
     void testCreate() throws SQLException {
         when(connection.prepareStatement(CREATE_COMPLETION_HISTORY, Statement.RETURN_GENERATED_KEYS)).thenReturn(preparedStatement);
         when(preparedStatement.getGeneratedKeys()).thenReturn(resultSet);
@@ -94,7 +94,7 @@ class HabitCompletionHistoryRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("Находит запись истории выполнения привычки по ID")
+    @DisplayName("[findById] Должен найти запись истории выполнения по ID")
     void testFindById() throws SQLException {
         long id = 10L;
 
@@ -113,7 +113,7 @@ class HabitCompletionHistoryRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("Возвращает все записи истории выполнения привычек")
+    @DisplayName("[findAll] Должен вернуть все записи истории выполнения привычек")
     void testFindAll() throws SQLException {
         when(connection.prepareStatement(GET_ALL_COMPLETION_HISTORY)).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
@@ -130,8 +130,9 @@ class HabitCompletionHistoryRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("Обновляет запись истории выполнения привычки")
+    @DisplayName("[update] Должен обновить запись истории выполнения привычки")
     void testUpdate() throws SQLException {
+
         when(connection.prepareStatement(UPDATE_COMPLETION_HISTORY)).thenReturn(preparedStatement);
         when(preparedStatement.executeUpdate()).thenReturn(1);
 
@@ -145,7 +146,7 @@ class HabitCompletionHistoryRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("Удаляет запись истории выполнения привычки по ID")
+    @DisplayName("[deleteById] Должен удалить запись истории выполнения привычки по ID")
     void testDeleteById() throws SQLException {
         long id = 1L;
 
@@ -159,7 +160,7 @@ class HabitCompletionHistoryRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("Преобразует строку ResultSet в HabitCompletionHistoryEntity")
+    @DisplayName("[mapRowToEntity] Должен сопоставить строку ResultSet с HabitCompletionHistoryEntity")
     void testMapRowToEntity() throws SQLException {
         when(resultSet.getLong("id")).thenReturn(1L);
         when(resultSet.getLong("habit_id")).thenReturn(1L);

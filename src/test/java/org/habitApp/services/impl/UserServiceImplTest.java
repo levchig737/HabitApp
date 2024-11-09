@@ -54,7 +54,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test: Update current user profile - User not found")
+    @DisplayName("[updateCurrentUserProfile_UserNotFound] Обновление профиля текущего пользователя - Пользователь не найден")
     void updateCurrentUserProfile_UserNotFound() throws SQLException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
@@ -63,7 +63,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test: Update current user profile - Successful update")
+    @DisplayName("[updateCurrentUserProfile_SuccessfulUpdate] Обновление профиля текущего пользователя - Успешное обновление")
     void updateCurrentUserProfile_SuccessfulUpdate() throws SQLException, UserNotFoundException, UserAlreadyExistsException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(mock(AuthInMemoryContext.class));
@@ -77,7 +77,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test: Delete current user - Successful deletion")
+    @DisplayName("[deleteCurrentUser_SuccessfulDeletion] Удаление текущего пользователя - Успешное удаление")
     void deleteCurrentUser_SuccessfulDeletion() throws SQLException, UserNotFoundException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(mock(AuthInMemoryContext.class));
@@ -89,7 +89,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test: Delete current user - Unauthorized access")
+    @DisplayName("[deleteCurrentUser_UserNotFound] Удаление текущего пользователя - Несанкционированный доступ")
     void deleteCurrentUser_UserNotFound() {
         assertThrows(UnauthorizedAccessException.class, () -> userService.deleteCurrentUser());
     }

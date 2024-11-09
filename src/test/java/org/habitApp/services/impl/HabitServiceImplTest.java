@@ -52,7 +52,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Возвращает привычку по ID, если у пользователя есть доступ")
+    @DisplayName("[getHabitById_ShouldReturnHabit_WhenUserHasAccess] Возвращает привычку по ID, если у пользователя есть доступ")
     public void getHabitById_ShouldReturnHabit_WhenUserHasAccess() throws SQLException, HabitNotFoundException, UnauthorizedAccessException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
@@ -66,7 +66,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Выбрасывает UnauthorizedAccessException, если пользователь не является владельцем привычки")
+    @DisplayName("[getHabitById_ShouldThrowUnauthorizedAccessException_WhenUserDoesNotOwnHabit] Выбрасывает UnauthorizedAccessException, если пользователь не является владельцем привычки")
     public void getHabitById_ShouldThrowUnauthorizedAccessException_WhenUserDoesNotOwnHabit() throws SQLException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
@@ -78,7 +78,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Создает новую привычку и вызывает метод сохранения в репозитории")
+    @DisplayName("[createHabit_ShouldCallRepositorySaveMethod] Создает новую привычку и вызывает метод сохранения в репозитории")
     public void createHabit_ShouldCallRepositorySaveMethod() throws SQLException {
         Period frequency = Period.DAY;
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
@@ -91,7 +91,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Выбрасывает UnauthorizedAccessException при попытке удалить привычку, если пользователь не является владельцем")
+    @DisplayName("[deleteHabit_ShouldThrowUnauthorizedAccessException_WhenUserDoesNotOwnHabit] Выбрасывает UnauthorizedAccessException при попытке удалить привычку, если пользователь не является владельцем")
     public void deleteHabit_ShouldThrowUnauthorizedAccessException_WhenUserDoesNotOwnHabit() throws SQLException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
@@ -103,7 +103,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Возвращает все привычки пользователя")
+    @DisplayName("[getAllHabits_ShouldReturnUserHabits] Возвращает все привычки пользователя")
     public void getAllHabits_ShouldReturnUserHabits() throws SQLException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
@@ -117,7 +117,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Выбрасывает HabitAlreadyCompletedException, если привычка уже выполнена сегодня")
+    @DisplayName("[markHabitAsCompleted_ShouldThrowHabitAlreadyCompletedException_WhenCompletedToday] Выбрасывает HabitAlreadyCompletedException, если привычка уже выполнена сегодня")
     public void markHabitAsCompleted_ShouldThrowHabitAlreadyCompletedException_WhenCompletedToday() throws SQLException {
         when(habitComletionHistoryRepository.getCompletionHistoryForHabit(1L)).thenReturn(List.of(LocalDate.now()));
         when(habitRepository.findById(1L)).thenReturn(Optional.of(testHabit));
@@ -126,7 +126,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Возвращает количество дней подряд, если пользователь выполняет привычку ежедневно")
+    @DisplayName("[calculateCurrentStreak_ShouldReturnStreakCount] Возвращает количество дней подряд, если пользователь выполняет привычку ежедневно")
     public void calculateCurrentStreak_ShouldReturnStreakCount() throws SQLException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
@@ -145,7 +145,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Возвращает процент выполнения привычки за период")
+    @DisplayName("[calculateCompletionPercentage_ShouldReturnPercentage] Возвращает процент выполнения привычки за период")
     public void calculateCompletionPercentage_ShouldReturnPercentage() throws SQLException {
         List<LocalDate> completionHistory = List.of(
                 LocalDate.now().minusDays(2),
@@ -158,7 +158,7 @@ public class HabitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Генерирует отчет о прогрессе выполнения привычки")
+    @DisplayName("[generateProgressReport_ShouldReturnHabitReportDto] Генерирует отчет о прогрессе выполнения привычки")
     public void generateProgressReport_ShouldReturnHabitReportDto() throws SQLException {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
