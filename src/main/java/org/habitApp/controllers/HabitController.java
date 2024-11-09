@@ -61,7 +61,7 @@ public class HabitController {
     @Operation(summary = "Обновление привычки", description = "Обновляет существующую привычку, указанную по ID, для текущего аутентифицированного пользователя.")
     @PutMapping("/{id}")
     @RequiresAuthorization
-    public ResponseEntity<?> updateHabit(@RequestParam long id, @RequestBody HabitDtoCreateUpdate habitDto) {
+    public ResponseEntity<?> updateHabit(@PathVariable("id") long id, @RequestBody HabitDtoCreateUpdate habitDto) {
         try {
             habitService.updateHabit(
                     id,
@@ -84,7 +84,7 @@ public class HabitController {
     @Operation(summary = "Удаление привычки", description = "Удаляет привычку, указанную по ID, для текущего аутентифицированного пользователя.")
     @DeleteMapping("/{id}")
     @RequiresAuthorization
-    public ResponseEntity<?> deleteHabit(@RequestParam long id) {
+    public ResponseEntity<?> deleteHabit(@PathVariable("id") long id) {
         try {
             habitService.deleteHabit(id);
             return ResponseEntity.ok().body("Habit deleted successfully.");
@@ -138,7 +138,7 @@ public class HabitController {
     @Operation(summary = "Получение привычки по ID", description = "Возвращает привычку по ее идентификатору для текущего аутентифицированного пользователя.")
     @GetMapping("/{id}")
     @RequiresAuthorization
-    public ResponseEntity<?> getHabitById(@RequestParam long id) {
+    public ResponseEntity<?> getHabitById(@PathVariable("id") long id) {
         try {
             HabitDtoResponse habitDtoResponse = habitMapper.habitToHabitDtoResponse(
                     habitService.getHabitById(id)
@@ -158,7 +158,7 @@ public class HabitController {
     @Operation(summary = "Отметка привычки как выполненной", description = "Отмечает привычку как выполненную для текущего аутентифицированного пользователя.")
     @PostMapping("/{id}/complete")
     @RequiresAuthorization
-    public ResponseEntity<?> markHabitCompleted(@RequestParam long id) {
+    public ResponseEntity<?> markHabitCompleted(@PathVariable("id") long id) {
         try {
             habitService.markHabitAsCompleted(id);
             return ResponseEntity.ok().body("Habit marked as completed.");
@@ -177,7 +177,7 @@ public class HabitController {
     @Operation(summary = "Получение отчета о привычке", description = "Возвращает отчет о привычке за указанный период (количество выполнений и текущий прогресс).")
     @GetMapping("/{id}/report/{period}")
     @RequiresAuthorization
-    public ResponseEntity<?> getHabitReport(@RequestParam long id, @RequestParam String period) {
+    public ResponseEntity<?> getHabitReport(@PathVariable("id") long id, @PathVariable("id") String period) {
         try {
             int completionCount = habitService.calculateHabitCompletedByPeriod(
                     habitService.getHabitById(id), Period.fromString(period));
@@ -203,7 +203,7 @@ public class HabitController {
     @Operation(summary = "Получение процента выполнения привычки", description = "Возвращает процент выполнения привычки за указанный период.")
     @GetMapping("/{id}/completion-percentage/{period}")
     @RequiresAuthorization
-    public ResponseEntity<?> getCompletionPercentage(@RequestParam long id, @RequestParam String period) {
+    public ResponseEntity<?> getCompletionPercentage(@PathVariable("id") long id, @PathVariable("id") String period) {
         try {
             double completionPercentage = habitService.calculateCompletionPercentage(
                     habitService.getHabitById(id), Period.fromString(period));
@@ -223,7 +223,7 @@ public class HabitController {
     @Operation(summary = "Генерация отчета о прогрессе привычки", description = "Генерирует отчет о прогрессе выполнения привычки за указанный период.")
     @GetMapping("/{id}/progress-report/{period}")
     @RequiresAuthorization
-    public ResponseEntity<?> generateProgressReport(@RequestParam long id, @RequestParam String period) {
+    public ResponseEntity<?> generateProgressReport(@PathVariable("id") long id, @PathVariable("id") String period) {
         try {
             HabitReportDto reportDto = habitService.generateProgressReport(
                     habitService.getHabitById(id), Period.fromString(period));

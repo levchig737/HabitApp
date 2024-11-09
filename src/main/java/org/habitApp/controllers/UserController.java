@@ -75,7 +75,7 @@ public class UserController {
     @Operation(summary = "Получение пользователя по email", description = "Возвращает информацию о пользователе для администратора.")
     @GetMapping("/admin/{email}")
     @RequiresAuthorization(forAdmin = true)
-    public ResponseEntity<?> getUser(@RequestParam String email) {
+    public ResponseEntity<?> getUser(@PathVariable("email") String email) {
         try {
             UserDto userDto = userService.getUser(email);
             return ResponseEntity.ok(userDto);
@@ -111,7 +111,7 @@ public class UserController {
     @Operation(summary = "Обновление профиля пользователя", description = "Обновляет профиль пользователя по его ID для администратора.")
     @PutMapping("/admin/{id}")
     @RequiresAuthorization(forAdmin = true)
-    public ResponseEntity<?> updateUserProfile(@RequestParam long id, @RequestBody UserDtoRegisterUpdate userDtoRegisterUpdate) {
+    public ResponseEntity<?> updateUserProfile(@PathVariable("id") long id, @RequestBody UserDtoRegisterUpdate userDtoRegisterUpdate) {
 
         try {
             UserDto updatedUserDto = userService.updateUserProfile(id, userDtoRegisterUpdate);
@@ -130,7 +130,7 @@ public class UserController {
     @Operation(summary = "Удаление пользователя по ID", description = "Удаляет профиль пользователя по его ID для администратора.")
     @DeleteMapping("/admin/{id}")
     @RequiresAuthorization(forAdmin = true)
-    public ResponseEntity<?> deleteUser(@RequestParam long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long id) {
 
         try {
             userService.deleteUser(id);
