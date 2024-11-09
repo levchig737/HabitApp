@@ -8,7 +8,7 @@ import org.habitApp.exceptions.UnauthorizedAccessException;
 /**
  * Контекст авторизации пользователя
  */
-public final class AuthInMemoryContext {
+public class AuthInMemoryContext {
     private final static AuthInMemoryContext CONTEXT = new AuthInMemoryContext();
 
     private UserEntity authenticatedUser;

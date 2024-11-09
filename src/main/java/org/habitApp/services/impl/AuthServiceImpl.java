@@ -8,6 +8,7 @@ import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.InvalidCredentialsException;
 import org.habitApp.exceptions.UserAlreadyExistsException;
 import org.habitApp.mappers.UserMapper;
+import org.habitApp.repositories.UserRepository;
 import org.habitApp.repositories.impl.UserRepositoryImpl;
 import org.habitApp.services.AuthService;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
 

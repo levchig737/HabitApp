@@ -11,6 +11,7 @@ import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.exceptions.HabitAlreadyCompletedException;
 import org.habitApp.models.Period;
 import org.habitApp.repositories.HabitCompletionHistoryRepository;
+import org.habitApp.repositories.HabitRepository;
 import org.habitApp.repositories.impl.HabitRepositoryImpl;
 import org.habitApp.services.HabitService;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class HabitServiceImpl implements HabitService {
-    private final HabitRepositoryImpl habitRepository;
+    private final HabitRepository habitRepository;
     private final HabitCompletionHistoryRepository habitComletionHistoryRepository;
 
     /**

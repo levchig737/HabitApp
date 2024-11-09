@@ -10,7 +10,6 @@ import org.habitApp.exceptions.UserNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.repositories.UserRepository;
-import org.habitApp.repositories.impl.UserRepositoryImpl;
 import org.habitApp.services.UserService;
 import org.springframework.stereotype.Service;
 
@@ -75,7 +74,7 @@ public class UserServiceImpl implements UserService {
      * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      */
     @Override
-    public UserDto getUser(String email) throws SQLException, UnauthorizedAccessException {
+    public UserDto getUser(String email) throws SQLException {
 
         Optional<UserEntity> user = userRepository.findByEmail(email);
         return userMapper.userToUserDto(user.orElse(null));
@@ -108,7 +107,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUserProfile(long id, UserDtoRegisterUpdate userDtoRegisterUpdate)
             throws SQLException, UnauthorizedAccessException, UserNotFoundException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
 
         Optional<UserEntity> user = userRepository.findById(id);
         if (user.isPresent()) {
@@ -130,8 +128,6 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void deleteUser(long id) throws SQLException, UnauthorizedAccessException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-
         userRepository.deleteById(id);
     }
 
