@@ -1,26 +1,37 @@
 package org.habitApp.controllers;
 
-import org.habitApp.config.beans.CurrentUserBean;
 import org.habitApp.domain.dto.userDto.UserDto;
-import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
-import org.habitApp.exceptions.*;
+import org.habitApp.exceptions.UnauthorizedAccessException;
+import org.habitApp.exceptions.UserNotFoundException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.sql.SQLException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ExtendWith(MockitoExtension.class)
 class UserControllerTest {
+
+    private MockMvc mockMvc;
 
     @Mock
     private UserService userService;
@@ -28,175 +39,126 @@ class UserControllerTest {
     @Mock
     private UserMapper userMapper;
 
-    @Mock
-    private CurrentUserBean currentUserBean;
-
     @InjectMocks
     private UserController userController;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
-    // registerUser
-    @Test
-    void registerUser_SuccessfulRegistration() throws SQLException, UserAlreadyExistsException {
-        UserDtoRegisterUpdate newUser = new UserDtoRegisterUpdate();
-        ResponseEntity<?> response = userController.registerUser(newUser);
-
-        assertEquals(200, response.getStatusCodeValue());
-        verify(userService).registerUser(newUser);
+        mockMvc = MockMvcBuilders.standaloneSetup(new UserController(userService, userMapper)).build();
     }
 
     @Test
-    void registerUser_UserAlreadyExists() throws SQLException, UserAlreadyExistsException {
-        UserDtoRegisterUpdate newUser = new UserDtoRegisterUpdate();
-        doThrow(UserAlreadyExistsException.class).when(userService).registerUser(newUser);
-
-        ResponseEntity<?> response = userController.registerUser(newUser);
-        assertEquals(400, response.getStatusCodeValue());
+    @DisplayName("PUT /users/profile - Успешное обновление профиля текущего пользователя")
+    void updateCurrentUserProfile_Success() throws Exception {
+        UserDtoRegisterUpdate updateDto = new UserDtoRegisterUpdate();
+        mockMvc.perform(put("/users/profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
     }
 
-    // loginUser
     @Test
-    void loginUser_SuccessfulLogin() throws SQLException, InvalidCredentialsException {
-        UserDtoLogin loginData = new UserDtoLogin();
+    @DisplayName("PUT /users/profile - Обновление профиля текущего пользователя, пользователь не найден")
+    void updateCurrentUserProfile_UserNotFound() throws Exception {
+        doThrow(new UserNotFoundException("User not found")).when(userService).updateCurrentUserProfile(any());
+        mockMvc.perform(put("/users/profile")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User not found"));
+    }
+
+    @Test
+    @DisplayName("DELETE /users/profile - Удаление профиля текущего пользователя")
+    void deleteCurrentUser_Success() throws Exception {
+        mockMvc.perform(delete("/users/profile"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("DELETE /users/profile - Удаление профиля текущего пользователя, пользователь не найден")
+    void deleteCurrentUser_UserNotFound() throws Exception {
+        doThrow(new UserNotFoundException("User not found")).when(userService).deleteCurrentUser();
+        mockMvc.perform(delete("/users/profile"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User not found"));
+    }
+
+    @Test
+    @DisplayName("GET /users/admin - Получение пользователя по email")
+    void getUser_Success() throws Exception {
         UserDto userDto = new UserDto();
-        when(userService.loginUser(loginData)).thenReturn(userDto);
-        when(userMapper.userDtoToUser(userDto)).thenReturn(any());
-
-        ResponseEntity<?> response = userController.loginUser(loginData);
-        assertEquals(200, response.getStatusCodeValue());
-        verify(currentUserBean).setCurrentUser(any());
+        mockMvc.perform(get("/users/admin")
+                        .param("email", "test@example.com"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void loginUser_InvalidCredentials() throws SQLException, InvalidCredentialsException {
-        UserDtoLogin loginData = new UserDtoLogin();
-        when(userService.loginUser(loginData)).thenThrow(InvalidCredentialsException.class);
-
-        ResponseEntity<?> response = userController.loginUser(loginData);
-        assertEquals(400, response.getStatusCodeValue());
-    }
-
-    // logoutUser
-    @Test
-    void logoutUser_SuccessfulLogout() {
-        when(currentUserBean.isAuthenticated()).thenReturn(true);
-
-        ResponseEntity<?> response = userController.logoutUser();
-        assertEquals(200, response.getStatusCodeValue());
-        verify(currentUserBean).setCurrentUser(null);
+    @DisplayName("GET /users/admin - Получение пользователя по email, не авторизован")
+    void getUser_Unauthorized() throws Exception {
+        doThrow(new UnauthorizedAccessException("Unauthorized")).when(userService).getUser(any());
+        mockMvc.perform(get("/users/admin/test@example.com"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Unauthorized"));
     }
 
     @Test
-    void logoutUser_Unauthorized() {
-        when(currentUserBean.isAuthenticated()).thenReturn(false);
-
-        ResponseEntity<?> response = userController.logoutUser();
-        assertEquals(401, response.getStatusCodeValue());
-    }
-
-    // updateCurrentUserProfile
-    @Test
-    void updateCurrentUserProfile_SuccessfulUpdate() throws SQLException, UserNotFoundException, UserAlreadyExistsException {
-        UserDtoRegisterUpdate updateData = new UserDtoRegisterUpdate();
-        when(currentUserBean.isAuthenticated()).thenReturn(true);
-
-        ResponseEntity<?> response = userController.updateCurrentUserProfile(updateData);
-        assertEquals(200, response.getStatusCodeValue());
-        verify(userService).updateCurrentUserProfile(updateData, currentUserBean.getCurrentUser());
-    }
-
-    // deleteCurrentUser
-    @Test
-    void deleteCurrentUser_SuccessfulDeletion() throws SQLException, UserNotFoundException {
-        when(currentUserBean.isAuthenticated()).thenReturn(true);
-
-        ResponseEntity<?> response = userController.deleteCurrentUser();
-        assertEquals(200, response.getStatusCodeValue());
-        verify(userService).deleteCurrentUser(currentUserBean.getCurrentUser());
+    @DisplayName("GET /users/admin - Получение всех пользователей")
+    void getAllUsers_Success() throws Exception {
+        List<UserDto> users = new ArrayList<>();
+        when(userService.getAllUsers()).thenReturn(users);
+        mockMvc.perform(get("/users/admin"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 
     @Test
-    void deleteCurrentUser_Unauthorized() {
-        when(currentUserBean.isAuthenticated()).thenReturn(false);
-
-        ResponseEntity<?> response = userController.deleteCurrentUser();
-        assertEquals(401, response.getStatusCodeValue());
-    }
-
-    // getUser
-    @Test
-    void getUser_AdminAccess() throws SQLException, UnauthorizedAccessException {
-        when(currentUserBean.isAuthenticated()).thenReturn(true);
-        UserDto userDto = new UserDto();
-        when(userService.getUser("test@example.com", currentUserBean.getCurrentUser())).thenReturn(userDto);
-
-        ResponseEntity<?> response = userController.getUser("test@example.com");
-        assertEquals(200, response.getStatusCodeValue());
+    @DisplayName("GET /users/admin - Получение всех пользователей, не авторизован")
+    void getAllUsers_Unauthorized() throws Exception {
+        doThrow(new UnauthorizedAccessException("Unauthorized")).when(userService).getAllUsers();
+        mockMvc.perform(get("/users/admin"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Unauthorized"));
     }
 
     @Test
-    void getUser_Unauthorized() {
-        when(currentUserBean.isAuthenticated()).thenReturn(false);
+    @DisplayName("PUT /users/admin/{id} - Обновление профиля пользователя по ID")
+    void updateUserProfile_Success() throws Exception {
+        UserDtoRegisterUpdate updateDto = new UserDtoRegisterUpdate();
+        UserDto updatedUserDto = new UserDto();
 
-        ResponseEntity<?> response = userController.getUser("test@example.com");
-        assertEquals(401, response.getStatusCodeValue());
-    }
-
-    // getAllUsers
-    @Test
-    void getAllUsers_AdminAccess() throws SQLException, UnauthorizedAccessException {
-        when(currentUserBean.isAuthenticated()).thenReturn(true);
-        when(userService.getAllUsers(currentUserBean.getCurrentUser())).thenReturn(Collections.emptyList());
-
-        ResponseEntity<?> response = userController.getAllUsers();
-        assertEquals(200, response.getStatusCodeValue());
+        mockMvc.perform(put("/users/admin/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void getAllUsers_Unauthorized() {
-        when(currentUserBean.isAuthenticated()).thenReturn(false);
+    @DisplayName("PUT /users/admin/{id} - Обновление профиля пользователя по ID, пользователь не найден")
+    void updateUserProfile_UserNotFound() throws Exception {
+        doThrow(new UserNotFoundException("User not found"))
+                .when(userService).updateUserProfile(anyLong(), any(UserDtoRegisterUpdate.class));
 
-        ResponseEntity<?> response = userController.getAllUsers();
-        assertEquals(401, response.getStatusCodeValue());
-    }
-
-    // updateUserProfile
-    @Test
-    void updateUserProfile_AdminAccess() throws SQLException, UnauthorizedAccessException, UserNotFoundException {
-        UserDto updateData = new UserDto();
-        when(currentUserBean.isAuthenticated()).thenReturn(true);
-
-        ResponseEntity<?> response = userController.updateUserProfile(1L, updateData);
-        assertEquals(200, response.getStatusCodeValue());
+        mockMvc.perform(put("/users/admin/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User not found"));
     }
 
     @Test
-    void updateUserProfile_Unauthorized() {
-        when(currentUserBean.isAuthenticated()).thenReturn(false);
-
-        ResponseEntity<?> response = userController.updateUserProfile(1L, new UserDto());
-        assertEquals(401, response.getStatusCodeValue());
-    }
-
-    // deleteUser
-    @Test
-    void deleteUser_AdminAccess() throws SQLException, UnauthorizedAccessException {
-        when(currentUserBean.isAuthenticated()).thenReturn(true);
-
-        ResponseEntity<?> response = userController.deleteUser(1L);
-        assertEquals(200, response.getStatusCodeValue());
-        verify(userService).deleteUser(1L, currentUserBean.getCurrentUser());
+    @DisplayName("DELETE /users/admin/{id} - Удаление пользователя по ID")
+    void deleteUser_Success() throws Exception {
+        mockMvc.perform(delete("/users/admin/1"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void deleteUser_Unauthorized() {
-        when(currentUserBean.isAuthenticated()).thenReturn(false);
-
-        ResponseEntity<?> response = userController.deleteUser(1L);
-        assertEquals(401, response.getStatusCodeValue());
+    @DisplayName("DELETE /users/admin/{id} - Удаление пользователя по ID, не авторизован")
+    void deleteUser_Unauthorized() throws Exception {
+        doThrow(new UnauthorizedAccessException("Unauthorized")).when(userService).deleteUser(anyLong());
+        mockMvc.perform(delete("/users/admin/1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Unauthorized"));
     }
 }

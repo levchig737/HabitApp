@@ -1,0 +1,2 @@
+org.habitApp.config.LoggingAutoConfiguration
+org.habitApp.config.AuditLoggingAutoConfiguration

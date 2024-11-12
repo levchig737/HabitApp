@@ -11,6 +11,12 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface HabitMapper {
     //// HabitDto
+
+    /**
+     * HabitEntity to HabitDto
+     * @param habit HabitEntity
+     * @return HabitDto
+     */
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
@@ -18,6 +24,11 @@ public interface HabitMapper {
     @Mapping(source = "userId", target = "userId")
     HabitDto habitToHabitDto(HabitEntity habit);
 
+    /**
+     * HabitDto to HabitEntity
+     * @param habitDto HabitDto
+     * @return HabitEntity
+     */
     @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
@@ -27,11 +38,21 @@ public interface HabitMapper {
 
 
     ////HabitDtoCreateUpdate
+    /**
+     * HabitEntity to HabitDtoCreateUpdate
+     * @param habit HabitEntity
+     * @return HabitDtoCreateUpdate
+     */
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "frequency", target = "frequency")
     HabitDtoCreateUpdate habitToHabitDtoCreateUpdate(HabitEntity habit);
 
+    /**
+     * HabitDtoCreateUpdate to HabitEntity
+     * @param habitDtoCreateUpdate HabitDtoCreateUpdate
+     * @return HabitEntity
+     */
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "frequency", target = "frequency")
@@ -39,14 +60,24 @@ public interface HabitMapper {
 
 
     ////HabitDtoResponse
+    /**
+     * HabitEntity to HabitDtoResponse
+     * @param habit HabitEntity
+     * @return HabitDtoResponse
+     */
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "frequency", target = "frequency")
     HabitDtoResponse habitToHabitDtoResponse(HabitEntity habit);
 
+    /**
+     * HabitDtoResponse to HabitEntity
+     * @param HabitDtoResponse HabitDtoResponse
+     * @return HabitEntity
+     */
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "frequency", target = "frequency")
-    HabitEntity habitDtoResponseToHabit(HabitDtoResponse habitDtoResponse);
+    HabitEntity habitDtoResponseToHabit(HabitDtoResponse HabitDtoResponse);
 }
 

@@ -1,8 +1,12 @@
-jdbc:
-  url: jdbc:postgresql://localhost:5431/habit_app
-  username: habit_app
-  password: 1234
-  driverClassName: org.postgresql.Driver
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5431/habit_app
+    username: habit_app
+    password: 1234
+  liquibase:
+    change-log: classpath:db/changelog/changelog.xml
 
-liquibase:
-  changeLogFile: db/changelog/changelog.xml
+security:
+  jwt:
+    secret: SECRETKEY
+    expirationTimeInMilliseconds: 600000
