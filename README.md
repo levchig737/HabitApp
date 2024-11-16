@@ -57,7 +57,7 @@
 
 
 ## Проект архитектуры
-<img src="./Проект_архитектуры_HabitApp.drawio.png" width="601" height="321" alt="Проект архитектуры"/>
+<img src="images/Проект_архитектуры_HabitApp.drawio.png" width="601" height="321" alt="Проект архитектуры"/>
 
 
 ## Запуск:
@@ -88,7 +88,7 @@ mvn -f ./habit-logging-starter install
 5. Запустите приложение
 
 ```shell
-mvn mvn spring-boot:run
+mvn spring-boot:run
 ```
 
 ## Запросы
@@ -96,7 +96,7 @@ mvn mvn spring-boot:run
 
 ## Структура базы данных
 ### Реляционная модель БД
-<img src="./Реляционная_модель.png" width="520" height="425" alt="Реляционная модель"/>
+<img src="images/Реляционная_модель.png" width="520" height="425" alt="Реляционная модель"/>
 
 ### Доступные пользователи (Таблица users):
 | id | name  | email              | password  | is_admin |
