@@ -8,6 +8,7 @@ import org.habitApp.exceptions.HabitAlreadyCompletedException;
 import org.habitApp.exceptions.HabitNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.models.Period;
+import org.habitApp.models.Role;
 import org.habitApp.repositories.HabitCompletionHistoryRepository;
 import org.habitApp.repositories.HabitRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ public class HabitServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        testUser = new UserEntity(1, "testUser@example.com", "password123", "Test User", false);
+        testUser = new UserEntity(1, "testUser@example.com", "password123", "Test User", Role.ROLE_USER);
         testHabit = new HabitEntity(1, "Test Habit", "Testing", "day", LocalDate.now(), testUser.getId());
     }
 
@@ -71,7 +72,7 @@ public class HabitServiceImplTest {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
             when(habitRepository.findById(1L)).thenReturn(Optional.of(testHabit));
-            when(authInMemoryContext.getAuthentication()).thenReturn(new UserEntity(2, "otherUser@example.com", "password123", "Other User", false));
+            when(authInMemoryContext.getAuthentication()).thenReturn(new UserEntity(2, "otherUser@example.com", "password123", "Other User", Role.ROLE_USER));
 
             assertThrows(UnauthorizedAccessException.class, () -> habitService.getHabitById(1L));
         }
@@ -96,7 +97,7 @@ public class HabitServiceImplTest {
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
             when(habitRepository.findById(1L)).thenReturn(Optional.of(testHabit));
-            when(authInMemoryContext.getAuthentication()).thenReturn(new UserEntity(2, "otherUser@example.com", "password123", "Other User", false));
+            when(authInMemoryContext.getAuthentication()).thenReturn(new UserEntity(2, "otherUser@example.com", "password123", "Other User", Role.ROLE_USER));
 
             assertThrows(UnauthorizedAccessException.class, () -> habitService.deleteHabit(1L));
         }

@@ -7,6 +7,7 @@ import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.*;
 import org.habitApp.mappers.UserMapper;
+import org.habitApp.models.Role;
 import org.habitApp.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,9 +49,9 @@ class UserServiceImplTest {
     void setUp() {
         userDtoRegisterUpdate = new UserDtoRegisterUpdate("test@example.com", "Test User", "password123");
         userDtoLogin = new UserDtoLogin("test@example.com", "password123");
-        userEntity = new UserEntity("test@example.com", "password123", "Test User", false);
-        userDto = new UserDto("test@example.com", "password123", "Test User", false);
-        testUser = new UserEntity(1, "test@example.com", "password123", "Test User", false);
+        userEntity = new UserEntity("test@example.com", "password123", "Test User", Role.ROLE_USER);
+        userDto = new UserDto("test@example.com", "password123", "Test User", Role.ROLE_USER);
+        testUser = new UserEntity(1, "test@example.com", "password123", "Test User", Role.ROLE_USER);
     }
 
     @Test

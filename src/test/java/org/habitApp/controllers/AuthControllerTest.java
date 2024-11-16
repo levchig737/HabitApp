@@ -7,6 +7,7 @@ import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.InvalidCredentialsException;
 import org.habitApp.exceptions.UserAlreadyExistsException;
+import org.habitApp.models.Role;
 import org.habitApp.services.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +47,7 @@ class AuthControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
         userDtoRegisterUpdate = new UserDtoRegisterUpdate("test@example.com", "password", "Test User");
         userDtoLogin = new UserDtoLogin("test@example.com", "password");
-        testUser = new UserEntity(1L, "test@example.com", "password", "Test User", false);
+        testUser = new UserEntity(1L, "test@example.com", "password", "Test User", Role.ROLE_USER);
     }
 
     @Test
@@ -111,7 +112,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("GET /auth/admin/test - Проверка авторизации администратора")
     void shouldReturnAdminAccessForAuthorizedUser() throws Exception {
-        UserEntity adminUser = new UserEntity(1L, "admin@example.com", "password", "Admin User", true);
+        UserEntity adminUser = new UserEntity(1L, "admin@example.com", "password", "Admin User", Role.ROLE_ADMIN);
         AuthInMemoryContext.getContext().setAuthentication(adminUser);
 
         mockMvc.perform(get("/auth/admin/test"))

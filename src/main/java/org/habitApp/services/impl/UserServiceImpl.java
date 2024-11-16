@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
             }
 
             currentUser.setEmail(userDtoRegisterUpdate.getEmail());
-            currentUser.setName(userDtoRegisterUpdate.getName());
+            currentUser.setUsername(userDtoRegisterUpdate.getUsername());
             currentUser.setPassword(userDtoRegisterUpdate.getPassword());
             userRepository.update(currentUser);
         } else {
@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserEntity> user = userRepository.findById(id);
         if (user.isPresent()) {
-            user.get().setName(userDtoRegisterUpdate.getName());
+            user.get().setUsername(userDtoRegisterUpdate.getUsername());
             user.get().setPassword(userDtoRegisterUpdate.getPassword());
             userRepository.update(user.get());
             return userMapper.userToUserDto(user.orElse(null));

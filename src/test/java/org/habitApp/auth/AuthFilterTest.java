@@ -85,7 +85,7 @@ public class AuthFilterTest {
         Long userId = 1L;
         UserEntity userEntity = new UserEntity();
         userEntity.setId(userId);
-        userEntity.setName("testUser");
+        userEntity.setUsername("testUser");
 
         authFilter.doFilter(request, response, filterChain);
 

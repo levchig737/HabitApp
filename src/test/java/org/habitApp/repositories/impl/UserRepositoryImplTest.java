@@ -1,7 +1,7 @@
 package org.habitApp.repositories.impl;
 
 import org.habitApp.domain.entities.UserEntity;
-import org.habitApp.repositories.impl.UserRepositoryImpl;
+import org.habitApp.models.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,6 @@ import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
-import static org.habitApp.repositories.constants.UserSqlQueries.GET_ALL_USERS;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -42,7 +41,7 @@ public class UserRepositoryImplTest {
     @BeforeEach
     void setUp() throws SQLException {
         lenient().when(dataSource.getConnection()).thenReturn(connection);
-        userEntity = new UserEntity(1L, "test@example.com", "password", "Test User", false);
+        userEntity = new UserEntity(1L, "test@example.com", "password", "Test User", Role.ROLE_USER);
     }
 
     @Test
@@ -54,8 +53,8 @@ public class UserRepositoryImplTest {
         when(resultSet.getLong("id")).thenReturn(userEntity.getId());
         when(resultSet.getString("email")).thenReturn(userEntity.getEmail());
         when(resultSet.getString("password")).thenReturn(userEntity.getPassword());
-        when(resultSet.getString("name")).thenReturn(userEntity.getName());
-        when(resultSet.getBoolean("is_admin")).thenReturn(userEntity.isFlagAdmin());
+        when(resultSet.getString("username")).thenReturn(userEntity.getUsername());
+        when(resultSet.getString("role")).thenReturn(userEntity.getRole().toString());
 
         Optional<UserEntity> result = userRepository.findByEmail(userEntity.getEmail());
 
@@ -84,8 +83,8 @@ public class UserRepositoryImplTest {
         when(resultSet.getLong("id")).thenReturn(userEntity.getId());
         when(resultSet.getString("email")).thenReturn(userEntity.getEmail());
         when(resultSet.getString("password")).thenReturn(userEntity.getPassword());
-        when(resultSet.getString("name")).thenReturn(userEntity.getName());
-        when(resultSet.getBoolean("is_admin")).thenReturn(userEntity.isFlagAdmin());
+        when(resultSet.getString("username")).thenReturn(userEntity.getUsername());
+        when(resultSet.getString("role")).thenReturn(userEntity.getRole().toString());
 
         Optional<UserEntity> result = userRepository.findById(userEntity.getId());
 
@@ -114,8 +113,8 @@ public class UserRepositoryImplTest {
         when(resultSet.getLong("id")).thenReturn(userEntity.getId());
         when(resultSet.getString("email")).thenReturn(userEntity.getEmail());
         when(resultSet.getString("password")).thenReturn(userEntity.getPassword());
-        when(resultSet.getString("name")).thenReturn(userEntity.getName());
-        when(resultSet.getBoolean("is_admin")).thenReturn(userEntity.isFlagAdmin());
+        when(resultSet.getString("username")).thenReturn(userEntity.getUsername());
+        when(resultSet.getString("role")).thenReturn(userEntity.getRole().toString());
 
         List<UserEntity> users = userRepository.findAll();
 
@@ -166,8 +165,8 @@ public class UserRepositoryImplTest {
         when(resultSet.getLong("id")).thenReturn(userEntity.getId());
         when(resultSet.getString("email")).thenReturn(userEntity.getEmail());
         when(resultSet.getString("password")).thenReturn(userEntity.getPassword());
-        when(resultSet.getString("name")).thenReturn(userEntity.getName());
-        when(resultSet.getBoolean("is_admin")).thenReturn(userEntity.isFlagAdmin());
+        when(resultSet.getString("username")).thenReturn(userEntity.getUsername());
+        when(resultSet.getString("role")).thenReturn(userEntity.getRole().toString());
 
         UserEntity result = userRepository.mapRowToEntity(resultSet);
 

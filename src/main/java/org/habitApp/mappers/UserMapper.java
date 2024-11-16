@@ -15,10 +15,10 @@ public interface UserMapper {
      * @return UserDto
      */
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "name", target = "name")
+    @Mapping(source = "username", target = "username")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "password", target = "password")
-    @Mapping(source = "flagAdmin", target = "flagAdmin")
+    @Mapping(source = "role", target = "role")
     UserDto userToUserDto(UserEntity user);
 
     /**
@@ -27,10 +27,10 @@ public interface UserMapper {
      * @return UserEntity
      */
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "name", target = "name")
+    @Mapping(source = "username", target = "username")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "password", target = "password")
-    @Mapping(source = "flagAdmin", target = "flagAdmin")
+    @Mapping(source = "role", target = "role")
     UserEntity userDtoToUser(UserDto userDto);
 
     //UserDtoRegister
@@ -39,7 +39,7 @@ public interface UserMapper {
      * @param user userEntity
      * @return UserDtoRegister
      */
-    @Mapping(source = "name", target = "name")
+    @Mapping(source = "username", target = "username")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "password", target = "password")
     UserDtoRegisterUpdate userToUserDtoRegisterUpdate(UserEntity user);
@@ -49,7 +49,7 @@ public interface UserMapper {
      * @param userDtoRegisterUpdate userDtoRegister
      * @return UserEntity
      */
-    @Mapping(source = "name", target = "name")
+    @Mapping(source = "username", target = "username")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "password", target = "password")
     UserEntity userDtoRegisterUpdateToUser(UserDtoRegisterUpdate userDtoRegisterUpdate);

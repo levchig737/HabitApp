@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,7 +24,7 @@ public class AuthInMemoryContextTest {
         authContext = AuthInMemoryContext.getContext();
         mockUser = new UserEntity();
         mockUser.setId(1L);
-        mockUser.setName("testUser");
+        mockUser.setUsername("testUser");
     }
 
     @AfterEach
