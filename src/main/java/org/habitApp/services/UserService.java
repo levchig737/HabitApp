@@ -78,9 +78,11 @@ public interface UserService {
 
     /**
      * Метод для получения пользователя для аутентификации
-     * @param id id
+     * @param email email
      * @return UserEntity
      * @throws SQLException В случае ошибок при работе с базой данных
      */
-    UserEntity findByEmailForAuthentication(Long id) throws SQLException;
+    UserEntity findByEmailForAuthentication(String email) throws SQLException;
+
+    UserDto testAuth() throws SQLException;
 }

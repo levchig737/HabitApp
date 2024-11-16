@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthFilterTest {
+public class JwtAuthenticationFilterTest {
 
     @Mock
     private UserServiceImpl userService;
@@ -31,7 +31,7 @@ public class AuthFilterTest {
     private JwtUtil jwtUtil;
 
     @InjectMocks
-    private AuthFilter authFilter;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Mock
     private MockHttpServletRequest request;
@@ -47,7 +47,7 @@ public class AuthFilterTest {
     @BeforeEach
     public void setUp() {
         authContext = AuthInMemoryContext.getContext();
-        authFilter = new AuthFilter(userService, jwtUtil);
+        jwtAuthenticationFilter = new JwtAuthenticationFilter(userService, jwtUtil);
     }
 
     @AfterEach
@@ -60,13 +60,13 @@ public class AuthFilterTest {
     @DisplayName("[init] Должен корректно инициализировать фильтр")
     public void shouldInitializeFilter() throws ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        authFilter.init(filterConfig);
+        jwtAuthenticationFilter.init(filterConfig);
     }
 
     @Test
     @DisplayName("[doFilter] Должен продолжить без аутентификации, если заголовок Authorization отсутствует")
     public void shouldProceedWithoutAuthenticationWhenNoAuthHeader() throws IOException, ServletException {
-        authFilter.doFilter(request, response, filterChain);
+        jwtAuthenticationFilter.doFilter(request, response, filterChain);
         verify(filterChain, times(1)).doFilter(request, response);
     }
 
@@ -74,7 +74,7 @@ public class AuthFilterTest {
     @DisplayName("[doFilter] Должен продолжить без аутентификации при неверном формате заголовка Authorization")
     public void shouldProceedWithoutAuthenticationWithInvalidAuthHeader() throws IOException, ServletException {
         request.addHeader("Authorization", "InvalidToken");
-        authFilter.doFilter(request, response, filterChain);
+        jwtAuthenticationFilter.doFilter(request, response, filterChain);
         verify(filterChain, times(1)).doFilter(request, response);
     }
 
@@ -87,7 +87,7 @@ public class AuthFilterTest {
         userEntity.setId(userId);
         userEntity.setUsername("testUser");
 
-        authFilter.doFilter(request, response, filterChain);
+        jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
         verify(filterChain, times(1)).doFilter(request, response);
     }
@@ -99,7 +99,7 @@ public class AuthFilterTest {
         request.addHeader("Authorization", "Bearer invalidToken");
 
 
-        authFilter.doFilter(request, response, filterChain);
+        jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
         verify(filterChain, times(1)).doFilter(request, response);
     }

@@ -57,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
     public String loginUser(UserDtoLogin userDtoLogin) throws SQLException, InvalidCredentialsException {
         Optional<UserEntity> user = userRepository.findByEmail(userDtoLogin.getEmail());
         if (user.isPresent() && user.get().getPassword().equals(userDtoLogin.getPassword())) {
-            return jwtUtil.generate(user.get().getId());
+            return jwtUtil.generate(user.get().getEmail());
         }
         throw new InvalidCredentialsException("Invalid email or password.");
     }

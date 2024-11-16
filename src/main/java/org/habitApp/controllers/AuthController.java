@@ -6,14 +6,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.habitApp.annotations.RequiresAuthorization;
 import org.habitApp.auth.AuthInMemoryContext;
+import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.InvalidCredentialsException;
 import org.habitApp.exceptions.UserAlreadyExistsException;
 import org.habitApp.services.AuthService;
+import org.habitApp.services.UserService;
 import org.habitApp.services.impl.AuthServiceImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -30,6 +35,7 @@ import java.sql.SQLException;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     /**
      * Регистрация нового пользователя.
@@ -75,8 +81,25 @@ public class AuthController {
     @GetMapping("/test")
     @RequiresAuthorization
     public ResponseEntity<?> testAuth() {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        return ResponseEntity.ok(currentUser.toString());
+        try {
+            UserDto currentUser = null;
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.isAuthenticated()) {
+                Object principal = authentication.getPrincipal();
+                if (principal instanceof UserEntity) {
+                    String username = ((UserEntity) principal).getUsername();
+                    currentUser = userService.getUser(username);
+
+                    return ResponseEntity.ok(currentUser.toString());
+                }
+            }
+
+            return ResponseEntity.badRequest().body("Ошибка получения авторизированного пользователя");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+//        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
     }
 
     /**

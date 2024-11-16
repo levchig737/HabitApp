@@ -11,6 +11,9 @@ import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.repositories.UserRepository;
 import org.habitApp.services.UserService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -138,8 +141,28 @@ public class UserServiceImpl implements UserService {
      * @throws SQLException В случае ошибок при работе с базой данных
      */
     @Override
-    public UserEntity findByEmailForAuthentication(Long id) throws SQLException {
+    public UserEntity findByEmailForAuthentication(String email) throws SQLException {
+        Optional<UserEntity> user = userRepository.findByEmail(email);
+        return user.orElse(null);
+    }
+
+    public UserEntity findByIdForAuthentication(Long id) throws SQLException {
         Optional<UserEntity> user = userRepository.findById(id);
         return user.orElse(null);
+    }
+
+    @Override
+    public UserDto testAuth() throws SQLException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserEntity) {
+                String username = ((UserEntity) principal).getUsername();
+                UserDto currentUser = getUser(username);
+
+                return currentUser;
+            }
+        }
+        throw new UserNotFoundException("Auth exception.");
     }
 }
