@@ -2,6 +2,7 @@ package org.habitApp.services;
 
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.domain.entities.HabitEntity;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.HabitNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.models.Period;
@@ -14,19 +15,21 @@ public interface HabitService {
     /**
      * Получение привычки по id
      * @param habitId id
+     * @param currentUser текущий пользователь
      * @return HabitEntity
      * @throws SQLException, HabitNotFoundException, UnauthorizedAccessException
      */
-    HabitEntity getHabitById(long habitId) throws SQLException, HabitNotFoundException, UnauthorizedAccessException;
+    HabitEntity getHabitById(long habitId, UserEntity currentUser) throws SQLException, HabitNotFoundException, UnauthorizedAccessException;
 
     /**
      * Создание новой привычки
      * @param name название привычки
      * @param description описание привычки
      * @param frequency частота выполнения привычки
+     * @param currentUser текущий пользователь
      * @throws SQLException, UnauthorizedAccessException
      */
-    void createHabit(String name, String description, Period frequency) throws SQLException, UnauthorizedAccessException;
+    void createHabit(String name, String description, Period frequency, UserEntity currentUser) throws SQLException, UnauthorizedAccessException;
 
     /**
      * Редактирование привычки
@@ -34,23 +37,26 @@ public interface HabitService {
      * @param newName новое название
      * @param newDescription новое описание
      * @param newFrequency новая частота выполнения
+     * @param currentUser текущий пользователь
      * @throws SQLException, UnauthorizedAccessException
      */
-    void updateHabit(long habitId, String newName, String newDescription, Period newFrequency) throws SQLException, UnauthorizedAccessException;
+    void updateHabit(long habitId, String newName, String newDescription, Period newFrequency, UserEntity currentUser) throws SQLException, UnauthorizedAccessException;
 
     /**
      * Удаление привычки
      * @param habitId id привычки
+     * @param currentUser текущий пользователь
      * @throws SQLException, UnauthorizedAccessException
      */
-    void deleteHabit(long habitId) throws SQLException, UnauthorizedAccessException;
+    void deleteHabit(long habitId, UserEntity currentUser) throws SQLException, UnauthorizedAccessException;
 
     /**
      * Получение всех привычек текущего пользователя
+     * @param currentUser текущий пользователь
      * @return список привычек пользователя
      * @throws SQLException, UnauthorizedAccessException
      */
-    List<HabitEntity> getAllHabits() throws SQLException, UnauthorizedAccessException;
+    List<HabitEntity> getAllHabits(UserEntity currentUser) throws SQLException, UnauthorizedAccessException;
 
     /**
      * Получение списка всех привычек для всех пользователей (только для админа)

@@ -3,6 +3,7 @@ package org.habitApp.repositories.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.habitApp.domain.entities.UserEntity;
+import org.habitApp.models.Role;
 import org.habitApp.repositories.UserRepository;
 import org.springframework.stereotype.Repository;
 
@@ -94,10 +95,10 @@ public class UserRepositoryImpl implements UserRepository {
     public UserEntity create(UserEntity user) throws SQLException {
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(REGISTER_USER, Statement.RETURN_GENERATED_KEYS)) {
             statement.setObject(1, user.getId());
-            statement.setString(2, user.getName());
+            statement.setString(2, user.getUsername());
             statement.setString(3, user.getEmail());
             statement.setString(4, user.getPassword());
-            statement.setBoolean(5, user.isFlagAdmin());
+            statement.setString(5, user.getRole().toString());
             statement.executeUpdate();
 
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
@@ -119,9 +120,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean update(UserEntity user) throws SQLException {
         try (PreparedStatement statement = dataSource.getConnection().prepareStatement(UPDATE_USER)) {
-            statement.setString(1, user.getName());
+            statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
-            statement.setBoolean(3, user.isFlagAdmin());
+            statement.setString(3, user.getRole().toString());
             statement.setString(4, user.getEmail());
             return statement.executeUpdate() > 0;
         }
@@ -155,8 +156,8 @@ public class UserRepositoryImpl implements UserRepository {
                 resultSet.getLong("id"),
                 resultSet.getString("email"),
                 resultSet.getString("password"),
-                resultSet.getString("name"),
-                resultSet.getBoolean("is_admin")
+                resultSet.getString("username"),
+                Role.fromString(resultSet.getString("role"))
         );
     }
 }

@@ -13,14 +13,14 @@ import lombok.*;
 public class UserDtoRegisterUpdate {
     private String email;
     private String password;
-    private String name;
+    private String username;
 
     @Override
     public String toString() {
         return "UserDtoRegister{" +
                 "email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", name='" + name + '\'' +
+                ", name='" + username + '\'' +
                 '}';
     }
 }

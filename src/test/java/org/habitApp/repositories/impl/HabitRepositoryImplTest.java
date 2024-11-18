@@ -2,6 +2,7 @@ package org.habitApp.repositories.impl;
 
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
+import org.habitApp.models.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ public class HabitRepositoryImplTest {
     void setUp() throws SQLException {
         lenient().when(dataSource.getConnection()).thenReturn(connection);
         habitEntity = new HabitEntity(1L, "Test Habit", "Description", "Daily", LocalDate.now(), 1L);
-        userEntity = new UserEntity(1L, "test@example.com", "password123", "Test User", false);
+        userEntity = new UserEntity(1L, "test@example.com", "password123", "Test User", Role.ROLE_USER);
     }
 
     @Test

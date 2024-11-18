@@ -2,7 +2,6 @@ package org.habitApp.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.domain.entities.HabitEntity;
 import org.habitApp.domain.entities.UserEntity;
@@ -39,13 +38,12 @@ public class HabitServiceImpl implements HabitService {
     /**
      * Получение привычки по id
      * @param habitId id
+     * @param currentUser текущий пользователь
      * @return HabitEnity
      */
     @Override
-    public HabitEntity getHabitById(long habitId) throws SQLException, HabitNotFoundException,
+    public HabitEntity getHabitById(long habitId, UserEntity currentUser) throws SQLException, HabitNotFoundException,
             UnauthorizedAccessException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-
         Optional<HabitEntity> habit = habitRepository.findById(habitId);
         if (habit.isPresent()) {// Проверка принадлежности привычки текущему пользователю
             if (habit.get().getUserId() != (currentUser.getId())) {
@@ -64,12 +62,11 @@ public class HabitServiceImpl implements HabitService {
      * @param name        название привычки
      * @param description описание привычки
      * @param frequency   частота выполнения привычки
+     * @param currentUser текущий пользователь
      */
     @Override
-    public void createHabit(String name, String description, Period frequency)
+    public void createHabit(String name, String description, Period frequency, UserEntity currentUser)
             throws SQLException, UnauthorizedAccessException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-
         HabitEntity habit = new HabitEntity(name, description, frequency.getPeriodName(), LocalDate.now(), currentUser.getId());
         habitRepository.create(habit);
         log.info("Привычка \" {} \" создана для пользователя: {}.", name, currentUser.getEmail());
@@ -82,15 +79,17 @@ public class HabitServiceImpl implements HabitService {
      * @param newName        новое название
      * @param newDescription новое описание
      * @param newFrequency   новая частота выполнения
+     * @param currentUser текущий пользователь
      */
     @Override
-    public void updateHabit(long habitId, String newName, String newDescription, Period newFrequency)
+    public void updateHabit(long habitId, String newName, String newDescription, Period newFrequency, UserEntity currentUser)
             throws SQLException, UnauthorizedAccessException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-
-
         Optional<HabitEntity> habit = habitRepository.findById(habitId);
         if (habit.isPresent()) {
+            if (habit.get().getUserId() != (currentUser.getId())) {
+                throw new UnauthorizedAccessException("Привычка не принадлежит текущему пользователю.");
+            }
+
             habit.get().setId(habitId);
             habit.get().setName(newName);
             habit.get().setDescription(newDescription);
@@ -107,11 +106,10 @@ public class HabitServiceImpl implements HabitService {
      * Удаление привычки
      *
      * @param habitId привычка для удаления
+     * @param currentUser текущий пользователь
      */
     @Override
-    public void deleteHabit(long habitId) throws SQLException, UnauthorizedAccessException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-
+    public void deleteHabit(long habitId, UserEntity currentUser) throws SQLException, UnauthorizedAccessException {
         Optional<HabitEntity> habit = habitRepository.findById(habitId);
         if (habit.isPresent()) {
             long userId = habit.get().getUserId();
@@ -131,11 +129,11 @@ public class HabitServiceImpl implements HabitService {
     /**
      * Получение всех привычек текущего пользователя
      *
+     * @param currentUser текущий пользователь
      * @return список привычек пользователя
      */
     @Override
-    public List<HabitEntity> getAllHabits() throws SQLException, UnauthorizedAccessException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+    public List<HabitEntity> getAllHabits(UserEntity currentUser) throws SQLException, UnauthorizedAccessException {
 
         return habitRepository.getHabitsByUser(currentUser);
     }
@@ -178,8 +176,6 @@ public class HabitServiceImpl implements HabitService {
      */
     @Override
     public int calculateHabitCompletedByPeriod(HabitEntity habit, Period period) throws SQLException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-
         LocalDate now = LocalDate.now();
         LocalDate startDate = switch (period.getPeriodName().toLowerCase()) {
             case "day" -> now.minusDays(1);
@@ -205,8 +201,6 @@ public class HabitServiceImpl implements HabitService {
      */
     @Override
     public int calculateCurrentStreak(HabitEntity habit) throws SQLException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-
         List<LocalDate> completions = habitComletionHistoryRepository.getCompletionHistoryForHabit(habit.getId())
                 .stream()
                 .sorted()

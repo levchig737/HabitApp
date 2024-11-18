@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.SQLException;
@@ -74,7 +73,7 @@ class AuthServiceImplTest {
         userEntity.setPassword("password");
         userEntity.setId(1L);
         when(userRepository.findByEmail(userDtoLogin.getEmail())).thenReturn(Optional.of(userEntity));
-        when(jwtUtil.generate(userEntity.getId())).thenReturn("mocked_jwt_token");
+        when(jwtUtil.generate(userEntity.getEmail())).thenReturn("mocked_jwt_token");
 
         String token = authService.loginUser(userDtoLogin);
 

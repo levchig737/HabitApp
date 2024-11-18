@@ -4,16 +4,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.habitApp.annotations.RequiresAuthorization;
-import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.InvalidCredentialsException;
 import org.habitApp.exceptions.UserAlreadyExistsException;
 import org.habitApp.services.AuthService;
-import org.habitApp.services.impl.AuthServiceImpl;
+import org.habitApp.services.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -30,6 +30,7 @@ import java.sql.SQLException;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     /**
      * Регистрация нового пользователя.
@@ -52,44 +53,51 @@ public class AuthController {
      * Вход пользователя в систему.
      *
      * @param userDtoLogin Данные для входа (email и пароль)
+     * @param currentUser текущий пользователь
      * @return Ответ с данными пользователя или сообщение об ошибке
      */
-    @Operation(summary = "Авторизация пользователя", description = "Авторизирует  пользователя с переданными данными.")
+    @Operation(summary = "Авторизация пользователя", description = "Авторизирует пользователя с переданными данными.")
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDtoLogin userDtoLogin) {
+    public ResponseEntity<?> login(@RequestBody UserDtoLogin userDtoLogin, @AuthenticationPrincipal UserEntity currentUser) {
+        if (currentUser != null && currentUser.getEmail() != null && currentUser.getEmail().isEmpty()) {
+            return ResponseEntity.status(403).body("You are already authorized");
+        }
+
         try {
             return ResponseEntity.ok(authService.loginUser(userDtoLogin));
-
         } catch (SQLException | InvalidCredentialsException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(403).body(e.getMessage());
         }
     }
 
     /**
      * Проверяет авторизацию пользователя
      *
+     * @param currentUser текущий пользователь
      * @return Ответ с данными авторизированного пользователя
      */
     @Operation(summary = "Тест авторизации пользователя", description = "Проверяет авторизацию пользователя.")
     @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/test")
-    @RequiresAuthorization
-    public ResponseEntity<?> testAuth() {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        return ResponseEntity.ok(currentUser.toString());
+    public ResponseEntity<?> testAuth(@AuthenticationPrincipal UserEntity currentUser) {
+        try {
+            return ResponseEntity.ok().body(currentUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     /**
      * Проверяет пользователя на права админа
      *
+     * @param currentUser текущий пользователь
      * @return Ответ с данными пользователя админа.
      */
-    @Operation(summary = "Тест авторизации пользователя", description = "Проверяет авторизацию пользователя.")
+    @Operation(summary = "Тест авторизации пользователя админа", description = "Проверяет авторизацию пользователя.")
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/admin/test")
-    @RequiresAuthorization(forAdmin = true)
-    public ResponseEntity<?> testAdmin() {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
-        return ResponseEntity.ok(currentUser.toString());
+    public ResponseEntity<?> testAdmin(@AuthenticationPrincipal UserEntity currentUser) {
+        return ResponseEntity.ok(currentUser);
     }
 }

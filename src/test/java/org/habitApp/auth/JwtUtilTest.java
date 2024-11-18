@@ -28,23 +28,23 @@ public class JwtUtilTest {
     @Test
     @DisplayName("[generate] Генерация токена должна быть успешной")
     public void shouldGenerateTokenSuccessfully() {
-        Long userId = 12345L;
+        String email = "test@example.com";
 
-        String token = jwtUtil.generate(userId);
+        String token = jwtUtil.generate(email);
 
         assertThat(token).isNotNull();
-        assertThat(jwtUtil.verifyAndGetUserId(token)).isEqualTo(userId);
+        assertThat(jwtUtil.verifyAndGetUserId(token)).isEqualTo(email);
     }
 
     @Test
-    @DisplayName("[verifyAndGetUserId] Верификация должна вернуть userId для корректного токена")
-    public void shouldVerifyAndReturnUserId() {
-        Long userId = 12345L;
-        String token = jwtUtil.generate(userId);
+    @DisplayName("[verifyAndGetUserId] Верификация должна вернуть email для корректного токена")
+    public void shouldVerifyAndReturnEmail() {
+        String email = "test@example.com";
+        String token = jwtUtil.generate(email);
 
-        Long resultUserId = jwtUtil.verifyAndGetUserId(token);
+        String resultEmail = jwtUtil.verifyAndGetUserId(token);
 
-        assertThat(resultUserId).isEqualTo(userId);
+        assertThat(resultEmail).isEqualTo(email);
     }
 
     @Test
@@ -52,36 +52,36 @@ public class JwtUtilTest {
     public void shouldReturnNullForInvalidToken() {
         String invalidToken = "invalid.token.here";
 
-        Long resultUserId = jwtUtil.verifyAndGetUserId(invalidToken);
+        String resultEmail = jwtUtil.verifyAndGetUserId(invalidToken);
 
-        assertNull(resultUserId, "Верификация неверного токена должна возвращать null");
+        assertNull(resultEmail, "Верификация неверного токена должна возвращать null");
     }
 
     @Test
     @DisplayName("[verifyAndGetUserId] Верификация должна вернуть null для истекшего токена")
     public void shouldReturnNullForExpiredToken() throws InterruptedException {
-        Long userId = 12345L;
+        String email = "test@example.com";
 
-        JwtUtil jwtUtilShortExpiry = new JwtUtil(SECRET, 1);
-        String token = jwtUtilShortExpiry.generate(userId);
+        JwtUtil jwtUtilShortExpiry = new JwtUtil(SECRET, 1); // Очень короткий срок действия
+        String token = jwtUtilShortExpiry.generate(email);
 
-        Thread.sleep(10);  // Ждем 10 мс для истечения срока
+        Thread.sleep(10);  // Ждем 10 мс для истечения срока действия токена
 
-        Long resultUserId = jwtUtil.verifyAndGetUserId(token);
+        String resultEmail = jwtUtil.verifyAndGetUserId(token);
 
-        assertNull(resultUserId, "Верификация истекшего токена должна возвращать null");
+        assertNull(resultEmail, "Верификация истекшего токена должна возвращать null");
     }
 
     @Test
     @DisplayName("[verifyAndGetUserId] Верификация должна обрабатывать исключение JWTVerificationException")
     public void shouldHandleJWTVerificationException() {
         JwtUtil jwtUtilWithInvalidSecret = new JwtUtil("differentSecret", EXPIRATION_TIME);
-        Long userId = 12345L;
-        String token = jwtUtil.generate(userId);
+        String email = "test@example.com";
+        String token = jwtUtil.generate(email);
 
         // Пытаемся проверить токен с неверным секретным ключом
-        Long resultUserId = jwtUtilWithInvalidSecret.verifyAndGetUserId(token);
+        String resultEmail = jwtUtilWithInvalidSecret.verifyAndGetUserId(token);
 
-        assertNull(resultUserId, "Верификация токена с неверным секретом должна возвращать null");
+        assertNull(resultEmail, "Верификация токена с неверным секретом должна возвращать null");
     }
 }

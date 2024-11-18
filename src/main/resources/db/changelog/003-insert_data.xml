@@ -10,24 +10,24 @@
     <changeSet id="5-1" author="levchig737">
         <insert tableName="users">
             <column name="id" value="1"/>
-            <column name="name" value="root"/>
+            <column name="username" value="root"/>
             <column name="email" value="root"/>
             <column name="password" value="root"/>
-            <column name="is_admin" valueBoolean="true"/>
+            <column name="role" value="admin"/>
         </insert>
         <insert tableName="users">
             <column name="id" value="2"/>
-            <column name="name" value="user"/>
+            <column name="username" value="user"/>
             <column name="email" value="user"/>
             <column name="password" value="user"/>
-            <column name="is_admin" valueBoolean="false"/>
+            <column name="role" value="user"/>
         </insert>
         <insert tableName="users">
             <column name="id" value="3"/>
-            <column name="name" value="Bob"/>
+            <column name="username" value="Bob"/>
             <column name="email" value="bob@example.com"/>
             <column name="password" value="1234"/>
-            <column name="is_admin" valueBoolean="false"/>
+            <column name="role" value="user"/>
         </insert>
     </changeSet>
 

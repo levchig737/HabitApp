@@ -1,6 +1,7 @@
 package org.habitApp.domain.dto.userDto;
 
 import lombok.*;
+import org.habitApp.models.Role;
 
 import java.util.UUID;
 
@@ -16,14 +17,14 @@ public class UserDto {
     private long id;
     private String email;
     private String password;
-    private String name;
-    private boolean flagAdmin;
+    private String username;
+    private Role role;
 
-    public UserDto(String email, String password, String name, boolean flagAdmin) {
+    public UserDto(String email, String password, String name, Role role) {
         this.email = email;
         this.password = password;
-        this.name = name;
-        this.flagAdmin = flagAdmin;
+        this.username = name;
+        this.role = role;
     }
 
     @Override
@@ -32,8 +33,8 @@ public class UserDto {
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", name='" + name + '\'' +
-                ", isAdmin=" + flagAdmin +
+                ", username='" + username + '\'' +
+                ", role=" + role +
                 '}';
     }
 }

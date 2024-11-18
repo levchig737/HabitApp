@@ -1,6 +1,13 @@
 package org.habitApp.domain.entities;
 
 import lombok.*;
+import org.habitApp.models.Role;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Модель User
@@ -10,20 +17,20 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class UserEntity {
-    private long id; // изменен на long
+public class UserEntity implements UserDetails {
+    private long id;
     private String email;
     private String password;
-    private String name;
-    private boolean flagAdmin;
+    private String username;
+    private Role role;
 
 
 
-    public UserEntity(String email, String password, String name, boolean flagAdmin) {
+    public UserEntity(String email, String password, String username, Role role) {
         this.email = email;
         this.password = password;
-        this.name = name;
-        this.flagAdmin = flagAdmin;
+        this.username = username;
+        this.role = role;
     }
 
     @Override
@@ -32,12 +39,37 @@ public class UserEntity {
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", name='" + name + '\'' +
-                ", isAdmin=" + flagAdmin +
+                ", name='" + username + '\'' +
+                ", isAdmin=" + role +
                 '}';
     }
 
     public boolean isAdmin() {
-        return flagAdmin;
+        return role == Role.ROLE_ADMIN;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
