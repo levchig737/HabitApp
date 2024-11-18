@@ -4,25 +4,25 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.habitApp.annotations.RequiresAuthorization;
 import org.habitApp.domain.dto.habitDto.HabitDtoCreateUpdate;
 import org.habitApp.domain.dto.habitDto.HabitDtoResponse;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.HabitNotFoundException;
 import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.HabitMapper;
 import org.habitApp.models.Period;
 import org.habitApp.services.HabitService;
-import org.habitApp.services.impl.HabitServiceImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
 
 @Tag(name = "HabitController", description = "Контроллер для управления привычками пользователя.")
-@RestController
 @SecurityRequirement(name = "bearerAuth")
+@RestController
 @RequestMapping("/habits")
 @RequiredArgsConstructor
 public class HabitController {
@@ -33,17 +33,18 @@ public class HabitController {
      * Создает новую привычку для текущего аутентифицированного пользователя.
      *
      * @param habitDto данные для создания привычки (название, описание, частота).
+     * @param currentUser текущий пользователь
      * @return ResponseEntity с сообщением об успешном создании или с сообщением об ошибке.
      */
     @Operation(summary = "Создание привычки", description = "Создает новую привычку для текущего аутентифицированного пользователя.")
     @PostMapping
-    @RequiresAuthorization
-    public ResponseEntity<?> createHabit(@RequestBody HabitDtoCreateUpdate habitDto) {
+    public ResponseEntity<?> createHabit(@RequestBody HabitDtoCreateUpdate habitDto, @AuthenticationPrincipal UserEntity currentUser) {
         try {
             habitService.createHabit(
                     habitDto.getName(),
                     habitDto.getDescription(),
-                    Period.fromString(habitDto.getFrequency())
+                    Period.fromString(habitDto.getFrequency()),
+                    currentUser
             );
             return ResponseEntity.ok().body("Habit created successfully.");
         } catch (SQLException e) {
@@ -55,19 +56,20 @@ public class HabitController {
      * Обновляет существующую привычку, указанную по ID, для текущего аутентифицированного пользователя.
      *
      * @param id идентификатор привычки.
-     * @param habitDto данные для обновления привычки (название, описание, частота).
+     * @param habitDto данные для обновления привычки (название, описание, частота)
+     * @param currentUser текущий пользователь
      * @return ResponseEntity с сообщением об успешном обновлении или с сообщением об ошибке.
      */
     @Operation(summary = "Обновление привычки", description = "Обновляет существующую привычку, указанную по ID, для текущего аутентифицированного пользователя.")
     @PutMapping("/{id}")
-    @RequiresAuthorization
-    public ResponseEntity<?> updateHabit(@PathVariable("id") long id, @RequestBody HabitDtoCreateUpdate habitDto) {
+    public ResponseEntity<?> updateHabit(@PathVariable("id") long id, @RequestBody HabitDtoCreateUpdate habitDto, @AuthenticationPrincipal UserEntity currentUser) {
         try {
             habitService.updateHabit(
                     id,
                     habitDto.getName(),
                     habitDto.getDescription(),
-                    Period.fromString(habitDto.getFrequency())
+                    Period.fromString(habitDto.getFrequency()),
+                    currentUser
             );
             return ResponseEntity.ok().body("Habit updated successfully.");
         } catch (SQLException | HabitNotFoundException | UnauthorizedAccessException e) {
@@ -78,15 +80,15 @@ public class HabitController {
     /**
      * Удаляет привычку, указанную по ID, для текущего аутентифицированного пользователя.
      *
-     * @param id идентификатор привычки.
+     * @param id идентификатор привычки
+     * @param currentUser текущий пользователь
      * @return ResponseEntity с сообщением об успешном удалении или с сообщением об ошибке.
      */
     @Operation(summary = "Удаление привычки", description = "Удаляет привычку, указанную по ID, для текущего аутентифицированного пользователя.")
     @DeleteMapping("/{id}")
-    @RequiresAuthorization
-    public ResponseEntity<?> deleteHabit(@PathVariable("id") long id) {
+    public ResponseEntity<?> deleteHabit(@PathVariable("id") long id, @AuthenticationPrincipal UserEntity currentUser) {
         try {
-            habitService.deleteHabit(id);
+            habitService.deleteHabit(id, currentUser);
             return ResponseEntity.ok().body("Habit deleted successfully.");
         } catch (SQLException | HabitNotFoundException | UnauthorizedAccessException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -96,14 +98,14 @@ public class HabitController {
     /**
      * Возвращает список всех привычек текущего аутентифицированного пользователя.
      *
+     * @param currentUser текущий пользователь
      * @return ResponseEntity со списком всех привычек или с сообщением об ошибке.
      */
     @Operation(summary = "Получение всех привычек пользователя авторизованного", description = "Возвращает список всех привычек текущего аутентифицированного пользователя.")
     @GetMapping
-    @RequiresAuthorization
-    public ResponseEntity<?> getAllHabits() {
+    public ResponseEntity<?> getAllHabits(@AuthenticationPrincipal UserEntity currentUser) {
         try {
-            List<HabitDtoResponse> habits = habitService.getAllHabits()
+            List<HabitDtoResponse> habits = habitService.getAllHabits(currentUser)
                     .stream().map(habitMapper::habitToHabitDtoResponse).toList();
             return ResponseEntity.ok(habits);
         } catch (SQLException | UnauthorizedAccessException e) {
@@ -118,7 +120,6 @@ public class HabitController {
      */
     @Operation(summary = "Получение всех привычек для администратора", description = "Возвращает список всех привычек для администратора.")
     @GetMapping("/admin/all")
-    @RequiresAuthorization(forAdmin = true)
     public ResponseEntity<?> getAllHabitsAdmin() {
         try {
             List<HabitDtoResponse> habits = habitService.getAllHabitsAdmin()
@@ -132,16 +133,16 @@ public class HabitController {
     /**
      * Возвращает привычку по ее идентификатору для текущего аутентифицированного пользователя.
      *
-     * @param id идентификатор привычки.
+     * @param id идентификатор привычки
+     * @param currentUser текущий пользователь
      * @return ResponseEntity с данными о привычке или с сообщением об ошибке.
      */
     @Operation(summary = "Получение привычки по ID", description = "Возвращает привычку по ее идентификатору для текущего аутентифицированного пользователя.")
     @GetMapping("/{id}")
-    @RequiresAuthorization
-    public ResponseEntity<?> getHabitById(@PathVariable("id") long id) {
+    public ResponseEntity<?> getHabitById(@PathVariable("id") long id, @AuthenticationPrincipal UserEntity currentUser) {
         try {
             HabitDtoResponse habitDtoResponse = habitMapper.habitToHabitDtoResponse(
-                    habitService.getHabitById(id)
+                    habitService.getHabitById(id, currentUser)
             );
             return ResponseEntity.ok(habitDtoResponse);
         } catch (SQLException | HabitNotFoundException | UnauthorizedAccessException e) {
@@ -157,7 +158,6 @@ public class HabitController {
      */
     @Operation(summary = "Отметка привычки как выполненной", description = "Отмечает привычку как выполненную для текущего аутентифицированного пользователя.")
     @PostMapping("/{id}/complete")
-    @RequiresAuthorization
     public ResponseEntity<?> markHabitCompleted(@PathVariable("id") long id) {
         try {
             habitService.markHabitAsCompleted(id);
@@ -171,17 +171,17 @@ public class HabitController {
      * Возвращает отчет о привычке за указанный период (количество выполнений и текущий прогресс).
      *
      * @param id идентификатор привычки.
-     * @param period период для отчета (например, "день", "неделя").
+     * @param period период для отчета (например, "день", "неделя")
+     * @param currentUser текущий пользователь
      * @return ResponseEntity с отчетом или с сообщением об ошибке.
      */
     @Operation(summary = "Получение отчета о привычке", description = "Возвращает отчет о привычке за указанный период (количество выполнений и текущий прогресс).")
     @GetMapping("/{id}/report/{period}")
-    @RequiresAuthorization
-    public ResponseEntity<?> getHabitReport(@PathVariable("id") long id, @PathVariable("period") String period) {
+    public ResponseEntity<?> getHabitReport(@PathVariable("id") long id, @PathVariable("period") String period, @AuthenticationPrincipal UserEntity currentUser) {
         try {
             int completionCount = habitService.calculateHabitCompletedByPeriod(
-                    habitService.getHabitById(id), Period.fromString(period));
-            int currentStreak = habitService.calculateCurrentStreak(habitService.getHabitById(id));
+                    habitService.getHabitById(id, currentUser), Period.fromString(period));
+            int currentStreak = habitService.calculateCurrentStreak(habitService.getHabitById(id, currentUser));
 
             HabitReportDto reportDto = new HabitReportDto();
             reportDto.setCompletionCount(completionCount);
@@ -198,15 +198,15 @@ public class HabitController {
      *
      * @param id идентификатор привычки.
      * @param period период для расчета процента выполнения (например, "месяц", "год").
+     * @param currentUser текущий пользователь
      * @return ResponseEntity с процентом выполнения или с сообщением об ошибке.
      */
     @Operation(summary = "Получение процента выполнения привычки", description = "Возвращает процент выполнения привычки за указанный период.")
     @GetMapping("/{id}/completion-percentage/{period}")
-    @RequiresAuthorization
-    public ResponseEntity<?> getCompletionPercentage(@PathVariable("id") long id, @PathVariable("period") String period) {
+    public ResponseEntity<?> getCompletionPercentage(@PathVariable("id") long id, @PathVariable("period") String period, @AuthenticationPrincipal UserEntity currentUser) {
         try {
             double completionPercentage = habitService.calculateCompletionPercentage(
-                    habitService.getHabitById(id), Period.fromString(period));
+                    habitService.getHabitById(id, currentUser), Period.fromString(period));
             return ResponseEntity.ok(completionPercentage);
         } catch (SQLException | HabitNotFoundException | UnauthorizedAccessException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -217,16 +217,16 @@ public class HabitController {
      * Генерирует отчет о прогрессе выполнения привычки за указанный период.
      *
      * @param id идентификатор привычки.
-     * @param period период для отчета о прогрессе (например, "месяц", "год").
+     * @param period период для отчета о прогрессе (например, "месяц", "год")
+     * @param currentUser текущий пользователь
      * @return ResponseEntity с отчетом о прогрессе или с сообщением об ошибке.
      */
     @Operation(summary = "Генерация отчета о прогрессе привычки", description = "Генерирует отчет о прогрессе выполнения привычки за указанный период.")
     @GetMapping("/{id}/progress-report/{period}")
-    @RequiresAuthorization
-    public ResponseEntity<?> generateProgressReport(@PathVariable("id") long id, @PathVariable("period") String period) {
+    public ResponseEntity<?> generateProgressReport(@PathVariable("id") long id, @PathVariable("period") String period, @AuthenticationPrincipal UserEntity currentUser) {
         try {
             HabitReportDto reportDto = habitService.generateProgressReport(
-                    habitService.getHabitById(id), Period.fromString(period));
+                    habitService.getHabitById(id, currentUser), Period.fromString(period));
             return ResponseEntity.ok(reportDto);
         } catch (SQLException | HabitNotFoundException | UnauthorizedAccessException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

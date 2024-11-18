@@ -1,19 +1,14 @@
 package org.habitApp.services.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDto;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.UserAlreadyExistsException;
 import org.habitApp.exceptions.UserNotFoundException;
-import org.habitApp.exceptions.UnauthorizedAccessException;
 import org.habitApp.mappers.UserMapper;
 import org.habitApp.repositories.UserRepository;
 import org.habitApp.services.UserService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -34,14 +29,14 @@ public class UserServiceImpl implements UserService {
      * Обновление профиля текущего пользователя.
      *
      * @param userDtoRegisterUpdate Данные для обновления профиля
+     * @param currentUser текущий пользователь
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UserNotFoundException Если текущий пользователь не найден
      * @throws UserAlreadyExistsException Если пользователь с таким email уже существует
      */
     @Override
-    public void updateCurrentUserProfile(UserDtoRegisterUpdate userDtoRegisterUpdate)
+    public void updateCurrentUserProfile(UserDtoRegisterUpdate userDtoRegisterUpdate, UserEntity currentUser)
             throws SQLException, UserNotFoundException, UserAlreadyExistsException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
         if (currentUser != null) {
             if (userRepository.findByEmail(userDtoRegisterUpdate.getEmail()).isPresent()) {
                 throw new UserAlreadyExistsException("User already exists.");
@@ -59,12 +54,12 @@ public class UserServiceImpl implements UserService {
     /**
      * Удаление текущего пользователя.
      *
+     * @param currentUser текущий пользователь
      * @throws SQLException В случае ошибок при работе с базой данных
      * @throws UserNotFoundException Если текущий пользователь не найден
      */
     @Override
-    public void deleteCurrentUser() throws SQLException, UserNotFoundException {
-        UserEntity currentUser = AuthInMemoryContext.getContext().getAuthentication();
+    public void deleteCurrentUser(UserEntity currentUser) throws SQLException, UserNotFoundException {
         userRepository.deleteById(currentUser.getId());
     }
 
@@ -74,7 +69,6 @@ public class UserServiceImpl implements UserService {
      * @param email Email пользователя
      * @return Данные запрашиваемого пользователя
      * @throws SQLException В случае ошибок при работе с базой данных
-     * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      */
     @Override
     public UserDto getUser(String email) throws SQLException {
@@ -88,10 +82,9 @@ public class UserServiceImpl implements UserService {
      *
      * @return Список пользователей
      * @throws SQLException В случае ошибок при работе с базой данных
-     * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      */
     @Override
-    public List<UserDto> getAllUsers() throws SQLException, UnauthorizedAccessException {
+    public List<UserDto> getAllUsers() throws SQLException {
 
         List<UserEntity> users = userRepository.findAll();
         return users.stream().map(userMapper::userToUserDto).toList();
@@ -104,12 +97,11 @@ public class UserServiceImpl implements UserService {
      * @param userDtoRegisterUpdate Данные для обновления
      * @return Данные обновленного пользователя
      * @throws SQLException В случае ошибок при работе с базой данных
-     * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      * @throws UserNotFoundException Если пользователь с указанным ID не найден
      */
     @Override
     public UserDto updateUserProfile(long id, UserDtoRegisterUpdate userDtoRegisterUpdate)
-            throws SQLException, UnauthorizedAccessException, UserNotFoundException {
+            throws SQLException, UserNotFoundException {
 
         Optional<UserEntity> user = userRepository.findById(id);
         if (user.isPresent()) {
@@ -127,16 +119,15 @@ public class UserServiceImpl implements UserService {
      *
      * @param id ID пользователя
      * @throws SQLException В случае ошибок при работе с базой данных
-     * @throws UnauthorizedAccessException Если текущий пользователь не является администратором
      */
     @Override
-    public void deleteUser(long id) throws SQLException, UnauthorizedAccessException {
+    public void deleteUser(long id) throws SQLException {
         userRepository.deleteById(id);
     }
 
     /**
      * Метод для получения пользователя для аутентификации
-     * @param id id
+     * @param email email
      * @return UserEntity
      * @throws SQLException В случае ошибок при работе с базой данных
      */
@@ -144,25 +135,5 @@ public class UserServiceImpl implements UserService {
     public UserEntity findByEmailForAuthentication(String email) throws SQLException {
         Optional<UserEntity> user = userRepository.findByEmail(email);
         return user.orElse(null);
-    }
-
-    public UserEntity findByIdForAuthentication(Long id) throws SQLException {
-        Optional<UserEntity> user = userRepository.findById(id);
-        return user.orElse(null);
-    }
-
-    @Override
-    public UserDto testAuth() throws SQLException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserEntity) {
-                String username = ((UserEntity) principal).getUsername();
-                UserDto currentUser = getUser(username);
-
-                return currentUser;
-            }
-        }
-        throw new UserNotFoundException("Auth exception.");
     }
 }

@@ -5,9 +5,10 @@ import org.habitApp.domain.dto.habitDto.HabitDtoCreateUpdate;
 import org.habitApp.domain.dto.habitDto.HabitDtoResponse;
 import org.habitApp.domain.dto.habitDto.HabitReportDto;
 import org.habitApp.domain.entities.HabitEntity;
-import org.habitApp.models.Period;
+import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.services.HabitService;
 import org.habitApp.mappers.HabitMapper;
+import org.habitApp.models.Period;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,9 @@ class HabitControllerTest {
     @Mock
     private HabitMapper habitMapper;
 
+    @Mock
+    private UserEntity currentUser;
+
     @InjectMocks
     private HabitController habitController;
 
@@ -50,24 +54,23 @@ class HabitControllerTest {
     private HabitDtoResponse habitDtoResponse;
     private HabitReportDto reportDto;
 
-
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new HabitController(habitService, habitMapper)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new HabitController(habitService, habitMapper))
+                .build();
         testHabit = new HabitEntity(1L, "Test Habit", "Description", Period.DAY.toString(), LocalDate.now(), 1L);
         habitDtoCreateUpdate = new HabitDtoCreateUpdate("Test Habit", "Description", Period.DAY.toString());
         habitDtoResponse = new HabitDtoResponse(1L, "Test Habit", "Description", Period.DAY.toString(), 1L);
         reportDto = new HabitReportDto(1L, 3, 5, 5, Period.DAY);
-
     }
 
     @Test
     @DisplayName("POST /habits - Создать привычку")
     void shouldCreateHabit() throws Exception {
-
         mockMvc.perform(post("/habits")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(habitDtoCreateUpdate)))
+                        .content(objectMapper.writeValueAsString(habitDtoCreateUpdate))
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(content().string("Habit created successfully."));
     }
@@ -75,10 +78,10 @@ class HabitControllerTest {
     @Test
     @DisplayName("PUT /habits/{id} - Обновить привычку")
     void shouldUpdateHabit() throws Exception {
-
         mockMvc.perform(put("/habits/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(habitDtoCreateUpdate)))
+                        .content(objectMapper.writeValueAsString(habitDtoCreateUpdate))
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(content().string("Habit updated successfully."));
     }
@@ -86,9 +89,10 @@ class HabitControllerTest {
     @Test
     @DisplayName("DELETE /habits/{id} - Удалить привычку")
     void shouldDeleteHabit() throws Exception {
-        doNothing().when(habitService).deleteHabit(anyLong());
+        doNothing().when(habitService).deleteHabit(anyLong(), any());
 
-        mockMvc.perform(delete("/habits/1"))
+        mockMvc.perform(delete("/habits/1")
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(content().string("Habit deleted successfully."));
     }
@@ -97,11 +101,11 @@ class HabitControllerTest {
     @DisplayName("GET /habits - Получить все привычки")
     void shouldGetAllHabits() throws Exception {
         List<HabitEntity> filteredHabits = Collections.singletonList(testHabit);
-
-        when(habitService.getAllHabits()).thenReturn(filteredHabits);
+        when(habitService.getAllHabits(any())).thenReturn(filteredHabits);
         when(habitMapper.habitToHabitDtoResponse(any())).thenReturn(habitDtoResponse);
 
-        mockMvc.perform(get("/habits"))
+        mockMvc.perform(get("/habits")
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Test Habit"))
                 .andExpect(jsonPath("$[0].description").value("Description"));
@@ -110,22 +114,23 @@ class HabitControllerTest {
     @Test
     @DisplayName("GET /habits/{id} - Получить привычку по ID")
     void shouldGetHabitById() throws Exception {
-        when(habitService.getHabitById(anyLong())).thenReturn(testHabit);
+        when(habitService.getHabitById(anyLong(), any())).thenReturn(testHabit);
         when(habitMapper.habitToHabitDtoResponse(any())).thenReturn(habitDtoResponse);
 
-        mockMvc.perform(get("/habits/1"))
+        mockMvc.perform(get("/habits/1")
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Habit"))
                 .andExpect(jsonPath("$.description").value("Description"));
     }
-
 
     @Test
     @DisplayName("POST /habits/{id}/complete - Отметить привычку выполненной")
     void shouldMarkHabitCompleted() throws Exception {
         doNothing().when(habitService).markHabitAsCompleted(anyLong());
 
-        mockMvc.perform(post("/habits/1/complete"))
+        mockMvc.perform(post("/habits/1/complete")
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(content().string("Habit marked as completed."));
     }
@@ -136,7 +141,8 @@ class HabitControllerTest {
         when(habitService.calculateHabitCompletedByPeriod(any(), any())).thenReturn(5);
         when(habitService.calculateCurrentStreak(any())).thenReturn(3);
 
-        mockMvc.perform(get("/habits/1/report/WEEK"))
+        mockMvc.perform(get("/habits/1/report/WEEK")
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.completionCount").value(5))
                 .andExpect(jsonPath("$.streak").value(3));
@@ -147,7 +153,8 @@ class HabitControllerTest {
     void shouldGetCompletionPercentage() throws Exception {
         when(habitService.calculateCompletionPercentage(any(), any())).thenReturn(75.0);
 
-        mockMvc.perform(get("/habits/1/completion-percentage/WEEK"))
+        mockMvc.perform(get("/habits/1/completion-percentage/WEEK")
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(content().string("75.0"));
     }
@@ -157,7 +164,8 @@ class HabitControllerTest {
     void shouldGenerateProgressReport() throws Exception {
         when(habitService.generateProgressReport(any(), any())).thenReturn(reportDto);
 
-        mockMvc.perform(get("/habits/1/progress-report/MONTH"))
+        mockMvc.perform(get("/habits/1/progress-report/MONTH")
+                        .principal(() -> "testUser")) // Simulate the current user
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.completionCount").value(5))
                 .andExpect(jsonPath("$.streak").value(3));

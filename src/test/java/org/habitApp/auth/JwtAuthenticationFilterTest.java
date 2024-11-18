@@ -1,11 +1,8 @@
 package org.habitApp.auth;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
-import org.habitApp.domain.entities.UserEntity;
-import org.habitApp.services.impl.UserServiceImpl;
-import org.junit.jupiter.api.AfterEach;
+import org.habitApp.services.impl.UserDetailsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,93 +12,112 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class JwtAuthenticationFilterTest {
 
     @Mock
-    private UserServiceImpl userService;
+    private JwtUtil jwtUtil;
 
     @Mock
-    private JwtUtil jwtUtil;
+    private UserDetailsService userDetailsService;
 
     @InjectMocks
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Mock
     private MockHttpServletRequest request;
-
-    @Mock
     private MockHttpServletResponse response;
-
-    @Mock
     private FilterChain filterChain;
 
-    private AuthInMemoryContext authContext;
-
     @BeforeEach
-    public void setUp() {
-        authContext = AuthInMemoryContext.getContext();
-        jwtAuthenticationFilter = new JwtAuthenticationFilter(userService, jwtUtil);
-    }
-
-    @AfterEach
-    void resetContext() {
-        authContext.setAuthentication(null);
-        authContext.setIp(null);
+    void setUp() {
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+        filterChain = mock(FilterChain.class);
     }
 
     @Test
-    @DisplayName("[init] Должен корректно инициализировать фильтр")
-    public void shouldInitializeFilter() throws ServletException {
-        FilterConfig filterConfig = mock(FilterConfig.class);
-        jwtAuthenticationFilter.init(filterConfig);
-    }
-
-    @Test
-    @DisplayName("[doFilter] Должен продолжить без аутентификации, если заголовок Authorization отсутствует")
-    public void shouldProceedWithoutAuthenticationWhenNoAuthHeader() throws IOException, ServletException {
-        jwtAuthenticationFilter.doFilter(request, response, filterChain);
+    @DisplayName("[doFilterInternal] Должен продолжить без аутентификации, если заголовок Authorization отсутствует")
+    void shouldProceedWithoutAuthenticationWhenNoAuthHeader() throws ServletException, IOException {
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
         verify(filterChain, times(1)).doFilter(request, response);
+        verifyNoInteractions(jwtUtil, userDetailsService);
     }
 
     @Test
-    @DisplayName("[doFilter] Должен продолжить без аутентификации при неверном формате заголовка Authorization")
-    public void shouldProceedWithoutAuthenticationWithInvalidAuthHeader() throws IOException, ServletException {
-        request.addHeader("Authorization", "InvalidToken");
-        jwtAuthenticationFilter.doFilter(request, response, filterChain);
+    @DisplayName("[doFilterInternal] Должен продолжить без аутентификации при неверном формате заголовка Authorization")
+    void shouldProceedWithoutAuthenticationWithInvalidAuthHeader() throws ServletException, IOException {
+        request.addHeader("Authorization", "InvalidTokenFormat");
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
         verify(filterChain, times(1)).doFilter(request, response);
+        verifyNoInteractions(jwtUtil, userDetailsService);
     }
 
     @Test
-    @DisplayName("[doFilter] Должен аутентифицировать пользователя при корректном токене")
-    public void shouldAuthenticateUserWithValidToken() throws IOException, ServletException, SQLException {
-        request.addHeader("Authorization", "Bearer validToken");
-        Long userId = 1L;
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-        userEntity.setUsername("testUser");
+    @DisplayName("[doFilterInternal] Должен аутентифицировать пользователя при корректном токене")
+    void shouldAuthenticateUserWithValidToken() throws ServletException, IOException {
+        String validToken = "validToken";
+        String email = "test@example.com";
+        UserDetails userDetails = mock(UserDetails.class);
 
-        jwtAuthenticationFilter.doFilter(request, response, filterChain);
+        request.addHeader("Authorization", "Bearer " + validToken);
+        when(jwtUtil.verifyAndGetUserId(validToken)).thenReturn(email);
+        when(userDetailsService.loadUserByUsername(email)).thenReturn(userDetails);
 
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        verify(jwtUtil, times(1)).verifyAndGetUserId(validToken);
+        verify(userDetailsService, times(1)).loadUserByUsername(email);
         verify(filterChain, times(1)).doFilter(request, response);
+
+        UsernamePasswordAuthenticationToken authentication =
+                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        assert authentication != null;
+        assert authentication.getPrincipal() == userDetails;
     }
 
     @Test
-    @DisplayName("[doFilter] Должен продолжить без аутентификации при неверном токене")
-    public void shouldProceedWithoutAuthenticationWithInvalidToken() throws IOException, ServletException {
-        authContext.setAuthentication(null);
-        request.addHeader("Authorization", "Bearer invalidToken");
+    @DisplayName("[doFilterInternal] Должен продолжить без аутентификации при неверном токене")
+    void shouldProceedWithoutAuthenticationWithInvalidToken() throws ServletException, IOException {
+        String invalidToken = "invalidToken";
 
+        request.addHeader("Authorization", "Bearer " + invalidToken);
+        when(jwtUtil.verifyAndGetUserId(invalidToken)).thenReturn(null);
 
-        jwtAuthenticationFilter.doFilter(request, response, filterChain);
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
+        verify(jwtUtil, times(1)).verifyAndGetUserId(invalidToken);
+        verifyNoInteractions(userDetailsService);
         verify(filterChain, times(1)).doFilter(request, response);
+
+        assert SecurityContextHolder.getContext().getAuthentication() == null;
+    }
+
+    @Test
+    @DisplayName("[doFilterInternal] Должен корректно обработать исключение при загрузке пользователя")
+    void shouldHandleExceptionWhenLoadingUserDetails() throws ServletException, IOException {
+        String validToken = "validToken";
+        String email = "test@example.com";
+
+        request.addHeader("Authorization", "Bearer " + validToken);
+        when(jwtUtil.verifyAndGetUserId(validToken)).thenReturn(email);
+        when(userDetailsService.loadUserByUsername(email)).thenThrow(new RuntimeException("User loading error"));
+
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        verify(jwtUtil, times(1)).verifyAndGetUserId(validToken);
+        verify(userDetailsService, times(1)).loadUserByUsername(email);
+        verify(filterChain, times(1)).doFilter(request, response);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication(), "Контекст безопасности должен быть пустым");
     }
 
 }

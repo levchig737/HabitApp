@@ -1,122 +1,117 @@
 package org.habitApp.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.habitApp.auth.AuthInMemoryContext;
 import org.habitApp.domain.dto.userDto.UserDtoLogin;
 import org.habitApp.domain.dto.userDto.UserDtoRegisterUpdate;
 import org.habitApp.domain.entities.UserEntity;
 import org.habitApp.exceptions.InvalidCredentialsException;
 import org.habitApp.exceptions.UserAlreadyExistsException;
-import org.habitApp.models.Role;
 import org.habitApp.services.AuthService;
+import org.habitApp.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 
+import java.sql.SQLException;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
-
-    private MockMvc mockMvc;
 
     @Mock
     private AuthService authService;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private AuthController authController;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private UserDtoRegisterUpdate userDtoRegisterUpdate;
-    private UserDtoLogin userDtoLogin;
-    private UserEntity testUser;
-
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
-        userDtoRegisterUpdate = new UserDtoRegisterUpdate("test@example.com", "password", "Test User");
-        userDtoLogin = new UserDtoLogin("test@example.com", "password");
-        testUser = new UserEntity(1L, "test@example.com", "password", "Test User", Role.ROLE_USER);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @DisplayName("POST /auth/register - Регистрация нового пользователя")
-    void shouldRegisterUser() throws Exception {
-        doNothing().when(authService).registerUser(userDtoRegisterUpdate);
+    @DisplayName("[Register User - Successful registration]")
+    void testRegisterUser_Success() throws SQLException, UserAlreadyExistsException {
+        UserDtoRegisterUpdate userDto = new UserDtoRegisterUpdate();
+        doNothing().when(authService).registerUser(userDto);
 
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDtoRegisterUpdate)))
-                .andExpect(status().isOk());
+        ResponseEntity<?> response = authController.registerUser(userDto);
+
+        assertEquals(200, response.getStatusCodeValue());
+        verify(authService, times(1)).registerUser(userDto);
     }
 
     @Test
-    @DisplayName("POST /auth/register - Ошибка регистрации при существующем пользователе")
-    void shouldReturnErrorWhenUserAlreadyExists() throws Exception {
-        doThrow(new UserAlreadyExistsException("User already exists")).when(authService).registerUser(userDtoRegisterUpdate);
+    @DisplayName("[Register User - User already exists]")
+    void testRegisterUser_UserAlreadyExists() throws SQLException, UserAlreadyExistsException {
+        UserDtoRegisterUpdate userDto = new UserDtoRegisterUpdate();
+        doThrow(new UserAlreadyExistsException("User already exists")).when(authService).registerUser(userDto);
 
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDtoRegisterUpdate)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("User already exists"));
+        ResponseEntity<?> response = authController.registerUser(userDto);
+
+        assertEquals(400, response.getStatusCodeValue());
+        assertEquals("User already exists", response.getBody());
+        verify(authService, times(1)).registerUser(userDto);
     }
 
     @Test
-    @DisplayName("POST /auth/login - Успешный вход пользователя")
-    void shouldLoginUser() throws Exception {
-        String token = "jwt_token_example";
-        when(authService.loginUser(userDtoLogin)).thenReturn(token);
+    @DisplayName("[Login - Successful login]")
+    void testLogin_Success() throws SQLException, InvalidCredentialsException {
+        UserDtoLogin userDtoLogin = new UserDtoLogin();
 
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDtoLogin)))
-                .andExpect(status().isOk())
-                .andExpect(content().string(token));
-    }
+        when(authService.loginUser(userDtoLogin)).thenReturn("token");
 
+        ResponseEntity<?> response = authController.login(userDtoLogin, null);
 
-    @Test
-    @DisplayName("POST /auth/login - Ошибка входа при неверных учетных данных")
-    void shouldReturnErrorWhenInvalidCredentials() throws Exception {
-        doThrow(new InvalidCredentialsException("Invalid credentials")).when(authService).loginUser(userDtoLogin);
-
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDtoLogin)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid credentials"));
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("token", response.getBody());
+        verify(authService, times(1)).loginUser(userDtoLogin);
     }
 
     @Test
-    @DisplayName("GET /auth/test - Проверка авторизации пользователя")
-    void shouldReturnAuthenticatedUser() throws Exception {
-        AuthInMemoryContext.getContext().setAuthentication(testUser);
+    @DisplayName("[Login - Invalid credentials]")
+    void testLogin_InvalidCredentials() throws SQLException, InvalidCredentialsException {
+        UserDtoLogin userDtoLogin = new UserDtoLogin();
+        when(authService.loginUser(userDtoLogin)).thenThrow(new InvalidCredentialsException("Invalid credentials"));
 
-        mockMvc.perform(get("/auth/test"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(testUser.toString()));
+        ResponseEntity<?> response = authController.login(userDtoLogin, null);
+
+        assertEquals(403, response.getStatusCodeValue());
+        assertEquals("Invalid credentials", response.getBody());
+        verify(authService, times(1)).loginUser(userDtoLogin);
     }
 
     @Test
-    @DisplayName("GET /auth/admin/test - Проверка авторизации администратора")
-    void shouldReturnAdminAccessForAuthorizedUser() throws Exception {
-        UserEntity adminUser = new UserEntity(1L, "admin@example.com", "password", "Admin User", Role.ROLE_ADMIN);
-        AuthInMemoryContext.getContext().setAuthentication(adminUser);
+    @WithMockUser
+    @DisplayName("[Test Auth - Successful authentication]")
+    void testTestAuth_Success() {
+        UserEntity mockUser = new UserEntity();
+        mockUser.setEmail("test@example.com");
 
-        mockMvc.perform(get("/auth/admin/test"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(adminUser.toString()));
+        ResponseEntity<?> response = authController.testAuth(mockUser);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(mockUser, response.getBody());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("[Test Admin - Successful admin authentication]")
+    void testTestAdmin_Success() {
+        UserEntity mockAdmin = new UserEntity();
+        mockAdmin.setEmail("admin@example.com");
+
+        ResponseEntity<?> response = authController.testAdmin(mockAdmin);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(mockAdmin, response.getBody());
     }
 }
