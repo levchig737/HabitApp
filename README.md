@@ -65,7 +65,7 @@
 1. Клонируйте репозиторий
 
 ```shell
-git clone https://github.com/levchig737/intensivJavaYLAB.git && cd intensivJavaYLAB
+git clone https://github.com/levchig737/HabitApp.git && cd HabitApp
 ```
 
 2. Создание контейнера PostgresSql
