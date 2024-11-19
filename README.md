@@ -58,7 +58,7 @@
 
 
 ## Проект архитектуры
-<img src="images/Проект_архитектуры_HabitApp.drawio.png" width="601" height="321" alt="Проект архитектуры"/>
+<img src="images/Проект_архитектуры_HabitApp.drawio.png" width="602" height="321" alt="Проект архитектуры"/>
 
 
 ## Запуск:
@@ -100,11 +100,11 @@ mvn spring-boot:run
 <img src="images/Реляционная_модель.png" width="520" height="425" alt="Реляционная модель"/>
 
 ### Доступные пользователи (Таблица users):
-| id | name  | email              | password  | is_admin |
-|----|-------|--------------------|-----------|----------|
-| 1  | root  | root               | root      | true     |
-| 2  | user  | user               | user      | false    |
-| 3  | Bob   | bob@example.com     | 1234      | false    |
+| id | username | email              | password  | role  |
+|----|----------|--------------------|-----------|-------|
+| 1  | root     | root               | root      | admin |
+| 2  | user     | user               | user      | user |
+| 3  | Bob      | bob@example.com     | 1234      | user |
 
 ### Доступные привычки (Таблица habits)
 | id | name           | description                    | frequency | created_date | user_id |
